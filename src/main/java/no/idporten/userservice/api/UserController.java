@@ -17,7 +17,7 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping
-    public ResponseEntity<IDPortenUser> getUser(@RequestParam String pid){
+    public ResponseEntity<IDPortenUser> getUser(@RequestParam("pid") String pid){
         IDPortenUser user = userService.findUser(pid);
         return ResponseEntity.ok(user);
     }

@@ -9,3 +9,33 @@ spring:
     password: password
   jpa:
     database-platform: org.hibernate.dialect.H2Dialect
+
+
+project:
+  version: '@project.version@'
+
+# Spring Boot Actuator
+management:
+  endpoints:
+    web:
+      base-path: /
+      exposure:
+        include: health,info,version,prometheus
+  endpoint:
+    health:
+      db:
+        enabled: true
+      group:
+        liveness:
+          include: livenessProbe
+      diskspace:
+        enabled: false
+
+  info:
+    git:
+      mode: full
+  metrics:
+    tags:
+      application: "ID-porten user service"
+    diskspace:
+      enabled: false
