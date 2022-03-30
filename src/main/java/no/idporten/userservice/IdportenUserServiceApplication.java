@@ -1,4 +1,4 @@
-package no.idporten.idportenuserservice;
+package no.idporten.userservice;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

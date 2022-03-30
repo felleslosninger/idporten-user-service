@@ -1,4 +1,4 @@
-package no.idporten.idportenuserservice;
+package no.idporten.userservice;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
