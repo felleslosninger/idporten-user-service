@@ -13,6 +13,7 @@ jobs:
     with:
       image-name: idporten-user-service
       allure-enabled: false
+      java-version: 17
     secrets:
       eid-build-token: ${{ secrets.EID_BUILD_PAT }}
       maven-user: ${{ secrets.MAVEN_USER }}
