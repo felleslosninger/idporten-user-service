@@ -39,3 +39,4 @@ management:
       application: "ID-porten user service"
     diskspace:
       enabled: false
+      
