@@ -1,6 +1,5 @@
 general:
   vulnerabilities:
-    - CVE-2020-36518 # jackson databind
     - CVE-2021-23463 # h2
     - CVE-2021-42392 # h2
     - CVE-2022-23221 # h2
