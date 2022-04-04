@@ -4,77 +4,86 @@ import lombok.RequiredArgsConstructor;
 import no.idporten.userservice.data.IDPortenUser;
 import no.idporten.userservice.data.UserService;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriComponentsBuilder;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import java.net.URI;
+import java.util.List;
+
+import static no.idporten.userservice.api.UserController.PATH;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/Users")
+@RequestMapping(PATH)
 public class UserController {
 
-    private static final String APPLICATION_SCIM_JSON = "application/scim+json";
+    public static final String PATH = "/users";
 
     private final UserService userService;
 
     /**
-     * Get a user resource by id.  https://datatracker.ietf.org/doc/html/rfc7644#section-3.4.1
+     * Get a user resource by id.
      * @param id server assigned id
      * @return user resource
      */
-    @GetMapping(path = "/{id}", produces = APPLICATION_SCIM_JSON)
-    public ResponseEntity<IDPortenUser> getUser(@PathVariable("id") String id){
+    @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<UserResponse> getUser(@PathVariable("id") String id){
         IDPortenUser user = userService.findUser(id);
         if (user != null) {
-            return ResponseEntity.ok(user);
+            return ResponseEntity.ok(convert(user));
         }
         return ResponseEntity.notFound().build();
     }
 
     /**
-     * Create a user resource.  https://datatracker.ietf.org/doc/html/rfc7644#section-3.3
-     * @param idPortenUser user resource
+     * Search for a user by pid.
+     * @param userSearchRequest
+     * @return
+     */
+    @PostMapping(path = "/search", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<UserResponse>> searchUser(@Valid @RequestBody SearchRequest userSearchRequest) {
+        List<IDPortenUser> searchResult = userService.searchForUser(userSearchRequest.getPid());
+        return ResponseEntity
+                .ok(searchResult.stream().map(idPortenUser -> convert(idPortenUser)).toList());
+    }
+
+    /**
+     * Create a user resource.
+     * @param createUserRequest create user request
      * @return created user resource
      */
-    @PostMapping(path = "/", consumes = APPLICATION_SCIM_JSON, produces = APPLICATION_SCIM_JSON)
-    public ResponseEntity<IDPortenUser> createUser(@Valid @RequestBody IDPortenUser idPortenUser) {
-        IDPortenUser created = userService.createUser(idPortenUser);
+    @PostMapping(path = "/", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<UserResponse> createUser(@Valid @RequestBody CreateUserRequest createUserRequest, HttpServletRequest httpServletRequest) {
+        IDPortenUser created = userService.createUser(copyData(createUserRequest, new IDPortenUser()));
         return ResponseEntity
-                .created(URI.create("/Users/" + idPortenUser.getId().toString()))
-                .body(created);
+                .created(UriComponentsBuilder.fromUriString(httpServletRequest.getRequestURI()).path(created.getId().toString()).build().toUri())
+                .body(convert(created));
     }
 
     /**
-     * Update a user resource.  https://datatracker.ietf.org/doc/html/rfc7644#section-3.5.1
-     * @param idPortenUser user resource
+     * Update a user resource.
+     * @param updatedUserRequest update user request
      * @return updated user resource
      */
-    @PutMapping(path = "/{id}", consumes = APPLICATION_SCIM_JSON, produces = APPLICATION_SCIM_JSON)
-    public ResponseEntity<IDPortenUser> updateUser(@PathVariable("id") String id, IDPortenUser idPortenUser) {
-        IDPortenUser updatedUser = userService.updateUser(id, idPortenUser);
-        if (updatedUser == null) {
+    @PutMapping(path = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<UserResponse> updateUser(@PathVariable("id") String id, @Valid @RequestBody UpdateUserRequest updatedUserRequest) {
+        IDPortenUser idPortenUser = userService.findUser(id);
+        if (idPortenUser == null) {
             return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.ok(updatedUser);
+        return ResponseEntity.ok(convert(userService.updateUser(id,copyData(updatedUserRequest, idPortenUser))));
     }
 
     /**
-     * Search for users.  https://datatracker.ietf.org/doc/html/rfc7644#section-3.4.3
-     */
-    @PostMapping(path = "/.search")
-    public void queryUsers() {
-
-    }
-
-    /**
-     * Delete a user.  https://datatracker.ietf.org/doc/html/rfc7644#section-3.6
+     * Delete a user.
      * @param id
      * @return
      */
-    @DeleteMapping(path = "/{id}", produces = APPLICATION_SCIM_JSON)
-    public ResponseEntity<IDPortenUser> deleteUser(@PathVariable("id") String id) {
+    @DeleteMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<UserResponse> deleteUser(@PathVariable("id") String id) {
         IDPortenUser removedUser = userService.deleteUser(id);
         if (removedUser != null) {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
@@ -82,6 +91,24 @@ public class UserController {
         return ResponseEntity.notFound().build();
     }
 
+    protected UserResponse convert(IDPortenUser idPortenUser) {
+        return UserResponse.builder()
+                .id(idPortenUser.getId().toString())
+                .pid(idPortenUser.getPid())
+                .closedCode(idPortenUser.getCloseCode())
+                .build();
+    }
+
+    protected IDPortenUser copyData(CreateUserRequest fromRequest, IDPortenUser toUser) {
+        toUser.setPid(fromRequest.getPid());
+        toUser.setCloseCode(fromRequest.getClosedCode());
+        return toUser;
+    }
+
+    protected IDPortenUser copyData(UpdateUserRequest fromRequest, IDPortenUser toUser) {
+        toUser.setCloseCode(fromRequest.getClosedCode());
+        return toUser;
+    }
 
 
 
