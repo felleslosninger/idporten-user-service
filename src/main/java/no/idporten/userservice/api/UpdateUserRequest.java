@@ -12,8 +12,6 @@ import lombok.NoArgsConstructor;
 @Builder
 public class UpdateUserRequest {
 
-
-
     @JsonProperty("closed_code")
     private String closedCode;
 
