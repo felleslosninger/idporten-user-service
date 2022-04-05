@@ -9,7 +9,7 @@ on:
 
 jobs:
   call-workflow-image-build-publish:
-    uses: felleslosninger/eid-github-workflows/.github/workflows/eid-spring-boot-build-publish-image-generic.yml@work/ID-1627
+    uses: felleslosninger/eid-github-workflows/.github/workflows/eid-spring-boot-build-publish-image-generic.yml@main
     with:
       image-name: idporten-user-service
       allure-enabled: false
