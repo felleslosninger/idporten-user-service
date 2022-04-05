@@ -1,5 +1,9 @@
 # idporten-user-service
 
+[![Maven build status](https://github.com/felleslosninger/idporten-user-service/actions/workflows/call-maventests.yml/badge.svg)](https://github.com/felleslosninger/idporten-user-service/actions/workflows/call-maventests.yml)
+[![Latest Stable Version](https://img.shields.io/github/v/release/felleslosninger/idporten-user-service?display_name=tag)](https://github.com/felleslosninger/idporten-user-service/releases)
+
+
 This application is a service for managing users in ID-porten.
 
 ## Requirements
