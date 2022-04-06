@@ -2,7 +2,6 @@ CREATE TABLE IF NOT EXISTS `user`
 (
     `uuid`                          VARCHAR ( 128 ) NOT NULL,
     `person_identifier`             VARCHAR ( 255 ) NOT NULL,
-    `person_identifier_type`        VARCHAR(50),
     `user_created_ms`               bigint(20) unsigned NOT NULL DEFAULT '0',
     `user_last_updated_ms`          bigint(20) unsigned NOT NULL DEFAULT '0',
     `active`                        tinyint(1) unsigned NOT NULL DEFAULT '1',
