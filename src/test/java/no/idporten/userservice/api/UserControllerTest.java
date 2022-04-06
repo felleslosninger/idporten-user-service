@@ -54,7 +54,7 @@ public class UserControllerTest {
         @SneakyThrows
         @DisplayName("then a user can be Created, Read, Updated and Deleted")
         void testCRUDApi() {
-            final String personIdentifier = "12345678901";
+            final String personIdentifier = "24917305605";
             final MvcResult createResult = mockMvc.perform(
                             post("/users/")
                                     .contentType(MediaType.APPLICATION_JSON)
@@ -108,7 +108,7 @@ public class UserControllerTest {
         @Test
         @DisplayName("then no results gives an empty list")
         void testEmptyResult() {
-            final String personIdentifier = "12345678901";
+            final String personIdentifier = "14862299680";
             mockMvc.perform(
                     post("/users/search")
                             .contentType(MediaType.APPLICATION_JSON)
@@ -123,7 +123,7 @@ public class UserControllerTest {
         @Test
         @DisplayName("then found users are included in result")
         void testResult() {
-            final String personIdentifier = "12345678901";
+            final String personIdentifier = "03815212605";
             createUser(personIdentifier);
             mockMvc.perform(
                             post("/users/search")

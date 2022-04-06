@@ -1,7 +1,7 @@
 # idporten-user-service
 
 [![Maven build status](https://github.com/felleslosninger/idporten-user-service/actions/workflows/call-maventests.yml/badge.svg)](https://github.com/felleslosninger/idporten-user-service/actions/workflows/call-maventests.yml)
-[![Latest Stable Version](https://img.shields.io/github/v/release/felleslosninger/idporten-user-service?display_name=tag)](https://github.com/felleslosninger/idporten-user-service/releases)
+[![Build image](https://github.com/felleslosninger/idporten-user-service/actions/workflows/call-buildimage.yml/badge.svg)](https://github.com/felleslosninger/idporten-user-service/actions/workflows/call-buildimage.yml)
 
 
 This application is a service for managing users in ID-porten.
@@ -30,7 +30,7 @@ mvn spring-boot:run -Dspring-boot.run.profiles=<profile>
 
 General properties for a Spring Boot
 application (https://docs.spring.io/spring-boot/docs/current/reference/html/appendix-application-properties.html) has
-a [default configuration](src/main/resources/application.yml) in the application archive.
+a [default configuration](src/main/resources/application.yaml) in the application archive.
 
 
 
