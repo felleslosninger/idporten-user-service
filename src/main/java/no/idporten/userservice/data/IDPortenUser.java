@@ -26,7 +26,7 @@ public class IDPortenUser {
     private Instant closeCodeLastUpdated;
 
     @Singular
-    private List<String> helpDeskCaseReferences;
+    private List<String> helpDeskCaseReferences = Collections.EMPTY_LIST;
 
     public IDPortenUser(UserEntity u) {
         this.id = u.getUuid();
