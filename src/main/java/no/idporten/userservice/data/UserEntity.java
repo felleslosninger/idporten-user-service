@@ -21,10 +21,6 @@ public class UserEntity {
     @GeneratedValue
     private UUID uuid;
 
-    @Column(name = "person_identifier_type")
-    @Enumerated(EnumType.STRING)
-    private PersonIdentifierType personIdentifierType;
-
     @Column(name = "person_identifier")
     private String personIdentifier;
 
