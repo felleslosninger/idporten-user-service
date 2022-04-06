@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 
 @Entity(name = "user")
@@ -43,6 +44,8 @@ public class UserEntity {
     @Column(name = "help_desk_case_references")
     private String helpDeskCaseReferences;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<EIDEntity> eIDs = new java.util.ArrayList<>();
 
     @PrePersist
     public void onPrePersist() {

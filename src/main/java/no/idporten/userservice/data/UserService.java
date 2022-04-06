@@ -17,27 +17,30 @@ public class UserService {
         if(user.isEmpty()){
             return null;
         }
-        return convert(user.get());
+        return new IDPortenUser(user.get());
     }
 
     public List<IDPortenUser> searchForUser(String pid) {
         Optional<UserEntity> users = userRepository.findByPersonIdentifier(pid);
-        return users.stream().map(this::convert).toList();
+        if(users.isEmpty()){
+            return Collections.EMPTY_LIST;
+        }
+        return users.stream().map(IDPortenUser::new).toList();
     }
 
     public IDPortenUser createUser(IDPortenUser idPortenUser) {
         Assert.isNull(idPortenUser.getId(), "id is assigned by server");
         Assert.isTrue(searchForUser(idPortenUser.getPid()).isEmpty(), "User exists");
 
-        UserEntity userSaved = userRepository.save(copyData(idPortenUser));
-        return convert(userSaved);
+        UserEntity userSaved = userRepository.save(idPortenUser.toEntity());
+        return new IDPortenUser(userSaved);
     }
 
     public IDPortenUser updateUser(String id, IDPortenUser idPortenUser) {
         Assert.notNull(id, "id is mandatory");
         Assert.isTrue(Objects.equals(id, idPortenUser.getId().toString()), "id must match resource.id");
-        UserEntity savedUser = userRepository.save(copyData(idPortenUser));
-        return convert(savedUser);
+        UserEntity savedUser = userRepository.save(idPortenUser.toEntity());
+        return new IDPortenUser(savedUser);
     }
 
     public IDPortenUser deleteUser(String id) {
@@ -48,15 +51,7 @@ public class UserService {
         }
         userRepository.delete(UserEntity.builder().uuid(uuid).build());
 
-        return convert(userExists.get());
-    }
-
-    private IDPortenUser convert(UserEntity u) {
-        return new IDPortenUser(u);
-    }
-
-    private UserEntity copyData(IDPortenUser idPortenUser) {
-        return idPortenUser.toEntity();
+        return new IDPortenUser(userExists.get());
     }
 
 }
