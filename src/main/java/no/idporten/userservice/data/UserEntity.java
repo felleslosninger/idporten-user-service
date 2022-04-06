@@ -40,6 +40,10 @@ public class UserEntity {
     @Column(name = "close_code_updated_ms")
     private long closeCodeUpdatedAtEpochMs;
 
+    @Column(name = "help_desk_case_references")
+    private String helpDeskCaseReferences;
+
+
     @PrePersist
     public void onPrePersist() {
         userCreatedAtEpochMs = Instant.now().toEpochMilli();

@@ -1,12 +1,9 @@
 package no.idporten.userservice.data;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.Instant;
-import java.util.UUID;
+import java.util.*;
 
 @Data
 @AllArgsConstructor
@@ -22,11 +19,14 @@ public class IDPortenUser {
 
     private Instant lastUpdated;
 
-    private String closeCode;
-
     private boolean active;
 
+    private String closeCode;
+
     private Instant closeCodeLastUpdated;
+
+    @Singular
+    private List<String> helpDeskCaseReferences;
 
     public IDPortenUser(UserEntity u) {
         this.id = u.getUuid();
@@ -38,6 +38,9 @@ public class IDPortenUser {
             this.closeCode = u.getCloseCode();
             this.closeCodeLastUpdated = Instant.ofEpochMilli(u.getCloseCodeUpdatedAtEpochMs());
         }
+        if (u.getHelpDeskCaseReferences() != null && u.getHelpDeskCaseReferences().length() > 0 && u.getHelpDeskCaseReferences().contains(",")) {
+            this.helpDeskCaseReferences = Arrays.asList(u.getHelpDeskCaseReferences().split(","));
+        }
     }
 
     public UserEntity toEntity() {
@@ -46,6 +49,9 @@ public class IDPortenUser {
         if (getCloseCode() != null) {
             builder.closeCode(this.getCloseCode());
             builder.closeCodeUpdatedAtEpochMs(Instant.now().toEpochMilli());
+        }
+        if (!getHelpDeskCaseReferences().isEmpty()) {
+            builder.helpDeskCaseReferences(String.join(",", getHelpDeskCaseReferences()));
         }
         return builder.build();
     }
