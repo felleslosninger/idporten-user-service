@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS `eid`
     `id`                           BIGINT(20) NOT NULL,
     `user_uuid`                    VARCHAR(128) NOT NULL,
     `name`                         VARCHAR ( 255 ) NOT NULL,
-    `last_login_ms`            bigint(20) unsigned NOT NULL DEFAULT '0',
+    `last_login_ms`                bigint(20) unsigned NOT NULL DEFAULT '0',
     PRIMARY KEY (`id`),
     CONSTRAINT `eid_user_fk` FOREIGN KEY (`user_uuid`) REFERENCES `user` (`uuid`),
     CONSTRAINT `eid_user_uuid_name_unique` UNIQUE (`user_uuid`, `name`)
