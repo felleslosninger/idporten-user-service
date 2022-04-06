@@ -50,7 +50,7 @@ public class IDPortenUser {
             builder.closeCode(this.getCloseCode());
             builder.closeCodeUpdatedAtEpochMs(Instant.now().toEpochMilli());
         }
-        if (!getHelpDeskCaseReferences().isEmpty()) {
+        if (getHelpDeskCaseReferences()!=null && !getHelpDeskCaseReferences().isEmpty()) {
             builder.helpDeskCaseReferences(String.join(",", getHelpDeskCaseReferences()));
         }
         return builder.build();
