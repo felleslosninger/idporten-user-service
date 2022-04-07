@@ -48,7 +48,7 @@ public class UserServiceTest {
 
         UserEntity userEntity = UserEntity.builder().personIdentifier(personIdentifier).closeCode("SPERRET").uuid(uuid).build();
         when(userRepository.save(any())).thenReturn(userEntity);
-        IDPortenUser userSaved = userService.updateUser(uuid.toString(), user);
+        IDPortenUser userSaved = userService.updateUser(user);
         assertNotNull(userSaved);
         assertNotNull(userSaved.getId());
         assertEquals(personIdentifier, userSaved.getPid());
@@ -64,7 +64,7 @@ public class UserServiceTest {
 
         UserEntity userEntity = UserEntity.builder().personIdentifier(personIdentifier).uuid(uuid).build();
         when(userRepository.findByUuid(uuid)).thenReturn(Optional.of(userEntity));
-        IDPortenUser userFound = userService.findUser(uuid.toString());
+        IDPortenUser userFound = userService.findUser(uuid);
         assertNotNull(userFound);
         assertEquals(personIdentifier,userFound.getPid());
         assertEquals(uuid,userFound.getId());
@@ -93,7 +93,7 @@ public class UserServiceTest {
 
         UserEntity userEntity = UserEntity.builder().personIdentifier(personIdentifier).uuid(UUID.randomUUID()).build();
         when(userRepository.findByUuid(uuid)).thenReturn(Optional.of(userEntity));
-        IDPortenUser usersToBeDeleted = userService.deleteUser(uuid.toString());
+        IDPortenUser usersToBeDeleted = userService.deleteUser(uuid);
         assertNotNull(usersToBeDeleted);
         verify(userRepository).delete(any(UserEntity.class));
 

@@ -1,6 +1,7 @@
 package no.idporten.userservice.api;
 
 import lombok.RequiredArgsConstructor;
+import no.idporten.userservice.data.EID;
 import no.idporten.userservice.data.IDPortenUser;
 import no.idporten.userservice.data.UserService;
 import org.springframework.http.HttpStatus;
@@ -12,6 +13,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.List;
+import java.util.UUID;
 
 import static no.idporten.userservice.api.UserController.PATH;
 
@@ -31,7 +33,7 @@ public class UserController {
      */
     @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<UserResponse> getUser(@PathVariable("id") String id){
-        IDPortenUser user = userService.findUser(id);
+        IDPortenUser user = userService.findUser(UUID.fromString(id));
         if (user != null) {
             return ResponseEntity.ok(convert(user));
         }
@@ -64,17 +66,29 @@ public class UserController {
     }
 
     /**
+     * Update a user resource with eID.
+     * @param updateUserRequest update user request
+     * @return updated user resource
+     */
+    @PostMapping(path = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<UserResponse> updateEid(@PathVariable("id") String id, @Valid @RequestBody UpdateEidRequest updateUserRequest) {
+        EID eid = EID.builder().name(updateUserRequest.getEIdName()).build();
+        IDPortenUser created = userService.updateUserWithEid(UUID.fromString(id), eid);
+        return ResponseEntity.ok(convert(created));
+    }
+
+    /**
      * Update a user resource.
      * @param updatedUserRequest update user request
      * @return updated user resource
      */
     @PutMapping(path = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<UserResponse> updateUser(@PathVariable("id") String id, @Valid @RequestBody UpdateUserRequest updatedUserRequest) {
-        IDPortenUser idPortenUser = userService.findUser(id);
+        IDPortenUser idPortenUser = userService.findUser(UUID.fromString(id));
         if (idPortenUser == null) {
             return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.ok(convert(userService.updateUser(id,copyData(updatedUserRequest, idPortenUser))));
+        return ResponseEntity.ok(convert(userService.updateUser(copyData(updatedUserRequest, idPortenUser))));
     }
 
     /**
@@ -84,7 +98,7 @@ public class UserController {
      */
     @DeleteMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<UserResponse> deleteUser(@PathVariable("id") String id) {
-        IDPortenUser removedUser = userService.deleteUser(id);
+        IDPortenUser removedUser = userService.deleteUser(UUID.fromString(id));
         if (removedUser != null) {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         }

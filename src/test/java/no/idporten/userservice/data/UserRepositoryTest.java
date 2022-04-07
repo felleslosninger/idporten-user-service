@@ -1,5 +1,6 @@
 package no.idporten.userservice.data;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -7,7 +8,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.dao.DataIntegrityViolationException;
 
 import javax.annotation.Resource;
-import java.util.Optional;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -105,6 +106,59 @@ public class UserRepositoryTest {
             Optional<UserEntity> byPid = userRepository.findByPersonIdentifier(personIdentifier);
             assertFalse(byPid.isPresent());
         }
+
+    }
+
+    @Nested
+    @DisplayName("When set eID name for user")
+    public class UpdateEidForUserTest {
+
+        @Test
+        @Disabled
+        @DisplayName("then eId name and last login time is set for eID")
+        void testSetEidNameForUser() {
+            String personIdentifier = "15910600580";
+            EIDEntity minID = EIDEntity.builder().name("MinID").build();
+            UserEntity testUser = UserEntity.builder()
+                    .uuid(UUID.randomUUID())
+                    .personIdentifier(personIdentifier)
+                    .eIDs(Collections.singletonList(minID))
+                    .build();
+
+            UserEntity saved = userRepository.save(testUser);
+            assertNotNull(saved.getUuid());
+            assertNotNull(saved.getEIDs());
+            assertFalse(saved.getEIDs().isEmpty());
+            assertNotNull(saved.getEIDs().get(0));
+            assertEquals("MinID", saved.getEIDs().get(0).getName());
+            assertTrue(saved.getEIDs().get(0).getLastLoginAtEpochMs() > 0);
+
+        }
+
+
+        @Test
+        @Disabled
+        @DisplayName("then eId name and last login time is set for eID when other eId exists")
+        void testSetEidNameForUserWhenAnotherExists() {
+            String personIdentifier = "15910600580";
+            List<EIDEntity> eIDs = new ArrayList<>();
+            Collections.addAll(eIDs, EIDEntity.builder().name("MinID").build(), EIDEntity.builder().name("BankID").build());
+            UserEntity testUser = UserEntity.builder()
+                    .uuid(UUID.randomUUID())
+                    .personIdentifier(personIdentifier)
+                    .eIDs(eIDs)
+                    .build();
+
+            UserEntity saved = userRepository.save(testUser);
+            assertNotNull(saved.getUuid());
+            assertNotNull(saved.getEIDs());
+            assertFalse(saved.getEIDs().isEmpty());
+            assertNotNull(saved.getEIDs().get(0));
+            assertEquals("MinID", saved.getEIDs().get(0).getName());
+            assertTrue(saved.getEIDs().get(0).getLastLoginAtEpochMs() > 0);
+
+        }
+
 
     }
 }

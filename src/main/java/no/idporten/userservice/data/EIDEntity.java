@@ -17,7 +17,7 @@ import java.time.Instant;
 public class EIDEntity {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(name = "name")
@@ -26,13 +26,17 @@ public class EIDEntity {
     @Column(name = "last_login_ms")
     private long lastLoginAtEpochMs;
 
+    @Column(name = "first_login_ms")
+    private long firstLoginAtEpochMs;
+
     @ManyToOne
     @JoinColumn(name = "user_uuid")
     private UserEntity user;
 
     @PrePersist
     public void onPrePersist() {
-        lastLoginAtEpochMs = Instant.now().toEpochMilli();
+        firstLoginAtEpochMs = Instant.now().toEpochMilli();
+        lastLoginAtEpochMs = getFirstLoginAtEpochMs();
     }
 
     @PreUpdate

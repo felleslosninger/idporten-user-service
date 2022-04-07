@@ -17,8 +17,11 @@ public class EID {
 
     private Instant lastLogin;
 
+    private Instant firstLogin;
+
     public EID(EIDEntity eidEntity) {
         this.name = eidEntity.getName();
+        this.firstLogin = Instant.ofEpochMilli(eidEntity.getFirstLoginAtEpochMs());
         this.lastLogin = Instant.ofEpochMilli(eidEntity.getLastLoginAtEpochMs());
     }
 

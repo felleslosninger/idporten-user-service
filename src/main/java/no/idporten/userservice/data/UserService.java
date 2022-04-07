@@ -12,8 +12,8 @@ public class UserService {
 
     private final UserRepository userRepository;
 
-    public IDPortenUser findUser(String id) {
-        Optional<UserEntity> user = userRepository.findByUuid(UUID.fromString(id));
+    public IDPortenUser findUser(UUID uuid) {
+        Optional<UserEntity> user = userRepository.findByUuid(uuid);
         if(user.isEmpty()){
             return null;
         }
@@ -36,20 +36,27 @@ public class UserService {
         return new IDPortenUser(userSaved);
     }
 
-    public IDPortenUser updateUser(String id, IDPortenUser idPortenUser) {
-        Assert.notNull(id, "id is mandatory");
-        Assert.isTrue(Objects.equals(id, idPortenUser.getId().toString()), "id must match resource.id");
+    public IDPortenUser updateUser(IDPortenUser idPortenUser) {
+        Assert.notNull(idPortenUser.getId(), "id is mandatory");
         UserEntity savedUser = userRepository.save(idPortenUser.toEntity());
         return new IDPortenUser(savedUser);
     }
 
-    public IDPortenUser deleteUser(String id) {
-        UUID uuid = UUID.fromString(id);
-        Optional<UserEntity> userExists = userRepository.findByUuid(UUID.fromString(id));
+    public IDPortenUser updateUserWithEid(UUID userUuid, EID eid) {
+        Assert.notNull(userUuid, "userUuid is mandatory");
+        Assert.notNull(eid, "eid is mandatory");
+        EIDEntity eidEntity = EIDEntity.builder().name(eid.getName()).build();
+        UserEntity user = UserEntity.builder().uuid(userUuid).eIDs(Collections.singletonList(eidEntity)).build();
+        UserEntity savedUser = userRepository.save(user);
+        return new IDPortenUser(savedUser);
+    }
+
+    public IDPortenUser deleteUser(UUID userUuid) {
+        Optional<UserEntity> userExists = userRepository.findByUuid(userUuid);
         if (userExists.isEmpty()) {
             return null;
         }
-        userRepository.delete(UserEntity.builder().uuid(uuid).build());
+        userRepository.delete(UserEntity.builder().uuid(userUuid).build());
 
         return new IDPortenUser(userExists.get());
     }
