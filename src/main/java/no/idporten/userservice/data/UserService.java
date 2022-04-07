@@ -20,8 +20,8 @@ public class UserService {
         return new IDPortenUser(user.get());
     }
 
-    public List<IDPortenUser> searchForUser(String pid) {
-        Optional<UserEntity> users = userRepository.findByPersonIdentifier(pid);
+    public List<IDPortenUser> searchForUser(String personIdentifier) {
+        Optional<UserEntity> users = userRepository.findByPersonIdentifier(personIdentifier);
         if(users.isEmpty()){
             return Collections.EMPTY_LIST;
         }
