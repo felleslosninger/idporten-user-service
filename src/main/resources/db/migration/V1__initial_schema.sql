@@ -15,7 +15,7 @@ CREATE INDEX `user_person_identifier_index` ON `user` (`person_identifier`);
 
 CREATE TABLE IF NOT EXISTS `eid`
 (
-    `id`                           BIGINT(20) NOT NULL,
+    `id`                           BIGINT(20) NOT NULL AUTO_INCREMENT,
     `user_uuid`                    VARCHAR(128) NOT NULL,
     `name`                         VARCHAR ( 255 ) NOT NULL,
     `first_login_ms`               bigint(20) unsigned NOT NULL DEFAULT '0',

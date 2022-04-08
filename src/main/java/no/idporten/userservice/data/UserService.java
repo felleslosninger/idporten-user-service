@@ -47,6 +47,7 @@ public class UserService {
         Assert.notNull(eid, "eid is mandatory");
         EIDEntity eidEntity = EIDEntity.builder().name(eid.getName()).build();
         UserEntity user = UserEntity.builder().uuid(userUuid).eIDs(Collections.singletonList(eidEntity)).build();
+        eidEntity.setUser(user);
         UserEntity savedUser = userRepository.save(user);
         return new IDPortenUser(savedUser);
     }
