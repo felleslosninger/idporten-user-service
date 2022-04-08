@@ -4,7 +4,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
-import java.util.*;
+import java.time.Instant;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @RequiredArgsConstructor
 @Service
@@ -14,7 +18,7 @@ public class UserService {
 
     public IDPortenUser findUser(UUID uuid) {
         Optional<UserEntity> user = userRepository.findByUuid(uuid);
-        if(user.isEmpty()){
+        if (user.isEmpty()) {
             return null;
         }
         return new IDPortenUser(user.get());
@@ -22,7 +26,7 @@ public class UserService {
 
     public List<IDPortenUser> searchForUser(String personIdentifier) {
         Optional<UserEntity> users = userRepository.findByPersonIdentifier(personIdentifier);
-        if(users.isEmpty()){
+        if (users.isEmpty()) {
             return Collections.EMPTY_LIST;
         }
         return users.stream().map(IDPortenUser::new).toList();
@@ -38,17 +42,37 @@ public class UserService {
 
     public IDPortenUser updateUser(IDPortenUser idPortenUser) {
         Assert.notNull(idPortenUser.getId(), "id is mandatory");
-        UserEntity savedUser = userRepository.save(idPortenUser.toEntity());
+        UserEntity userToSave = idPortenUser.toEntity();
+        UserEntity savedUser = userRepository.save(userToSave);
         return new IDPortenUser(savedUser);
     }
 
     public IDPortenUser updateUserWithEid(UUID userUuid, EID eid) {
         Assert.notNull(userUuid, "userUuid is mandatory");
         Assert.notNull(eid, "eid is mandatory");
-        EIDEntity eidEntity = EIDEntity.builder().name(eid.getName()).build();
-        UserEntity user = UserEntity.builder().uuid(userUuid).eIDs(Collections.singletonList(eidEntity)).build();
-        eidEntity.setUser(user);
-        UserEntity savedUser = userRepository.save(user);
+
+        Optional<UserEntity> byUuid = userRepository.findByUuid(userUuid);
+        if (byUuid.isEmpty()) {
+            throw new RuntimeException("User not found for UUID " + userUuid);        // TODO: error handling
+        }
+        UserEntity existingUser = byUuid.get();
+        List<EIDEntity> existingeIDs = existingUser.getEIDs();
+        EIDEntity eidToUpdate = null;
+        for (EIDEntity e : existingeIDs) {
+            if (e.getName().equals(eid.getName())) {
+                eidToUpdate = e;
+            }
+        }
+        EIDEntity updatedEid = EIDEntity.builder().name(eid.getName()).user(existingUser).build();
+        if (eidToUpdate != null) {
+            updatedEid.setId(eidToUpdate.getId());
+            updatedEid.setFirstLoginAtEpochMs(eidToUpdate.getFirstLoginAtEpochMs());
+            updatedEid.setLastLoginAtEpochMs(Instant.now().toEpochMilli());
+            existingeIDs.remove(eidToUpdate);
+            userRepository.save(existingUser);
+        }
+        existingeIDs.add(updatedEid);
+        UserEntity savedUser = userRepository.save(existingUser);
         return new IDPortenUser(savedUser);
     }
 
