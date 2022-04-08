@@ -126,10 +126,8 @@ public class UserServiceTest {
         public void testCreateUser() {
             String personIdentifier = "1263";
             UUID uuid = UUID.randomUUID();
-            //IDPortenUser user = IDPortenUser.builder().id(uuid).pid(personIdentifier).build();
 
             EID minid = EID.builder().name("MinID").build();
-            //user.setEids(Collections.singletonList(minid));
 
             when(userRepository.findByUuid(any(UUID.class))).thenReturn(Optional.of(UserEntity.builder().personIdentifier(personIdentifier).uuid(uuid).build()));
             long now = Instant.now().toEpochMilli();
@@ -153,10 +151,8 @@ public class UserServiceTest {
         public void testUpdateUser() {
             String personIdentifier = "1263";
             UUID uuid = UUID.randomUUID();
-            //IDPortenUser user = IDPortenUser.builder().id(uuid).pid(personIdentifier).build();
 
             EID minid = EID.builder().name("MinID").build();
-            //user.setEids(Collections.singletonList(minid));
             long now = Instant.now().toEpochMilli();
             EIDEntity eidEntity = EIDEntity.builder().name("MinID").id(1L).lastLoginAtEpochMs(now).firstLoginAtEpochMs(now).build();
             UserEntity userEntity = UserEntity.builder().personIdentifier(personIdentifier).uuid(uuid).eIDs(Collections.singletonList(eidEntity)).build();
