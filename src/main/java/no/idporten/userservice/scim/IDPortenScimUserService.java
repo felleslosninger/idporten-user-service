@@ -1,17 +1,18 @@
 package no.idporten.userservice.scim;
 
 import lombok.RequiredArgsConstructor;
-import no.idporten.scim.api.CreateUserRequest;
-import no.idporten.scim.api.ScimUserResource;
-import no.idporten.scim.api.UpdateLoginDetailsRequest;
-import no.idporten.scim.api.UpdateUserStatusRequest;
+import no.idporten.scim.api.*;
 import no.idporten.scim.spi.ScimUserService;
 import no.idporten.userservice.data.EID;
 import no.idporten.userservice.data.IDPortenUser;
 import no.idporten.userservice.data.UserService;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
+import java.time.Clock;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -45,12 +46,23 @@ public class IDPortenScimUserService implements ScimUserService {
     }
 
     @Override
-    public ScimUserResource updateLoginDetails(String userId, UpdateLoginDetailsRequest updateLoginDetailsRequest) {
-        return convert(userService.updateUserWithEid(UUID.fromString(userId), EID.builder().name(updateLoginDetailsRequest.getEidName()).build()));
+    public ScimUserResource updateUserLogins(String userId, UpdateUserLoginRequest updateUserLoginRequest) {
+        return convert(userService.updateUserWithEid(UUID.fromString(userId), EID.builder().name(updateUserLoginRequest.getEidName()).build()));
     }
 
     @Override
-    public ScimUserResource updateUserStatus(String s, UpdateUserStatusRequest updateUserStatusRequest) {
+    public ScimUserResource updateUserStatus(String userId, UpdateUserStatusRequest updateUserStatusRequest) {
+        IDPortenUser idPortenUser = userService.findUser(UUID.fromString(userId));
+        idPortenUser.setCloseCode(updateUserStatusRequest.getClosedCode());
+        idPortenUser.setCloseCodeLastUpdated(Clock.systemUTC().instant());
+        if (StringUtils.hasText(updateUserStatusRequest.getClosedCode())) {
+            idPortenUser.setActive(false);
+        }
+        return convert(userService.updateUser(idPortenUser));
+    }
+
+    @Override
+    public ScimUserResource changePersonIdentifier(ChangePersonIdentifierRequest changePersonIdentifierRequest) {
         return null;
     }
 
@@ -59,9 +71,22 @@ public class IDPortenScimUserService implements ScimUserService {
         scimUserResource.setId(idPortenUser.getId().toString());
         scimUserResource.setActive(idPortenUser.isActive());
         scimUserResource.setPersonIdentifier(idPortenUser.getPid());
-        scimUserResource.setClosedCode(idPortenUser.getCloseCode());
+        if (StringUtils.hasText(idPortenUser.getCloseCode())) {
+            scimUserResource.setUserStatus(new UserStatus(idPortenUser.getCloseCode()));
+        }
+        scimUserResource.setUserLogins(convertUserLogins(idPortenUser));
         return scimUserResource;
     }
 
+    private UserLogin convert(EID eid) {
+        return new UserLogin(eid.getName());
+    }
+
+    private List<UserLogin> convertUserLogins(IDPortenUser idPortenUser) {
+        if (CollectionUtils.isEmpty(idPortenUser.getEids())) {
+            return Collections.emptyList();
+        }
+        return idPortenUser.getEids().stream().map(this::convert).toList();
+    }
 
 }
