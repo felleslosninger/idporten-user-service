@@ -34,10 +34,10 @@ public class UserController {
     @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<UserResponse> getUser(@PathVariable("id") String id){
         IDPortenUser user = userService.findUser(UUID.fromString(id));
-        if (user != null) {
-            return ResponseEntity.ok(convert(user));
+        if (user == null) {
+            return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.notFound().build();
+        return ResponseEntity.ok(convert(user));
     }
 
     /**
@@ -48,6 +48,7 @@ public class UserController {
     @PostMapping(path = "/search", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<UserResponse>> searchUser(@Valid @RequestBody SearchRequest userSearchRequest) {
         List<IDPortenUser> searchResult = userService.searchForUser(userSearchRequest.getPid());
+
         return ResponseEntity
                 .ok(searchResult.stream().map(idPortenUser -> convert(idPortenUser)).toList());
     }

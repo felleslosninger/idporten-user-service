@@ -32,7 +32,20 @@ public class IDPortenUser {
     private List<String> helpDeskCaseReferences = Collections.EMPTY_LIST;
 
     @Singular
-    private List<EID> eids = Collections.EMPTY_LIST;
+    private List<EID> eids;
+
+    public EID getEIDLastLogin() {
+        long latest = 0L;
+        EID latestEid = null;
+        for (EID e : eids) {
+            if (e.getLastLogin().toEpochMilli() > latest) {
+                latestEid = e;
+                latest = latestEid.getLastLogin().toEpochMilli();
+            }
+        }
+        // Can be null
+        return latestEid;
+    }
 
     public IDPortenUser(UserEntity u) {
         this.id = u.getUuid();
@@ -47,6 +60,7 @@ public class IDPortenUser {
         if (u.getHelpDeskCaseReferences() != null && u.getHelpDeskCaseReferences().length() > 0 && u.getHelpDeskCaseReferences().contains(",")) {
             this.helpDeskCaseReferences = Arrays.asList(u.getHelpDeskCaseReferences().split(","));
         }
+
         if (u.getEIDs() != null && !u.getEIDs().isEmpty()) {
             this.eids = u.getEIDs().stream().map(EID::new).toList();
         }
@@ -62,7 +76,7 @@ public class IDPortenUser {
         if (!getHelpDeskCaseReferences().isEmpty()) {
             builder.helpDeskCaseReferences(String.join(",", getHelpDeskCaseReferences()));
         }
-        if (!getEids().isEmpty()) {
+        if (getEids() != null && !getEids().isEmpty()) {
             builder.eIDs(this.getEids().stream().map(EID::toEntity).toList());
         }
         return builder.build();

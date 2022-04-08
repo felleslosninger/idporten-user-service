@@ -1,6 +1,5 @@
 package no.idporten.userservice.data;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -8,6 +7,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.dao.DataIntegrityViolationException;
 
 import javax.annotation.Resource;
+import java.time.Instant;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -163,20 +163,64 @@ public class UserRepositoryTest {
 
             UserEntity testUser = UserEntity.builder()
                     .personIdentifier(personIdentifier)
-                    .eIDs(eIDs)
                     .build();
-            Collections.addAll(eIDs, EIDEntity.builder().name("MinID").user(testUser).build(), EIDEntity.builder().name("BankID").user(testUser).build());
+            eIDs.add(EIDEntity.builder().name("MinID").user(testUser).build());
+            eIDs.add(EIDEntity.builder().name("BankID").user(testUser).build());
+            testUser.setEIDs(eIDs);
             UserEntity saved = userRepository.save(testUser);
+
+            long lastUpdated = saved.getUserLastUpdatedAtEpochMs();
             assertNotNull(saved.getUuid());
             assertNotNull(saved.getEIDs());
             assertFalse(saved.getEIDs().isEmpty());
             assertEquals(2, saved.getEIDs().size());
+            long minidUpdatedFirst = 0L;
+            long minidCreated = 0L;
             for (EIDEntity e : saved.getEIDs()) {
                 assertTrue("MinID".equals(e.getName()) || "BankID".equals(e.getName()));
                 assertTrue(e.getLastLoginAtEpochMs() > 0);
                 assertTrue(e.getFirstLoginAtEpochMs() > 0);
                 assertEquals(saved.getUuid().toString(), e.getUser().getUuid().toString());
+                if (e.getName().equals("MinID")) {
+                    minidCreated = e.getFirstLoginAtEpochMs();
+                    minidUpdatedFirst = e.getLastLoginAtEpochMs();
+                }
             }
+            assertTrue(minidCreated > 0);
+            assertTrue(minidUpdatedFirst > 0);
+
+            List<EIDEntity> existingeIDs = saved.getEIDs();
+            assertEquals(2, existingeIDs.size());
+            EIDEntity minIDToUpdate = EIDEntity.builder().name("MinID").lastLoginAtEpochMs(Instant.now().toEpochMilli()).user(testUser).build();
+            EIDEntity oldMinid = null;
+            for (EIDEntity e : existingeIDs) {
+                if (e.getName().equals(minIDToUpdate.getName())) {
+                    minIDToUpdate.setId(e.getId());
+                    minIDToUpdate.setFirstLoginAtEpochMs(e.getFirstLoginAtEpochMs());
+                    oldMinid = e;
+                }
+            }
+            existingeIDs.remove(oldMinid);
+            UserEntity save2 = userRepository.save(saved);
+            minIDToUpdate.setUser(save2);
+            save2.addEid(minIDToUpdate);
+            UserEntity saveWithUpdatedEid = userRepository.save(save2);
+            long minidCreatedSecond = 0L;
+            long minidUpdatedSecond = 0L;
+            for (EIDEntity e : saveWithUpdatedEid.getEIDs()) {
+                assertTrue("MinID".equals(e.getName()) || "BankID".equals(e.getName()));
+                assertTrue(e.getLastLoginAtEpochMs() > 0);
+                assertTrue(e.getFirstLoginAtEpochMs() > 0);
+                assertEquals(saved.getUuid().toString(), e.getUser().getUuid().toString());
+                if (e.getName().equals("MinID")) {
+                    minidCreatedSecond = e.getFirstLoginAtEpochMs();
+                    minidUpdatedSecond = e.getLastLoginAtEpochMs();
+                    assertTrue(e.getFirstLoginAtEpochMs() > 0);
+                    assertTrue(e.getLastLoginAtEpochMs() > 0);
+                }
+            }
+            assertEquals(minidCreated, minidCreatedSecond);
+            assertTrue(minidUpdatedFirst < minidUpdatedSecond);
         }
 
 
