@@ -48,9 +48,7 @@ public class UserController {
     @PostMapping(path = "/search", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<UserResponse>> searchUser(@Valid @RequestBody SearchRequest userSearchRequest) {
         List<IDPortenUser> searchResult = userService.searchForUser(userSearchRequest.getPid());
-        if (searchResult.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
+
         return ResponseEntity
                 .ok(searchResult.stream().map(idPortenUser -> convert(idPortenUser)).toList());
     }
