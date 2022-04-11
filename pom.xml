@@ -16,6 +16,7 @@
     <properties>
         <java.version>17</java.version>
         <logstash.logback.version>7.0.1</logstash.logback.version>
+        <idporten-validators.version>0.1</idporten-validators.version>
     </properties>
     <dependencies>
         <dependency>
@@ -57,6 +58,11 @@
             <artifactId>logback-access</artifactId>
         </dependency>
         <dependency>
+            <groupId>no.idporten.validators</groupId>
+            <artifactId>idporten-validators</artifactId>
+            <version>${idporten-validators.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <optional>true</optional>
@@ -84,5 +90,26 @@
             </plugin>
         </plugins>
     </build>
-
+    <repositories>
+        <repository>
+            <id>central</id>
+            <url>https://repo1.maven.org/maven2</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>felleslosninger</id>
+            <name>GitHub felleslosninger Apache Maven Packages</name>
+            <url>https://maven.pkg.github.com/felleslosninger/.github</url>
+        </repository>
+        <repository>
+            <id>difi-artifactory</id>
+            <name>libs-release</name>
+            <url>http://eid-artifactory.dmz.local:8080/artifactory/libs-release</url>
+        </repository>
+    </repositories>
 </project>

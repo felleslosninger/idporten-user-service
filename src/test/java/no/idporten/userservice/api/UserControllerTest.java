@@ -3,6 +3,7 @@ package no.idporten.userservice.api;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
 import lombok.SneakyThrows;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -103,6 +104,23 @@ public class UserControllerTest {
     @DisplayName("When using the search API")
     @Nested
     class SearchTests {
+
+
+        @SneakyThrows
+        @Test
+        @DisplayName("then invalid search criteria gives an error response")
+        void testInvalidSearchCriteria() {
+            final String personIdentifier = "påskeegg";
+            createUser(personIdentifier);
+            mockMvc.perform(
+                            post("/users/search")
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .accept(MediaType.APPLICATION_JSON)
+                                    .content("{\"pid\": \"%s\"}".formatted(personIdentifier)))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.error").value("invalid_request"))
+                    .andExpect(jsonPath("$.error_description", Matchers.matchesPattern("Invalid attribute pid: Invalid person identifier")));
+        }
 
         @SneakyThrows
         @Test
