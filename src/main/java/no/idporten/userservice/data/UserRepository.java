@@ -12,6 +12,6 @@ public interface UserRepository extends JpaRepository<UserEntity, String>, JpaSp
 
     Optional<UserEntity> findByUuid(UUID uuid);
 
-    Optional<UserEntity> findByPersonIdentifier(String pid);
+    Optional<UserEntity> findByPersonIdentifier(String personIdentifier);
 
 }
