@@ -58,6 +58,7 @@ public class UserServiceTest {
             IDPortenUser user = IDPortenUser.builder().id(uuid).pid(personIdentifier).closeCode("SPERRET").build();
 
             UserEntity userEntity = UserEntity.builder().personIdentifier(personIdentifier).closeCode("SPERRET").uuid(uuid).build();
+            when(userRepository.findByUuid(uuid)).thenReturn(Optional.ofNullable(userEntity));
             when(userRepository.save(any(UserEntity.class))).thenReturn(userEntity);
             IDPortenUser userSaved = userService.updateUser(user);
             assertNotNull(userSaved);

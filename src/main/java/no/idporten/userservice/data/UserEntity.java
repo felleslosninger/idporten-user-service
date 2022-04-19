@@ -26,8 +26,7 @@ public class UserEntity {
     private long userLastUpdatedAtEpochMs;
 
     @Column(name = "active")
-    @Builder.Default
-    private boolean active = true;
+    private Boolean active;
 
     @Column(name = "close_code")
     private String closeCode;
@@ -43,7 +42,7 @@ public class UserEntity {
 
     public UserEntity(){}
 
-    public UserEntity(UUID uuid, String personIdentifier, long userCreatedAtEpochMs, long userLastUpdatedAtEpochMs, boolean active, String closeCode, long closeCodeUpdatedAtEpochMs, String helpDeskCaseReferences, List<EIDEntity> eIDs) {
+    public UserEntity(UUID uuid, String personIdentifier, long userCreatedAtEpochMs, long userLastUpdatedAtEpochMs, Boolean active, String closeCode, long closeCodeUpdatedAtEpochMs, String helpDeskCaseReferences, List<EIDEntity> eIDs) {
         this.uuid = uuid;
         this.personIdentifier = personIdentifier;
         this.userCreatedAtEpochMs = userCreatedAtEpochMs;
@@ -79,11 +78,11 @@ public class UserEntity {
         return userLastUpdatedAtEpochMs;
     }
 
-    public boolean isActive() {
+    public Boolean isActive() {
         return active;
     }
 
-    public void setActive(boolean active) {
+    public void setActive(Boolean active) {
         this.active = active;
     }
 

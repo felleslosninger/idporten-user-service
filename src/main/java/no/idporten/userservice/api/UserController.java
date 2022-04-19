@@ -18,6 +18,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -119,11 +120,23 @@ public class UserController {
     }
 
     protected UserResponse convert(IDPortenUser idPortenUser) {
-        return UserResponse.builder()
+
+        UserResponse userResponse = UserResponse.builder()
                 .id(idPortenUser.getId().toString())
                 .pid(idPortenUser.getPid())
+                .lastUpdated(idPortenUser.getLastUpdated())
                 .closedCode(idPortenUser.getCloseCode())
+                .closedCodeLastUpdated(idPortenUser.getCloseCodeLastUpdated())
                 .build();
+
+        if (idPortenUser.getEids() != null && !idPortenUser.getEids().isEmpty()) {
+            ArrayList<EIDResponse> eids = new ArrayList<>();
+            for (EID e : idPortenUser.getEids()) {
+                eids.add(new EIDResponse(e.getName(), e.getFirstLogin(), e.getLastLogin()));
+            }
+            userResponse.setEids(eids);
+        }
+        return userResponse;
     }
 
     protected IDPortenUser copyData(CreateUserRequest fromRequest, IDPortenUser toUser) {

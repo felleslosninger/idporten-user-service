@@ -36,14 +36,34 @@ public class UserService {
         Assert.isNull(idPortenUser.getId(), "id is assigned by server");
         Assert.isTrue(searchForUser(idPortenUser.getPid()).isEmpty(), "User exists");
 
+        idPortenUser.setActive(Boolean.TRUE);
         UserEntity userSaved = userRepository.save(idPortenUser.toEntity());
+
         return new IDPortenUser(userSaved);
     }
 
     public IDPortenUser updateUser(IDPortenUser idPortenUser) {
         Assert.notNull(idPortenUser.getId(), "id is mandatory");
-        UserEntity userToSave = idPortenUser.toEntity();
-        UserEntity savedUser = userRepository.save(userToSave);
+        Optional<UserEntity> user = userRepository.findByUuid(idPortenUser.getId());
+        if (user.isEmpty()) {
+            return null; // todo throw exception
+        }
+        UserEntity existingUser = user.get();
+        if(idPortenUser.getActive()!=null){
+            existingUser.setActive(idPortenUser.getActive());
+        }
+        if(idPortenUser.getCloseCode()!=null && !idPortenUser.getCloseCode().equals(existingUser.getCloseCode())){
+            existingUser.setCloseCode(idPortenUser.getCloseCode());
+            existingUser.setCloseCodeUpdatedAtEpochMs(Instant.now().toEpochMilli());
+        }
+        if (!idPortenUser.getHelpDeskCaseReferences().isEmpty()) {
+            existingUser.setHelpDeskCaseReferences(String.join(",", idPortenUser.getHelpDeskCaseReferences()));
+        }
+        if (idPortenUser.getEids() != null && !idPortenUser.getEids().isEmpty()) {
+            existingUser.setEIDs(idPortenUser.getEids().stream().map(EID::toEntity).toList());
+        }
+
+        UserEntity savedUser = userRepository.save(existingUser);
         return new IDPortenUser(savedUser);
     }
 

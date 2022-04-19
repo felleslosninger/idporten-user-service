@@ -22,7 +22,7 @@ public class IDPortenUser {
 
     private Instant lastUpdated;
 
-    private boolean active;
+    private Boolean active;
 
     private String closeCode;
 
@@ -68,7 +68,7 @@ public class IDPortenUser {
 
     public UserEntity toEntity() {
         UserEntity.UserEntityBuilder builder = UserEntity.builder();
-        builder.personIdentifier(this.getPid()).uuid(this.getId()).active(this.isActive());
+        builder.personIdentifier(this.getPid()).uuid(this.getId()).active(this.getActive());
         if (getCloseCode() != null) {
             builder.closeCode(this.getCloseCode());
             builder.closeCodeUpdatedAtEpochMs(Instant.now().toEpochMilli());

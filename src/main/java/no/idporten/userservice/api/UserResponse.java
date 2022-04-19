@@ -6,6 +6,10 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import no.idporten.userservice.data.EID;
+
+import java.time.Instant;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -18,7 +22,14 @@ public class UserResponse {
 
     private String pid;
 
-    @JsonProperty("closed_code")
-    private String closedCode ;
+    @JsonProperty("last_updated")
+    private Instant lastUpdated;
 
+    @JsonProperty("closed_code")
+    private String closedCode;
+
+    @JsonProperty("closed_code_last_updated")
+    private Instant closedCodeLastUpdated;
+
+    private List<EIDResponse> eids;
 }

@@ -27,6 +27,7 @@ public class UserRepositoryTest {
             String personIdentifier = "123456";
             UserEntity testUser = UserEntity.builder()
                     .personIdentifier(personIdentifier)
+                    .active(Boolean.TRUE)
                     .build();
 
             userRepository.save(testUser);
@@ -42,10 +43,12 @@ public class UserRepositoryTest {
 
             UserEntity testUser = UserEntity.builder()
                     .personIdentifier("123")
+                    .active(Boolean.TRUE)
                     .build();
 
             UserEntity ohNoUser = UserEntity.builder()
                     .personIdentifier("123")
+                    .active(Boolean.TRUE)
                     .build();
 
             userRepository.save(testUser);
@@ -71,6 +74,7 @@ public class UserRepositoryTest {
             String personIdentifier = "15910600580";
             UserEntity testUser = UserEntity.builder()
                     .personIdentifier(personIdentifier)
+                    .active(Boolean.TRUE)
                     .build();
             UserEntity saved = userRepository.save(testUser);
             assertNotNull(saved.getUuid());
@@ -94,6 +98,7 @@ public class UserRepositoryTest {
             UserEntity testUser = UserEntity.builder()
                     .uuid(uuid)
                     .personIdentifier(personIdentifier)
+                    .active(Boolean.TRUE)
                     .build();
             UserEntity saved = userRepository.save(testUser);
             assertNotEquals(uuid.toString(), saved.getUuid().toString());
@@ -116,6 +121,7 @@ public class UserRepositoryTest {
             String personIdentifier = "15910600580";
             UserEntity testUser = UserEntity.builder()
                     .personIdentifier(personIdentifier)
+                    .active(Boolean.TRUE)
                     .build();
             UserEntity saved = userRepository.save(testUser);
             assertNotNull(saved.getUuid());
@@ -140,6 +146,7 @@ public class UserRepositoryTest {
             EIDEntity minID = EIDEntity.builder().name("MinID").build();
             UserEntity testUser = UserEntity.builder()
                     .personIdentifier(personIdentifier)
+                    .active(Boolean.TRUE)
                     .eIDs(Collections.singletonList(minID))
                     .build();
             minID.setUser(testUser);
@@ -163,6 +170,7 @@ public class UserRepositoryTest {
 
             UserEntity testUser = UserEntity.builder()
                     .personIdentifier(personIdentifier)
+                    .active(Boolean.TRUE)
                     .build();
             eIDs.add(EIDEntity.builder().name("MinID").user(testUser).build());
             eIDs.add(EIDEntity.builder().name("BankID").user(testUser).build());
