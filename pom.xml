@@ -15,13 +15,16 @@
     <description>ID-porten user service</description>
     <properties>
         <java.version>17</java.version>
-        <logstash.logback.version>7.0.1</logstash.logback.version>
+        <idporten-validators.version>0.1</idporten-validators.version>
+        <idporten-im-api-starter.version>0.0.1</idporten-im-api-starter.version>
+        <logstash.logback.version>7.1.1</logstash.logback.version>
+        <idporten-fnr-generate.version>0.1.5</idporten-fnr-generate.version>
     </properties>
     <dependencies>
         <dependency>
-            <groupId>no.idporten.scim.sdk</groupId>
-            <artifactId>scim-server-spring-starter</artifactId>
-            <version>DEV-SNAPSHOT</version>
+            <groupId>no.idporten.im</groupId>
+            <artifactId>idporten-im-api-starter</artifactId>
+            <version>${idporten-im-api-starter.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -62,6 +65,11 @@
             <artifactId>logback-access</artifactId>
         </dependency>
         <dependency>
+            <groupId>no.idporten.validators</groupId>
+            <artifactId>idporten-validators</artifactId>
+            <version>${idporten-validators.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <optional>true</optional>
@@ -69,6 +77,12 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>no.idporten.test.generate</groupId>
+            <artifactId>idporten-fnr-generate</artifactId>
+            <version>${idporten-fnr-generate.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -89,5 +103,23 @@
             </plugin>
         </plugins>
     </build>
-
+    <repositories>
+        <repository>
+            <id>central</id>
+            <url>https://repo1.maven.org/maven2</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </repository>
+        <repository>
+            <id>github</id>
+            <name>GitHub felleslosninger Apache Maven Packages</name>
+            <url>https://maven.pkg.github.com/felleslosninger/.github</url>
+        </repository>
+        <repository>
+            <id>difi-artifactory</id>
+            <name>libs-release</name>
+            <url>http://eid-artifactory.dmz.local:8080/artifactory/libs-release</url>
+        </repository>
+    </repositories>
 </project>

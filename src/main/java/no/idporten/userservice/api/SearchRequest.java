@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import no.idporten.validators.identifier.PersonIdentifier;
 
 import javax.validation.constraints.NotEmpty;
 
@@ -14,6 +15,7 @@ import javax.validation.constraints.NotEmpty;
 @Builder
 public class SearchRequest {
 
+    @PersonIdentifier(message = "Invalid person identifier")
     @NotEmpty(message = "pid cannot be empty")
     @JsonProperty("pid")
     private String pid;

@@ -45,3 +45,10 @@ management:
       application: "ID-porten user service"
     diskspace:
       enabled: false
+
+# App-specific config
+idporten-user-service:
+  features:
+    allow-real-pid: false
+    allow-synthetic-pid: true
+

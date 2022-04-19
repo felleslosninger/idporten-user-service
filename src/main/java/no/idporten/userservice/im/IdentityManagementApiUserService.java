@@ -1,12 +1,19 @@
-package no.idporten.userservice.scim;
+package no.idporten.userservice.im;
 
 import lombok.RequiredArgsConstructor;
+import no.idporten.im.IdentityManagementApiException;
 import no.idporten.im.api.*;
+import no.idporten.im.api.login.CreateUserRequest;
+import no.idporten.im.api.login.UpdateUserLoginRequest;
+import no.idporten.im.api.status.ChangePersonIdentifierRequest;
+import no.idporten.im.api.status.UpdateUserStatusRequest;
 import no.idporten.im.spi.IDPortenIdentityManagementUserService;
 import no.idporten.userservice.data.EID;
 import no.idporten.userservice.data.IDPortenUser;
 import no.idporten.userservice.data.UserService;
+import no.idporten.validators.identifier.PersonIdentifierValidator;
 import org.springframework.context.annotation.Primary;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -23,20 +30,22 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Primary
 @Service
-public class IMApiUserService implements IDPortenIdentityManagementUserService {
+public class IdentityManagementApiUserService implements IDPortenIdentityManagementUserService {
 
     private final UserService userService;
 
     @Override
     public UserResource lookup(String userId) {
         IDPortenUser idPortenUser = userService.findUser(UUID.fromString(userId));
-        System.out.println("idPortenUser.getEids() = " + idPortenUser.getEids());
         UserResource scimUserResource = convert(idPortenUser);
         return scimUserResource;
     }
 
     @Override
     public List<UserResource> searchForUser(String personIdentifier) {
+        if (! PersonIdentifierValidator.isValid(personIdentifier)) {
+            throw new IdentityManagementApiException("invalid_request", "Invalid person_identifier.", HttpStatus.BAD_REQUEST);
+        }
         return userService.searchForUser(personIdentifier).stream().map(this::convert).collect(Collectors.toList());
     }
 
