@@ -97,19 +97,11 @@
             <releases>
                 <enabled>true</enabled>
             </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
         </repository>
         <repository>
-            <id>felleslosninger</id>
+            <id>github</id>
             <name>GitHub felleslosninger Apache Maven Packages</name>
             <url>https://maven.pkg.github.com/felleslosninger/.github</url>
-        </repository>
-        <repository>
-            <id>difi-artifactory</id>
-            <name>libs-release</name>
-            <url>http://eid-artifactory.dmz.local:8080/artifactory/libs-release</url>
         </repository>
     </repositories>
 </project>
