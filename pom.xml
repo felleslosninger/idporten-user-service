@@ -15,7 +15,7 @@
     <description>ID-porten user service</description>
     <properties>
         <java.version>17</java.version>
-        <logstash.logback.version>7.0.1</logstash.logback.version>
+        <logstash.logback.version>7.1.1</logstash.logback.version>
     </properties>
     <dependencies>
         <dependency>
