@@ -2,6 +2,7 @@ package no.idporten.userservice.im;
 
 import no.idporten.im.IdentityManagementApiException;
 import no.idporten.im.api.UserResource;
+import no.idporten.im.api.login.CreateUserRequest;
 import no.idporten.userservice.TestData;
 import no.idporten.userservice.data.IDPortenUser;
 import no.idporten.userservice.data.UserService;
@@ -11,9 +12,13 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.stubbing.Answer;
 import org.springframework.http.HttpStatus;
 
 import java.time.Instant;
@@ -24,6 +29,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -42,6 +48,9 @@ public class IdentityManagementApiUserServiceTest {
 
     @InjectMocks
     private IdentityManagementApiUserService imApiUserService;
+
+    @Captor
+    private ArgumentCaptor<IDPortenUser> idPortenUserCaptor;
 
     @DisplayName("When the Identity Management Login API is invoked")
     @Nested
@@ -80,6 +89,40 @@ public class IdentityManagementApiUserServiceTest {
                     () -> assertEquals(personIdentifier, searchResult.get(0).getPersonIdentifier())
             );
         }
+
+        @DisplayName("then create user on first login will fail for invalid person identifiers")
+        @Test
+        public void testCreateUserOnFirstLoginWithInvalidPersonIdentifier() {
+            String personIdentifier = "12345678901";
+            CreateUserRequest createUserRequest = new CreateUserRequest();
+            createUserRequest.setPersonIdentifier(personIdentifier);
+            IdentityManagementApiException exception = assertThrows(IdentityManagementApiException.class, () -> imApiUserService.createUserOnFirstLogin(createUserRequest));
+            assertAll(
+                    () -> assertEquals("invalid_request", exception.getError()),
+                    () -> assertFalse(exception.getErrorDescription().contains(personIdentifier)),
+                    () -> assertEquals(HttpStatus.BAD_REQUEST, exception.getHttpStatus())
+            );
+            verifyNoInteractions(userService);
+        }
+
+        @DisplayName("then an active ID-porten user is created user on first login")
+        @Test
+        public void testCreateUserOnFirstLogin() {
+            String personIdentifier = TestData.randomSynpid();
+            CreateUserRequest createUserRequest = new CreateUserRequest();
+            createUserRequest.setPersonIdentifier(personIdentifier);
+            when(userService.createUser(any(IDPortenUser.class))).thenAnswer((Answer<IDPortenUser>) invocationOnMock -> {
+                IDPortenUser idPortenUser = invocationOnMock.getArgument(0);
+                idPortenUser.setId(UUID.randomUUID());
+                return idPortenUser;
+            });
+            UserResource userResource = imApiUserService.createUserOnFirstLogin(createUserRequest);
+            assertAll(
+                    () -> assertEquals(personIdentifier, userResource.getPersonIdentifier()),
+                    () -> assertTrue(userResource.isActive())
+            );
+        }
+
     }
 
     @DisplayName("When converting data to IM API model")
