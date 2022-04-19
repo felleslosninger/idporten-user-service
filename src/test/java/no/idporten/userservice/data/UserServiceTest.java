@@ -166,7 +166,7 @@ public class UserServiceTest {
             assertEquals(minid.getName(), userSaved.getEIDLastLogin().getName());
             assertTrue(userSaved.getEIDLastLogin().getLastLogin().toEpochMilli() > 0);
             verify(userRepository).findByUuid(any(UUID.class));
-            verify(userRepository, times(2)).save(any(UserEntity.class));
+            verify(userRepository, times(1)).save(any(UserEntity.class));
         }
     }
 }

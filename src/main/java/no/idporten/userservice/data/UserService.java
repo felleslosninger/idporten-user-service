@@ -83,15 +83,13 @@ public class UserService {
                 eidToUpdate = e;
             }
         }
-        EIDEntity updatedEid = EIDEntity.builder().name(eid.getName()).user(existingUser).build();
+
         if (eidToUpdate != null) {
-            updatedEid.setId(eidToUpdate.getId());
-            updatedEid.setFirstLoginAtEpochMs(eidToUpdate.getFirstLoginAtEpochMs());
-            updatedEid.setLastLoginAtEpochMs(Instant.now().toEpochMilli());
-            existingeIDs.remove(eidToUpdate);
-            userRepository.save(existingUser);
+            eidToUpdate.setLastLoginAtEpochMs(Instant.now().toEpochMilli());
+        }else {
+            EIDEntity updatedEid = EIDEntity.builder().name(eid.getName()).user(existingUser).build();
+            existingeIDs.add(updatedEid);
         }
-        existingeIDs.add(updatedEid);
         UserEntity savedUser = userRepository.save(existingUser);
         return new IDPortenUser(savedUser);
     }
