@@ -29,7 +29,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class IMApiUserServiceTest {
+public class IdentityManagementApiUserServiceTest {
 
     @BeforeAll
     public static void setUp() {
