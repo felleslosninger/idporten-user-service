@@ -46,7 +46,7 @@ public class UserService {
         Assert.notNull(idPortenUser.getId(), "id is mandatory");
         Optional<UserEntity> user = userRepository.findByUuid(idPortenUser.getId());
         if (user.isEmpty()) {
-            return null; // todo throw exception
+            throw new RuntimeException("User not found for UUID: " + idPortenUser.getId());        // TODO: error handling
         }
         UserEntity existingUser = user.get();
         if(idPortenUser.getActive()!=null){
