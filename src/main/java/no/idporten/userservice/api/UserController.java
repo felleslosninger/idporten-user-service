@@ -10,7 +10,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.validation.FieldError;
-import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -77,7 +76,10 @@ public class UserController {
 
     /**
      * Update a user resource with eID.
+<<<<<<< HEAD
+=======
      *
+>>>>>>> main
      * @param updateUserRequest update user request
      * @return updated user resource
      */
