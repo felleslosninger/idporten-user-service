@@ -3,7 +3,9 @@ package no.idporten.userservice.im;
 import no.idporten.im.IdentityManagementApiException;
 import no.idporten.im.api.UserResource;
 import no.idporten.im.api.login.CreateUserRequest;
+import no.idporten.im.api.login.UpdateUserLoginRequest;
 import no.idporten.userservice.TestData;
+import no.idporten.userservice.data.EID;
 import no.idporten.userservice.data.IDPortenUser;
 import no.idporten.userservice.data.UserService;
 import no.idporten.validators.identifier.PersonIdentifierValidator;
@@ -16,7 +18,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
 import org.springframework.http.HttpStatus;
@@ -120,6 +121,26 @@ public class IdentityManagementApiUserServiceTest {
             assertAll(
                     () -> assertEquals(personIdentifier, userResource.getPersonIdentifier()),
                     () -> assertTrue(userResource.isActive())
+            );
+        }
+
+        @DisplayName("then a ID-porten user can be updated with logins")
+        @Test
+        public void testUpdateUserLogins() {
+            UUID userId = TestData.randomUserId();
+            UpdateUserLoginRequest request = new UpdateUserLoginRequest();
+            request.setEidName("FooID");
+            when(userService.updateUserWithEid(eq(userId), any(EID.class)))
+                    .thenAnswer((Answer<IDPortenUser>) invocationOnMock ->
+                            IDPortenUser.builder()
+                                    .id(invocationOnMock.getArgument(0))
+                                    .eid(invocationOnMock.getArgument(1))
+                                    .build());
+            UserResource userResource = imApiUserService.updateUserLogins(userId.toString(), request);
+            assertAll(
+                    () -> assertEquals(userId.toString(), userResource.getId()),
+                    () -> assertEquals(1, userResource.getUserLogins().size()),
+                    () -> assertEquals(request.getEidName(), userResource.getUserLogins().get(0).getEid())
             );
         }
 
