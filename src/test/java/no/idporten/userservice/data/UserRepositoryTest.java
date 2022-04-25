@@ -80,12 +80,12 @@ public class UserRepositoryTest {
             assertNotNull(saved.getUuid());
             Optional<UserEntity> byUuid = userRepository.findByUuid(saved.getUuid());
             assertTrue(byUuid.isPresent());
-            byUuid.get().setCloseCode("SPERRET");
+            byUuid.get().setClosedCode("SPERRET");
             assertEquals(saved.getUuid().toString(), byUuid.get().getUuid().toString());
             userRepository.save(byUuid.get());
             Optional<UserEntity> byPersonIdentifier = userRepository.findByPersonIdentifier("15910600580");
             assertTrue(byPersonIdentifier.isPresent());
-            assertEquals("SPERRET", byPersonIdentifier.get().getCloseCode());
+            assertEquals("SPERRET", byPersonIdentifier.get().getClosedCode());
             assertEquals(byUuid, byPersonIdentifier);
             assertEquals(saved.getUuid().toString(), byPersonIdentifier.get().getUuid().toString());
         }

@@ -45,9 +45,9 @@ public class UserService {
     public UserEntity toEntity(IDPortenUser user) {
         UserEntity.UserEntityBuilder builder = UserEntity.builder();
         builder.personIdentifier(user.getPid()).uuid(user.getId()).active(user.getActive());
-        if (user.getCloseCode() != null) {
-            builder.closeCode(user.getCloseCode());
-            builder.closeCodeUpdatedAtEpochMs(Instant.now().toEpochMilli());
+        if (user.getClosedCode() != null) {
+            builder.closedCode(user.getClosedCode());
+            builder.closedCodeUpdatedAtEpochMs(Instant.now().toEpochMilli());
         }
         if (!user.getHelpDeskCaseReferences().isEmpty()) {
             builder.helpDeskCaseReferences(String.join(",", user.getHelpDeskCaseReferences()));
@@ -66,9 +66,9 @@ public class UserService {
         if (idPortenUser.getActive() != null) {
             existingUser.setActive(idPortenUser.getActive());
         }
-        if (idPortenUser.getCloseCode() != null && !idPortenUser.getCloseCode().equals(existingUser.getCloseCode())) {
-            existingUser.setCloseCode(idPortenUser.getCloseCode());
-            existingUser.setCloseCodeUpdatedAtEpochMs(Instant.now().toEpochMilli());
+        if (idPortenUser.getClosedCode() != null && !idPortenUser.getClosedCode().equals(existingUser.getClosedCode())) {
+            existingUser.setClosedCode(idPortenUser.getClosedCode());
+            existingUser.setClosedCodeUpdatedAtEpochMs(Instant.now().toEpochMilli());
         }
         if (!idPortenUser.getHelpDeskCaseReferences().isEmpty()) {
             existingUser.setHelpDeskCaseReferences(String.join(",", idPortenUser.getHelpDeskCaseReferences()));

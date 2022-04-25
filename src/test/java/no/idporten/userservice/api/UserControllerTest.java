@@ -87,7 +87,7 @@ public class UserControllerTest {
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.id").value(id))
                     .andExpect(jsonPath("$.pid").value(personIdentifier))
-                    //.andExpect(jsonPath("$.closed_code").value("dead"))
+                    .andExpect(jsonPath("$.closed_code").value("dead"))
                     .andReturn();
 
             final MvcResult deleteResult = mockMvc.perform(
@@ -157,5 +157,46 @@ public class UserControllerTest {
 
     }
 
+
+    @DisplayName("When create and update eID")
+    @Nested
+    class EIDTests {
+
+        @DisplayName("When create eID")
+        @Nested
+        class CreateEidTests {
+
+            @Test
+            @DisplayName("then found users is updated with Eid")
+            void testEidResult() throws Exception {
+                final String personIdentifier = "24917305605";
+                final MvcResult createResult = mockMvc.perform(
+                                post("/users/")
+                                        .contentType(MediaType.APPLICATION_JSON)
+                                        .accept(MediaType.APPLICATION_JSON)
+                                        .content("{\"pid\": \"%s\"}".formatted(personIdentifier)))
+                        .andExpect(status().isCreated())
+                        .andExpect(jsonPath("$.id").exists())
+                        .andExpect(jsonPath("$.pid").value(personIdentifier))
+                        .andReturn();
+                final String id = JsonPath.read(createResult.getResponse().getContentAsString(), "$.id");
+                assertAll(
+                        () -> assertNotNull(id),
+                        () -> assertEquals("/users/%s".formatted(id), createResult.getResponse().getHeader("Location"))
+                );
+                String eidName= "MinID";
+
+                final MvcResult createEidResult = mockMvc.perform(post("/users/%s".formatted(id))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .content("{\"eid_name\": \"%s\"}".formatted(eidName)))
+                        .andExpect(status().isOk())
+                        .andExpect(jsonPath("$.id").exists())
+                        .andExpect(jsonPath("$.pid").value(personIdentifier))
+                        .andExpect(jsonPath("$.eids").exists())
+                        .andReturn();
+            }
+        }
+    }
 
 }

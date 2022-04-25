@@ -55,16 +55,16 @@ public class UserServiceTest {
         public void testUpdateUser() {
             String personIdentifier = "1263";
             UUID uuid = UUID.randomUUID();
-            IDPortenUser user = IDPortenUser.builder().id(uuid).pid(personIdentifier).closeCode("SPERRET").build();
+            IDPortenUser user = IDPortenUser.builder().id(uuid).pid(personIdentifier).closedCode("SPERRET").build();
 
-            UserEntity userEntity = UserEntity.builder().personIdentifier(personIdentifier).closeCode("SPERRET").uuid(uuid).build();
+            UserEntity userEntity = UserEntity.builder().personIdentifier(personIdentifier).closedCode("SPERRET").uuid(uuid).build();
             when(userRepository.findByUuid(uuid)).thenReturn(Optional.ofNullable(userEntity));
             when(userRepository.save(any(UserEntity.class))).thenReturn(userEntity);
             IDPortenUser userSaved = userService.updateUser(user);
             assertNotNull(userSaved);
             assertNotNull(userSaved.getId());
             assertEquals(personIdentifier, userSaved.getPid());
-            assertEquals(user.getCloseCode(), userSaved.getCloseCode());
+            assertEquals(user.getClosedCode(), userSaved.getClosedCode());
             verify(userRepository).save(any(UserEntity.class));
         }
     }

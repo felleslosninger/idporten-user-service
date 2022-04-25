@@ -24,9 +24,9 @@ public class IDPortenUser {
 
     private Boolean active;
 
-    private String closeCode;
+    private String closedCode;
 
-    private Instant closeCodeLastUpdated;
+    private Instant closedCodeLastUpdated;
 
     @Singular
     private List<String> helpDeskCaseReferences = Collections.EMPTY_LIST;
@@ -53,9 +53,9 @@ public class IDPortenUser {
         this.created = Instant.ofEpochMilli(u.getUserCreatedAtEpochMs());
         this.lastUpdated = Instant.ofEpochMilli(u.getUserLastUpdatedAtEpochMs());
         this.active = u.isActive();
-        if (u.getCloseCode() != null) {
-            this.closeCode = u.getCloseCode();
-            this.closeCodeLastUpdated = Instant.ofEpochMilli(u.getCloseCodeUpdatedAtEpochMs());
+        if (u.getClosedCode() != null) {
+            this.closedCode = u.getClosedCode();
+            this.closedCodeLastUpdated = Instant.ofEpochMilli(u.getClosedCodeUpdatedAtEpochMs());
         }
         if (u.getHelpDeskCaseReferences() != null && u.getHelpDeskCaseReferences().length() > 0 && u.getHelpDeskCaseReferences().contains(",")) {
             this.helpDeskCaseReferences = Arrays.asList(u.getHelpDeskCaseReferences().split(","));

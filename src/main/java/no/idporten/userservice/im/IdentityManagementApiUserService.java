@@ -69,8 +69,8 @@ public class IdentityManagementApiUserService implements IDPortenIdentityManagem
     @Override
     public UserResource updateUserStatus(String userId, UpdateUserStatusRequest updateUserStatusRequest) {
         IDPortenUser idPortenUser = userService.findUser(UUID.fromString(userId));
-        idPortenUser.setCloseCode(updateUserStatusRequest.getClosedCode());
-        idPortenUser.setCloseCodeLastUpdated(Clock.systemUTC().instant());
+        idPortenUser.setClosedCode(updateUserStatusRequest.getClosedCode());
+        idPortenUser.setClosedCodeLastUpdated(Clock.systemUTC().instant());
         if (StringUtils.hasText(updateUserStatusRequest.getClosedCode())) {
             idPortenUser.setActive(false);
         }
@@ -94,10 +94,10 @@ public class IdentityManagementApiUserService implements IDPortenIdentityManagem
         userResource.setId(idPortenUser.getId().toString());
         userResource.setActive(idPortenUser.getActive() == null ? true : Boolean.valueOf(idPortenUser.getActive()));
         userResource.setPersonIdentifier(idPortenUser.getPid());
-        if (StringUtils.hasText(idPortenUser.getCloseCode())) {
+        if (StringUtils.hasText(idPortenUser.getClosedCode())) {
             UserStatus userStatus = new UserStatus();
             userStatus.setClosedCode(userStatus.getClosedCode());
-            userStatus.setClosedDate(convert(idPortenUser.getCloseCodeLastUpdated()));
+            userStatus.setClosedDate(convert(idPortenUser.getClosedCodeLastUpdated()));
             userResource.setUserStatus(userStatus);
         }
         userResource.setUserLogins(convertUserLogins(idPortenUser));

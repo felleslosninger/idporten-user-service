@@ -50,15 +50,15 @@ public class UserController {
     /**
      * Search for a user by pid.
      *
-     * @param userSearchRequest
-     * @return
+     * @param userSearchRequest request with pid of user to find
+     * @return List of userResponses
      */
     @PostMapping(path = "/search", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<UserResponse>> searchUser(@Valid @RequestBody SearchRequest userSearchRequest) {
         List<IDPortenUser> searchResult = userService.searchForUser(userSearchRequest.getPid());
 
         return ResponseEntity
-                .ok(searchResult.stream().map(idPortenUser -> convert(idPortenUser)).toList());
+                .ok(searchResult.stream().map(this::convert).toList());
     }
 
     /**
@@ -77,10 +77,7 @@ public class UserController {
 
     /**
      * Update a user resource with eID.
-<<<<<<< HEAD
-=======
      *
->>>>>>> main
      * @param updateUserRequest update user request
      * @return updated user resource
      */
@@ -109,8 +106,8 @@ public class UserController {
     /**
      * Delete a user.
      *
-     * @param id
-     * @return
+     * @param id of user
+     * @return the user returned, null of no user was found to return
      */
     @DeleteMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<UserResponse> deleteUser(@PathVariable("id") String id) {
@@ -127,8 +124,8 @@ public class UserController {
                 .id(idPortenUser.getId().toString())
                 .pid(idPortenUser.getPid())
                 .lastUpdated(idPortenUser.getLastUpdated())
-                .closedCode(idPortenUser.getCloseCode())
-                .closedCodeLastUpdated(idPortenUser.getCloseCodeLastUpdated())
+                .closedCode(idPortenUser.getClosedCode())
+                .closedCodeLastUpdated(idPortenUser.getClosedCodeLastUpdated())
                 .build();
 
         if (idPortenUser.getEids() != null && !idPortenUser.getEids().isEmpty()) {
@@ -143,12 +140,12 @@ public class UserController {
 
     protected IDPortenUser copyData(CreateUserRequest fromRequest, IDPortenUser toUser) {
         toUser.setPid(fromRequest.getPid());
-        toUser.setCloseCode(fromRequest.getClosedCode());
+        toUser.setClosedCode(fromRequest.getClosedCode());
         return toUser;
     }
 
     protected IDPortenUser copyData(UpdateUserRequest fromRequest, IDPortenUser toUser) {
-        toUser.setCloseCode(fromRequest.getClosedCode());
+        toUser.setClosedCode(fromRequest.getClosedCode());
         return toUser;
     }
 

@@ -28,11 +28,11 @@ public class UserEntity {
     @Column(name = "active")
     private Boolean active;
 
-    @Column(name = "close_code")
-    private String closeCode;
+    @Column(name = "closed_code")
+    private String closedCode;
 
-    @Column(name = "close_code_updated_ms")
-    private long closeCodeUpdatedAtEpochMs;
+    @Column(name = "closed_code_updated_ms")
+    private long closedCodeUpdatedAtEpochMs;
 
     @Column(name = "help_desk_case_references")
     private String helpDeskCaseReferences;
@@ -42,14 +42,14 @@ public class UserEntity {
 
     public UserEntity(){}
 
-    public UserEntity(UUID uuid, String personIdentifier, long userCreatedAtEpochMs, long userLastUpdatedAtEpochMs, Boolean active, String closeCode, long closeCodeUpdatedAtEpochMs, String helpDeskCaseReferences, List<EIDEntity> eIDs) {
+    public UserEntity(UUID uuid, String personIdentifier, long userCreatedAtEpochMs, long userLastUpdatedAtEpochMs, Boolean active, String closedCode, long closedCodeUpdatedAtEpochMs, String helpDeskCaseReferences, List<EIDEntity> eIDs) {
         this.uuid = uuid;
         this.personIdentifier = personIdentifier;
         this.userCreatedAtEpochMs = userCreatedAtEpochMs;
         this.userLastUpdatedAtEpochMs = userLastUpdatedAtEpochMs;
         this.active = active;
-        this.closeCode = closeCode;
-        this.closeCodeUpdatedAtEpochMs = closeCodeUpdatedAtEpochMs;
+        this.closedCode = closedCode;
+        this.closedCodeUpdatedAtEpochMs = closedCodeUpdatedAtEpochMs;
         this.helpDeskCaseReferences = helpDeskCaseReferences;
         setEIDs(eIDs);
     }
@@ -86,20 +86,20 @@ public class UserEntity {
         this.active = active;
     }
 
-    public String getCloseCode() {
-        return closeCode;
+    public String getClosedCode() {
+        return closedCode;
     }
 
-    public void setCloseCode(String closeCode) {
-        this.closeCode = closeCode;
+    public void setClosedCode(String closeCode) {
+        this.closedCode = closeCode;
     }
 
-    public long getCloseCodeUpdatedAtEpochMs() {
-        return closeCodeUpdatedAtEpochMs;
+    public long getClosedCodeUpdatedAtEpochMs() {
+        return closedCodeUpdatedAtEpochMs;
     }
 
-    public void setCloseCodeUpdatedAtEpochMs(long closeCodeUpdatedAtEpochMs) {
-        this.closeCodeUpdatedAtEpochMs = closeCodeUpdatedAtEpochMs;
+    public void setClosedCodeUpdatedAtEpochMs(long closeCodeUpdatedAtEpochMs) {
+        this.closedCodeUpdatedAtEpochMs = closeCodeUpdatedAtEpochMs;
     }
 
     public String getHelpDeskCaseReferences() {
