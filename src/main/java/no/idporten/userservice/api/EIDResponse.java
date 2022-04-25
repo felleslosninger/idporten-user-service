@@ -1,6 +1,7 @@
 package no.idporten.userservice.api;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,7 +18,9 @@ public class EIDResponse {
 
     private String name;
 
+    @JsonProperty("last_login")
     private Instant lastLogin;
 
+    @JsonProperty("first_login")
     private Instant firstLogin;
 }
