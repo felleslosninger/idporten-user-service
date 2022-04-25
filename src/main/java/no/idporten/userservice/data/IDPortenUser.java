@@ -66,19 +66,5 @@ public class IDPortenUser {
         }
     }
 
-    public UserEntity toEntity() {
-        UserEntity.UserEntityBuilder builder = UserEntity.builder();
-        builder.personIdentifier(this.getPid()).uuid(this.getId()).active(this.getActive());
-        if (getCloseCode() != null) {
-            builder.closeCode(this.getCloseCode());
-            builder.closeCodeUpdatedAtEpochMs(Instant.now().toEpochMilli());
-        }
-        if (!getHelpDeskCaseReferences().isEmpty()) {
-            builder.helpDeskCaseReferences(String.join(",", getHelpDeskCaseReferences()));
-        }
-        if (getEids() != null && !getEids().isEmpty()) {
-            builder.eIDs(this.getEids().stream().map(EID::toEntity).toList());
-        }
-        return builder.build();
-    }
+
 }

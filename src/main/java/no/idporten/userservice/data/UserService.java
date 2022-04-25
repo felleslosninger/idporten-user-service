@@ -37,9 +37,23 @@ public class UserService {
         Assert.isTrue(searchForUser(idPortenUser.getPid()).isEmpty(), "User exists");
 
         idPortenUser.setActive(Boolean.TRUE);
-        UserEntity userSaved = userRepository.save(idPortenUser.toEntity());
-
+        UserEntity user = toEntity(idPortenUser);
+        UserEntity userSaved = userRepository.save(user);
         return new IDPortenUser(userSaved);
+    }
+
+    public UserEntity toEntity(IDPortenUser user) {
+        UserEntity.UserEntityBuilder builder = UserEntity.builder();
+        builder.personIdentifier(user.getPid()).uuid(user.getId()).active(user.getActive());
+        if (user.getCloseCode() != null) {
+            builder.closeCode(user.getCloseCode());
+            builder.closeCodeUpdatedAtEpochMs(Instant.now().toEpochMilli());
+        }
+        if (!user.getHelpDeskCaseReferences().isEmpty()) {
+            builder.helpDeskCaseReferences(String.join(",", user.getHelpDeskCaseReferences()));
+        }
+
+        return builder.build();
     }
 
     public IDPortenUser updateUser(IDPortenUser idPortenUser) {
@@ -49,18 +63,15 @@ public class UserService {
             throw new RuntimeException("User not found for UUID: " + idPortenUser.getId());        // TODO: error handling
         }
         UserEntity existingUser = user.get();
-        if(idPortenUser.getActive()!=null){
+        if (idPortenUser.getActive() != null) {
             existingUser.setActive(idPortenUser.getActive());
         }
-        if(idPortenUser.getCloseCode()!=null && !idPortenUser.getCloseCode().equals(existingUser.getCloseCode())){
+        if (idPortenUser.getCloseCode() != null && !idPortenUser.getCloseCode().equals(existingUser.getCloseCode())) {
             existingUser.setCloseCode(idPortenUser.getCloseCode());
             existingUser.setCloseCodeUpdatedAtEpochMs(Instant.now().toEpochMilli());
         }
         if (!idPortenUser.getHelpDeskCaseReferences().isEmpty()) {
             existingUser.setHelpDeskCaseReferences(String.join(",", idPortenUser.getHelpDeskCaseReferences()));
-        }
-        if (idPortenUser.getEids() != null && !idPortenUser.getEids().isEmpty()) {
-            existingUser.setEIDs(idPortenUser.getEids().stream().map(EID::toEntity).toList());
         }
 
         UserEntity savedUser = userRepository.save(existingUser);
@@ -73,25 +84,29 @@ public class UserService {
 
         Optional<UserEntity> byUuid = userRepository.findByUuid(userUuid);
         if (byUuid.isEmpty()) {
-            throw new RuntimeException("User not found for UUID " + userUuid);        // TODO: error handling
+            throw new RuntimeException("User not found for UUID: " + userUuid);        // TODO: error handling
         }
         UserEntity existingUser = byUuid.get();
-        List<EIDEntity> existingeIDs = existingUser.getEIDs();
-        EIDEntity eidToUpdate = null;
-        for (EIDEntity e : existingeIDs) {
-            if (e.getName().equals(eid.getName())) {
-                eidToUpdate = e;
-            }
-        }
+        List<EIDEntity> existingEIDs = existingUser.getEIDs();
+        EIDEntity eidToUpdate = findExistingEid(eid, existingEIDs);
 
         if (eidToUpdate != null) {
             eidToUpdate.setLastLoginAtEpochMs(Instant.now().toEpochMilli());
-        }else {
+        } else {
             EIDEntity updatedEid = EIDEntity.builder().name(eid.getName()).user(existingUser).build();
-            existingeIDs.add(updatedEid);
+            existingEIDs.add(updatedEid); //last-login and first-login set via annotations on entity on create
         }
         UserEntity savedUser = userRepository.save(existingUser);
         return new IDPortenUser(savedUser);
+    }
+
+    private EIDEntity findExistingEid(EID eid, List<EIDEntity> existingeIDs) {
+        for (EIDEntity e : existingeIDs) {
+            if (e.getName().equals(eid.getName())) {
+                return e;
+            }
+        }
+        return null;
     }
 
     public IDPortenUser deleteUser(UUID userUuid) {
