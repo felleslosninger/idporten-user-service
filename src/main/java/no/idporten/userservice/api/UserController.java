@@ -17,6 +17,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -49,15 +50,15 @@ public class UserController {
     /**
      * Search for a user by pid.
      *
-     * @param userSearchRequest
-     * @return
+     * @param userSearchRequest request with pid of user to find
+     * @return List of userResponses
      */
     @PostMapping(path = "/search", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<UserResponse>> searchUser(@Valid @RequestBody SearchRequest userSearchRequest) {
         List<IDPortenUser> searchResult = userService.searchForUser(userSearchRequest.getPid());
 
         return ResponseEntity
-                .ok(searchResult.stream().map(idPortenUser -> convert(idPortenUser)).toList());
+                .ok(searchResult.stream().map(this::convert).toList());
     }
 
     /**
@@ -76,10 +77,7 @@ public class UserController {
 
     /**
      * Update a user resource with eID.
-<<<<<<< HEAD
-=======
      *
->>>>>>> main
      * @param updateUserRequest update user request
      * @return updated user resource
      */
@@ -108,8 +106,8 @@ public class UserController {
     /**
      * Delete a user.
      *
-     * @param id
-     * @return
+     * @param id of user
+     * @return the user returned, null of no user was found to return
      */
     @DeleteMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<UserResponse> deleteUser(@PathVariable("id") String id) {
@@ -121,28 +119,42 @@ public class UserController {
     }
 
     protected UserResponse convert(IDPortenUser idPortenUser) {
-        return UserResponse.builder()
+
+        UserResponse userResponse = UserResponse.builder()
                 .id(idPortenUser.getId().toString())
                 .pid(idPortenUser.getPid())
-                .closedCode(idPortenUser.getCloseCode())
+                .lastUpdated(idPortenUser.getLastUpdated())
+                .active(idPortenUser.isActive())
+                .closedCode(idPortenUser.getClosedCode())
+                .closedCodeLastUpdated(idPortenUser.getClosedCodeLastUpdated())
                 .build();
+
+        if (idPortenUser.getEids() != null && !idPortenUser.getEids().isEmpty()) {
+            ArrayList<EIDResponse> eids = new ArrayList<>();
+            for (EID e : idPortenUser.getEids()) {
+                EIDResponse eidResponse = EIDResponse.builder().name(e.getName()).firstLogin(e.getFirstLogin()).lastLogin(e.getLastLogin()).build();
+                eids.add(eidResponse);
+            }
+            userResponse.setEids(eids);
+        }
+        return userResponse;
     }
 
     protected IDPortenUser copyData(CreateUserRequest fromRequest, IDPortenUser toUser) {
         toUser.setPid(fromRequest.getPid());
-        toUser.setCloseCode(fromRequest.getClosedCode());
+        toUser.setClosedCode(fromRequest.getClosedCode());
         return toUser;
     }
 
     protected IDPortenUser copyData(UpdateUserRequest fromRequest, IDPortenUser toUser) {
-        toUser.setCloseCode(fromRequest.getClosedCode());
+        toUser.setClosedCode(fromRequest.getClosedCode());
         return toUser;
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleInvalidRequest(MethodArgumentNotValidException e) {
         String errorDescription = null;
-        if (!e.getBindingResult().getAllErrors().isEmpty() && e.getBindingResult().getFieldError() != null) {
+        if (!e.getBindingResult().getAllErrors().isEmpty() && e.getBindingResult().getFieldError() != null && e.getTarget()!=null) {
             FieldError fieldError = e.getBindingResult().getFieldError();
             Field field = ReflectionUtils.findField(e.getTarget().getClass(), fieldError.getField());
             if (field != null) {

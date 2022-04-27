@@ -36,14 +36,47 @@ public class UserService {
         Assert.isNull(idPortenUser.getId(), "id is assigned by server");
         Assert.isTrue(searchForUser(idPortenUser.getPid()).isEmpty(), "User exists");
 
-        UserEntity userSaved = userRepository.save(idPortenUser.toEntity());
+        idPortenUser.setActive(Boolean.TRUE);
+        UserEntity user = toEntity(idPortenUser);
+        UserEntity userSaved = userRepository.save(user);
         return new IDPortenUser(userSaved);
+    }
+
+    public UserEntity toEntity(IDPortenUser user) {
+        UserEntity.UserEntityBuilder builder = UserEntity.builder();
+        builder.personIdentifier(user.getPid()).uuid(user.getId()).active(user.isActive());
+        if (user.getClosedCode() != null) {
+            builder.closedCode(user.getClosedCode());
+            builder.closedCodeUpdatedAtEpochMs(Instant.now().toEpochMilli());
+        }
+        if (!user.getHelpDeskCaseReferences().isEmpty()) {
+            builder.helpDeskCaseReferences(String.join(",", user.getHelpDeskCaseReferences()));
+        }
+
+        return builder.build();
     }
 
     public IDPortenUser updateUser(IDPortenUser idPortenUser) {
         Assert.notNull(idPortenUser.getId(), "id is mandatory");
-        UserEntity userToSave = idPortenUser.toEntity();
-        UserEntity savedUser = userRepository.save(userToSave);
+        Optional<UserEntity> user = userRepository.findByUuid(idPortenUser.getId());
+        if (user.isEmpty()) {
+            throw new RuntimeException("User not found for UUID: " + idPortenUser.getId());        // TODO: error handling
+        }
+        UserEntity existingUser = user.get();
+        if (idPortenUser.getClosedCode() == null) {
+            existingUser.setClosedCode(null);
+            existingUser.setClosedCodeUpdatedAtEpochMs(0);
+            existingUser.setActive(true);
+        } else if (idPortenUser.getClosedCode() != null && !idPortenUser.getClosedCode().isEmpty() && !idPortenUser.getClosedCode().equals(existingUser.getClosedCode())) {
+            existingUser.setClosedCode(idPortenUser.getClosedCode());
+            existingUser.setClosedCodeUpdatedAtEpochMs(Instant.now().toEpochMilli());
+            existingUser.setActive(false);
+        }
+        if (!idPortenUser.getHelpDeskCaseReferences().isEmpty()) {
+            existingUser.setHelpDeskCaseReferences(String.join(",", idPortenUser.getHelpDeskCaseReferences()));
+        }
+
+        UserEntity savedUser = userRepository.save(existingUser);
         return new IDPortenUser(savedUser);
     }
 
@@ -53,27 +86,29 @@ public class UserService {
 
         Optional<UserEntity> byUuid = userRepository.findByUuid(userUuid);
         if (byUuid.isEmpty()) {
-            throw new RuntimeException("User not found for UUID " + userUuid);        // TODO: error handling
+            throw new RuntimeException("User not found for UUID: " + userUuid);        // TODO: error handling
         }
         UserEntity existingUser = byUuid.get();
-        List<EIDEntity> existingeIDs = existingUser.getEIDs();
-        EIDEntity eidToUpdate = null;
-        for (EIDEntity e : existingeIDs) {
-            if (e.getName().equals(eid.getName())) {
-                eidToUpdate = e;
-            }
-        }
-        EIDEntity updatedEid = EIDEntity.builder().name(eid.getName()).user(existingUser).build();
+        List<EIDEntity> existingEIDs = existingUser.getEIDs();
+        EIDEntity eidToUpdate = findExistingEid(eid, existingEIDs);
+
         if (eidToUpdate != null) {
-            updatedEid.setId(eidToUpdate.getId());
-            updatedEid.setFirstLoginAtEpochMs(eidToUpdate.getFirstLoginAtEpochMs());
-            updatedEid.setLastLoginAtEpochMs(Instant.now().toEpochMilli());
-            existingeIDs.remove(eidToUpdate);
-            userRepository.save(existingUser);
+            eidToUpdate.setLastLoginAtEpochMs(Instant.now().toEpochMilli());
+        } else {
+            EIDEntity updatedEid = EIDEntity.builder().name(eid.getName()).user(existingUser).build();
+            existingEIDs.add(updatedEid); //last-login and first-login set via annotations on entity on create
         }
-        existingeIDs.add(updatedEid);
         UserEntity savedUser = userRepository.save(existingUser);
         return new IDPortenUser(savedUser);
+    }
+
+    private EIDEntity findExistingEid(EID eid, List<EIDEntity> existingeIDs) {
+        for (EIDEntity e : existingeIDs) {
+            if (e.getName().equals(eid.getName())) {
+                return e;
+            }
+        }
+        return null;
     }
 
     public IDPortenUser deleteUser(UUID userUuid) {

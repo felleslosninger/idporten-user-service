@@ -25,9 +25,4 @@ public class EID {
         this.lastLogin = Instant.ofEpochMilli(eidEntity.getLastLoginAtEpochMs());
     }
 
-    public EIDEntity toEntity() {
-        EIDEntity.EIDEntityBuilder builder = EIDEntity.builder();
-        builder.name(getName());
-        return builder.build();
-    }
 }
