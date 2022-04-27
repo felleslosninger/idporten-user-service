@@ -22,7 +22,7 @@ public class IDPortenUser {
 
     private Instant lastUpdated;
 
-    private Boolean active;
+    private boolean active;
 
     private String closedCode;
 

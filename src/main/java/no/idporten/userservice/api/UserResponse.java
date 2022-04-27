@@ -25,6 +25,8 @@ public class UserResponse {
     @JsonProperty("last_updated")
     private Instant lastUpdated;
 
+    private boolean active;
+
     @JsonProperty("closed_code")
     private String closedCode;
 

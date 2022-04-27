@@ -92,7 +92,7 @@ public class IdentityManagementApiUserService implements IDPortenIdentityManagem
     protected UserResource convert(IDPortenUser idPortenUser) {
         UserResource userResource = new UserResource();
         userResource.setId(idPortenUser.getId().toString());
-        userResource.setActive(idPortenUser.getActive() == null ? true : Boolean.valueOf(idPortenUser.getActive()));
+        userResource.setActive(idPortenUser.isActive());
         userResource.setPersonIdentifier(idPortenUser.getPid());
         if (StringUtils.hasText(idPortenUser.getClosedCode())) {
             UserStatus userStatus = new UserStatus();

@@ -44,7 +44,7 @@ public class UserService {
 
     public UserEntity toEntity(IDPortenUser user) {
         UserEntity.UserEntityBuilder builder = UserEntity.builder();
-        builder.personIdentifier(user.getPid()).uuid(user.getId()).active(user.getActive());
+        builder.personIdentifier(user.getPid()).uuid(user.getId()).active(user.isActive());
         if (user.getClosedCode() != null) {
             builder.closedCode(user.getClosedCode());
             builder.closedCodeUpdatedAtEpochMs(Instant.now().toEpochMilli());
@@ -63,12 +63,14 @@ public class UserService {
             throw new RuntimeException("User not found for UUID: " + idPortenUser.getId());        // TODO: error handling
         }
         UserEntity existingUser = user.get();
-        if (idPortenUser.getActive() != null) {
-            existingUser.setActive(idPortenUser.getActive());
-        }
-        if (idPortenUser.getClosedCode() != null && !idPortenUser.getClosedCode().equals(existingUser.getClosedCode())) {
+        if (idPortenUser.getClosedCode() == null) {
+            existingUser.setClosedCode(null);
+            existingUser.setClosedCodeUpdatedAtEpochMs(0);
+            existingUser.setActive(true);
+        } else if (idPortenUser.getClosedCode() != null && !idPortenUser.getClosedCode().isEmpty() && !idPortenUser.getClosedCode().equals(existingUser.getClosedCode())) {
             existingUser.setClosedCode(idPortenUser.getClosedCode());
             existingUser.setClosedCodeUpdatedAtEpochMs(Instant.now().toEpochMilli());
+            existingUser.setActive(false);
         }
         if (!idPortenUser.getHelpDeskCaseReferences().isEmpty()) {
             existingUser.setHelpDeskCaseReferences(String.join(",", idPortenUser.getHelpDeskCaseReferences()));

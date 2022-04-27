@@ -124,6 +124,7 @@ public class UserController {
                 .id(idPortenUser.getId().toString())
                 .pid(idPortenUser.getPid())
                 .lastUpdated(idPortenUser.getLastUpdated())
+                .active(idPortenUser.isActive())
                 .closedCode(idPortenUser.getClosedCode())
                 .closedCodeLastUpdated(idPortenUser.getClosedCodeLastUpdated())
                 .build();
