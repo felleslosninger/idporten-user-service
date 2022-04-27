@@ -131,7 +131,8 @@ public class UserController {
         if (idPortenUser.getEids() != null && !idPortenUser.getEids().isEmpty()) {
             ArrayList<EIDResponse> eids = new ArrayList<>();
             for (EID e : idPortenUser.getEids()) {
-                eids.add(new EIDResponse(e.getName(), e.getFirstLogin(), e.getLastLogin()));
+                EIDResponse eidResponse = EIDResponse.builder().name(e.getName()).firstLogin(e.getFirstLogin()).lastLogin(e.getLastLogin()).build();
+                eids.add(eidResponse);
             }
             userResponse.setEids(eids);
         }
@@ -152,7 +153,7 @@ public class UserController {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleInvalidRequest(MethodArgumentNotValidException e) {
         String errorDescription = null;
-        if (!e.getBindingResult().getAllErrors().isEmpty() && e.getBindingResult().getFieldError() != null) {
+        if (!e.getBindingResult().getAllErrors().isEmpty() && e.getBindingResult().getFieldError() != null && e.getTarget()!=null) {
             FieldError fieldError = e.getBindingResult().getFieldError();
             Field field = ReflectionUtils.findField(e.getTarget().getClass(), fieldError.getField());
             if (field != null) {
