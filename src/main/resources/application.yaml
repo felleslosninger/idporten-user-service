@@ -46,6 +46,21 @@ management:
     diskspace:
       enabled: false
 
+# Swagger with springdoc
+springdoc:
+  api-docs:
+    groups:
+      enabled: true
+  group-configs:
+    - group: CRUD API
+      paths-to-match: /users/**
+    - group: Identity Management API
+      paths-to-match: /im/**
+  swagger-ui:
+    display-request-duration: true
+    disable-swagger-default-url: true
+    use-root-path: true
+
 # App-specific config
 idporten-user-service:
   features:

@@ -1,6 +1,8 @@
 package no.idporten.userservice.api;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import no.idporten.userservice.data.EID;
 import no.idporten.userservice.data.IDPortenUser;
@@ -23,6 +25,7 @@ import java.util.UUID;
 
 import static no.idporten.userservice.api.UserController.PATH;
 
+@Tag(name = "crud-api", description = "ID-porten user service CRUD operations")
 @RequiredArgsConstructor
 @RestController
 @RequestMapping(PATH)
@@ -38,6 +41,7 @@ public class UserController {
      * @param id server assigned id
      * @return user resource
      */
+    @Operation(summary = "Retrieve user", description = "Retrieve user by id", tags = {"crud-api"})
     @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<UserResponse> getUser(@PathVariable("id") String id) {
         IDPortenUser user = userService.findUser(UUID.fromString(id));
@@ -53,6 +57,7 @@ public class UserController {
      * @param userSearchRequest request with pid of user to find
      * @return List of userResponses
      */
+    @Operation(summary = "Search for user", description = "Search for user by person identifier", tags = {"crud-api"})
     @PostMapping(path = "/search", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<UserResponse>> searchUser(@Valid @RequestBody SearchRequest userSearchRequest) {
         List<IDPortenUser> searchResult = userService.searchForUser(userSearchRequest.getPid());
@@ -67,6 +72,7 @@ public class UserController {
      * @param createUserRequest create user request
      * @return created user resource
      */
+    @Operation(summary = "Create a user", description = "Create a new user", tags = {"crud-api"})
     @PostMapping(path = "/", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<UserResponse> createUser(@Valid @RequestBody CreateUserRequest createUserRequest, HttpServletRequest httpServletRequest) {
         IDPortenUser created = userService.createUser(copyData(createUserRequest, new IDPortenUser()));
@@ -81,6 +87,7 @@ public class UserController {
      * @param updateUserRequest update user request
      * @return updated user resource
      */
+    @Operation(summary = "Update a user with eid", description = "Update a user with eid", tags = {"crud-api"})
     @PostMapping(path = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<UserResponse> updateEid(@PathVariable("id") String id, @Valid @RequestBody UpdateEidRequest updateUserRequest) {
         EID eid = EID.builder().name(updateUserRequest.getEIdName()).build();
@@ -94,6 +101,7 @@ public class UserController {
      * @param updatedUserRequest update user request
      * @return updated user resource
      */
+    @Operation(summary = "Update a user", description = "Update a user", tags = {"crud-api"})
     @PutMapping(path = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<UserResponse> updateUser(@PathVariable("id") String id, @Valid @RequestBody UpdateUserRequest updatedUserRequest) {
         IDPortenUser idPortenUser = userService.findUser(UUID.fromString(id));
@@ -109,6 +117,7 @@ public class UserController {
      * @param id of user
      * @return the user returned, null of no user was found to return
      */
+    @Operation(summary = "Delete a user", description = "Delete a user", tags = {"crud-api"})
     @DeleteMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<UserResponse> deleteUser(@PathVariable("id") String id) {
         IDPortenUser removedUser = userService.deleteUser(UUID.fromString(id));
@@ -154,7 +163,7 @@ public class UserController {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleInvalidRequest(MethodArgumentNotValidException e) {
         String errorDescription = null;
-        if (!e.getBindingResult().getAllErrors().isEmpty() && e.getBindingResult().getFieldError() != null && e.getTarget()!=null) {
+        if (!e.getBindingResult().getAllErrors().isEmpty() && e.getBindingResult().getFieldError() != null && e.getTarget() != null) {
             FieldError fieldError = e.getBindingResult().getFieldError();
             Field field = ReflectionUtils.findField(e.getTarget().getClass(), fieldError.getField());
             if (field != null) {
