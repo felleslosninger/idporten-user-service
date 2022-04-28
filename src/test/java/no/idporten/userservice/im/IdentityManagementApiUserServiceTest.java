@@ -22,6 +22,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
 import org.springframework.http.HttpStatus;
 
+import javax.persistence.Id;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -165,6 +166,27 @@ public class IdentityManagementApiUserServiceTest {
                     () -> assertEquals(ZoneId.systemDefault(), zonedDateTime.getZone())
             );
         }
+
+        @DisplayName("then an empty list of help desk references are converted to an empty list")
+        @Test
+        public void testConvertEmptyHelpDeskReferences() {
+            IDPortenUser idPortenUser = new IDPortenUser();
+            List<String> helpDeskReferences = imApiUserService.convertHelpDeskReferences(idPortenUser);
+            assertTrue(helpDeskReferences.isEmpty());
+        }
+
+        @DisplayName("then empty help desk references are removed")
+        @Test
+        public void testConvertHelpDeskReferences() {
+            IDPortenUser idPortenUser = new IDPortenUser();
+            idPortenUser.setHelpDeskCaseReferences(List.of("", "foo", "bar"));
+            List<String> helpDeskReferences = imApiUserService.convertHelpDeskReferences(idPortenUser);
+            assertAll(
+                    () -> assertEquals(2, helpDeskReferences.size()),
+                    () -> assertTrue(helpDeskReferences.containsAll(List.of("foo", "bar")))
+            );
+        }
+
 
     }
 

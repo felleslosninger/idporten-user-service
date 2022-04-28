@@ -5,10 +5,11 @@ import no.idporten.im.IdentityManagementApiException;
 import no.idporten.im.api.UserLogin;
 import no.idporten.im.api.UserResource;
 import no.idporten.im.api.UserStatus;
+import no.idporten.im.api.admin.UpdateAttributesRequest;
+import no.idporten.im.api.admin.UpdateStatusRequest;
 import no.idporten.im.api.login.CreateUserRequest;
 import no.idporten.im.api.login.UpdateUserLoginRequest;
-import no.idporten.im.api.status.ChangePersonIdentifierRequest;
-import no.idporten.im.api.status.UpdateUserStatusRequest;
+import no.idporten.im.api.admin.ChangeIdentifierRequest;
 import no.idporten.im.spi.IDPortenIdentityManagementUserService;
 import no.idporten.userservice.data.EID;
 import no.idporten.userservice.data.IDPortenUser;
@@ -24,9 +25,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -39,9 +38,7 @@ public class IdentityManagementApiUserService implements IDPortenIdentityManagem
     @Override
     public UserResource lookup(String userId) {
         IDPortenUser idPortenUser = userService.findUser(UUID.fromString(userId));
-        if (idPortenUser == null) {
-            throw new IdentityManagementApiException("not_found", "User not found.", HttpStatus.NOT_FOUND);
-        }
+        validateUserExists(idPortenUser);
         UserResource scimUserResource = convert(idPortenUser);
         return scimUserResource;
     }
@@ -62,23 +59,42 @@ public class IdentityManagementApiUserService implements IDPortenIdentityManagem
     }
 
     @Override
-    public UserResource updateUserLogins(String userId, UpdateUserLoginRequest updateUserLoginRequest) {
-        return convert(userService.updateUserWithEid(UUID.fromString(userId), EID.builder().name(updateUserLoginRequest.getEidName()).build()));
+    public UserResource updateUserLogins(String id, UpdateUserLoginRequest updateUserLoginRequest) {
+        return convert(userService.updateUserWithEid(UUID.fromString(id), EID.builder().name(updateUserLoginRequest.getEidName()).build()));
     }
 
     @Override
-    public UserResource updateUserStatus(String userId, UpdateUserStatusRequest updateUserStatusRequest) {
+    public UserResource updateUserAttributes(String id, UpdateAttributesRequest updateAttributesRequest) {
+        IDPortenUser idPortenUser = userService.findUser(UUID.fromString(id));
+        validateUserExists(idPortenUser);
+        Object value = updateAttributesRequest.getAttribute("help_desk_references");
+        // TODO litt bedre validering
+        if (value != null && value instanceof Collection) {
+            idPortenUser.setHelpDeskCaseReferences(((Collection) value).stream().toList());
+        }
+        return convert(idPortenUser);
+    }
+
+    @Override
+    public UserResource updateUserStatus(String userId, UpdateStatusRequest updateUserStatusRequest) {
         IDPortenUser idPortenUser = userService.findUser(UUID.fromString(userId));
-        idPortenUser.setClosedCode(updateUserStatusRequest.getClosedCode());
-        idPortenUser.setClosedCodeLastUpdated(Clock.systemUTC().instant());
-        if (StringUtils.hasText(updateUserStatusRequest.getClosedCode())) {
+        validateUserExists(idPortenUser);
+        String closedCode = StringUtils.hasText(updateUserStatusRequest.getClosedCode()) ? updateUserStatusRequest.getClosedCode() : null;
+        if (closedCode == null) {
+            idPortenUser.setActive(true);
+            idPortenUser.setClosedCode(null);
+            idPortenUser.setClosedCodeLastUpdated(null);
+        } else {
             idPortenUser.setActive(false);
+            idPortenUser.setClosedCode(closedCode);
+            idPortenUser.setClosedCodeLastUpdated(Clock.systemUTC().instant());
+
         }
         return convert(userService.updateUser(idPortenUser));
     }
 
     @Override
-    public UserResource changePersonIdentifier(ChangePersonIdentifierRequest changePersonIdentifierRequest) {
+    public UserResource changePersonIdentifier(ChangeIdentifierRequest changePersonIdentifierRequest) {
         return null;
     }
 
@@ -88,19 +104,24 @@ public class IdentityManagementApiUserService implements IDPortenIdentityManagem
         }
     }
 
+    protected void validateUserExists(IDPortenUser idPortenUser) {
+        if (idPortenUser == null) {
+        }
+    }
 
     protected UserResource convert(IDPortenUser idPortenUser) {
-        UserResource userResource = new UserResource();
+        IDPortenUserResource userResource = new IDPortenUserResource();
         userResource.setId(idPortenUser.getId().toString());
         userResource.setActive(idPortenUser.isActive());
         userResource.setPersonIdentifier(idPortenUser.getPid());
         if (StringUtils.hasText(idPortenUser.getClosedCode())) {
             UserStatus userStatus = new UserStatus();
-            userStatus.setClosedCode(userStatus.getClosedCode());
+            userStatus.setClosedCode(idPortenUser.getClosedCode());
             userStatus.setClosedDate(convert(idPortenUser.getClosedCodeLastUpdated()));
             userResource.setUserStatus(userStatus);
         }
         userResource.setUserLogins(convertUserLogins(idPortenUser));
+        userResource.setHelpDeskReferences(convertHelpDeskReferences(idPortenUser));
         return userResource;
     }
 
@@ -117,6 +138,13 @@ public class IdentityManagementApiUserService implements IDPortenIdentityManagem
             return Collections.emptyList();
         }
         return idPortenUser.getEids().stream().map(this::convert).toList();
+    }
+
+    protected List<String> convertHelpDeskReferences(IDPortenUser idPortenUser) {
+        if (CollectionUtils.isEmpty(idPortenUser.getHelpDeskCaseReferences())) {
+            return Collections.emptyList();
+        }
+        return idPortenUser.getHelpDeskCaseReferences().stream().filter(s -> StringUtils.hasText(s)).toList();
     }
 
     protected ZonedDateTime convert(Instant instant) {
