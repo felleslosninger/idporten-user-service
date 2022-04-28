@@ -21,8 +21,7 @@ import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 
 @SpringBootTest
@@ -279,6 +278,15 @@ public class UserControllerTest {
             );
             return id;
         }
+    }
+
+    @DisplayName("then the API is documented with Swagger")
+    @Test
+    void testAPIDocumentedWithSwagger() throws Exception {
+        mockMvc.perform(
+                get("/swagger-ui/index.html#/crud-api"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.TEXT_HTML));
     }
 
 }
