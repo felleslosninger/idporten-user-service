@@ -22,6 +22,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
 import org.springframework.http.HttpStatus;
 
+import javax.persistence.Id;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -97,7 +98,7 @@ public class IdentityManagementApiUserServiceTest {
             String personIdentifier = "12345678901";
             CreateUserRequest createUserRequest = new CreateUserRequest();
             createUserRequest.setPersonIdentifier(personIdentifier);
-            IdentityManagementApiException exception = assertThrows(IdentityManagementApiException.class, () -> imApiUserService.createUserOnFirstLogin(createUserRequest));
+            IdentityManagementApiException exception = assertThrows(IdentityManagementApiException.class, () -> imApiUserService.createUser(createUserRequest));
             assertAll(
                     () -> assertEquals("invalid_request", exception.getError()),
                     () -> assertFalse(exception.getErrorDescription().contains(personIdentifier)),
@@ -117,7 +118,7 @@ public class IdentityManagementApiUserServiceTest {
                 idPortenUser.setId(UUID.randomUUID());
                 return idPortenUser;
             });
-            UserResource userResource = imApiUserService.createUserOnFirstLogin(createUserRequest);
+            UserResource userResource = imApiUserService.createUser(createUserRequest);
             assertAll(
                     () -> assertEquals(personIdentifier, userResource.getPersonIdentifier()),
                     () -> assertTrue(userResource.isActive())
@@ -165,6 +166,27 @@ public class IdentityManagementApiUserServiceTest {
                     () -> assertEquals(ZoneId.systemDefault(), zonedDateTime.getZone())
             );
         }
+
+        @DisplayName("then an empty list of help desk references are converted to an empty list")
+        @Test
+        public void testConvertEmptyHelpDeskReferences() {
+            IDPortenUser idPortenUser = new IDPortenUser();
+            List<String> helpDeskReferences = imApiUserService.convertHelpDeskReferences(idPortenUser);
+            assertTrue(helpDeskReferences.isEmpty());
+        }
+
+        @DisplayName("then empty help desk references are removed")
+        @Test
+        public void testConvertHelpDeskReferences() {
+            IDPortenUser idPortenUser = new IDPortenUser();
+            idPortenUser.setHelpDeskCaseReferences(List.of("", "foo", "bar"));
+            List<String> helpDeskReferences = imApiUserService.convertHelpDeskReferences(idPortenUser);
+            assertAll(
+                    () -> assertEquals(2, helpDeskReferences.size()),
+                    () -> assertTrue(helpDeskReferences.containsAll(List.of("foo", "bar")))
+            );
+        }
+
 
     }
 
