@@ -50,7 +50,7 @@ public class IdentityManagementApiUserService implements IDPortenIdentityManagem
     }
 
     @Override
-    public UserResource createUserOnFirstLogin(CreateUserRequest createUserRequest) {
+    public UserResource createUser(CreateUserRequest createUserRequest) {
         validatePersonIdentifier(createUserRequest.getPersonIdentifier());
         IDPortenUser idPortenUser = new IDPortenUser();
         idPortenUser.setPid(createUserRequest.getPersonIdentifier());

@@ -98,7 +98,7 @@ public class IdentityManagementApiUserServiceTest {
             String personIdentifier = "12345678901";
             CreateUserRequest createUserRequest = new CreateUserRequest();
             createUserRequest.setPersonIdentifier(personIdentifier);
-            IdentityManagementApiException exception = assertThrows(IdentityManagementApiException.class, () -> imApiUserService.createUserOnFirstLogin(createUserRequest));
+            IdentityManagementApiException exception = assertThrows(IdentityManagementApiException.class, () -> imApiUserService.createUser(createUserRequest));
             assertAll(
                     () -> assertEquals("invalid_request", exception.getError()),
                     () -> assertFalse(exception.getErrorDescription().contains(personIdentifier)),
@@ -118,7 +118,7 @@ public class IdentityManagementApiUserServiceTest {
                 idPortenUser.setId(UUID.randomUUID());
                 return idPortenUser;
             });
-            UserResource userResource = imApiUserService.createUserOnFirstLogin(createUserRequest);
+            UserResource userResource = imApiUserService.createUser(createUserRequest);
             assertAll(
                     () -> assertEquals(personIdentifier, userResource.getPersonIdentifier()),
                     () -> assertTrue(userResource.isActive())
