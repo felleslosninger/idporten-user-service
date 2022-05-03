@@ -23,7 +23,7 @@ jobs:
       registry-password: ${{ secrets.REGISTRY_PASSWORD }}
       allure-user: ${{ secrets.ALLURE_USER }}
       allure-password: ${{ secrets.ALLURE_PASSWORD }}
-  call-update-image-version:
+  update-image-version:
     uses: felleslosninger/eid-github-workflows/.github/workflows/eid-update-image-version.yml@main
     needs: build-publish-image
     with:
