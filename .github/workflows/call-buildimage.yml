@@ -8,7 +8,7 @@ on:
     branches: [ main ]
 
 jobs:
-  call-workflow-image-build-publish:
+  build-publish-image:
     uses: felleslosninger/eid-github-workflows/.github/workflows/eid-spring-boot-build-publish-image-generic.yml@main
     with:
       image-name: idporten-user-service
@@ -23,3 +23,13 @@ jobs:
       registry-password: ${{ secrets.REGISTRY_PASSWORD }}
       allure-user: ${{ secrets.ALLURE_USER }}
       allure-password: ${{ secrets.ALLURE_PASSWORD }}
+  call-update-image-version:
+    uses: felleslosninger/eid-github-workflows/.github/workflows/eid-update-image-version.yml@main
+    needs: build-publish-image
+    with:
+      image-name: idporten-user-service
+      image-version: ${{ needs.build-publish-image.outputs.image-version }}
+      image-digest: ${{ needs.build-publish-image.outputs.image-digest }}
+    secrets:
+      eid-build-token: ${{ secrets.EID_BUILD_PAT }}
+      registry-url: ${{ secrets.REGISTRY_URL }}
