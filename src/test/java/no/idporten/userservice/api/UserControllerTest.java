@@ -3,6 +3,7 @@ package no.idporten.userservice.api;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
 import lombok.SneakyThrows;
+import no.idporten.userservice.TestData;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -57,7 +58,7 @@ public class UserControllerTest {
         @SneakyThrows
         @DisplayName("then a user can be Created, Read, Updated and Deleted")
         void testCRUDApi() {
-            final String personIdentifier = "13810160122";
+            final String personIdentifier = TestData.randomSynpid();
             final MvcResult createResult = mockMvc.perform(
                             post("/users/")
                                     .contentType(MediaType.APPLICATION_JSON)
@@ -127,7 +128,7 @@ public class UserControllerTest {
         @Test
         @DisplayName("then no results gives an empty list")
         void testEmptyResult() {
-            final String personIdentifier = "14862299680";
+            final String personIdentifier = TestData.randomSynpid();
             mockMvc.perform(
                             post("/users/search")
                                     .contentType(MediaType.APPLICATION_JSON)
@@ -142,7 +143,7 @@ public class UserControllerTest {
         @Test
         @DisplayName("then found users are included in result")
         void testResult() {
-            final String personIdentifier = "03815212605";
+            final String personIdentifier = TestData.randomSynpid();
             createUser(personIdentifier);
             mockMvc.perform(
                             post("/users/search")
@@ -170,7 +171,7 @@ public class UserControllerTest {
             @Test
             @DisplayName("then found users is updated with same EID twice")
             void testEidCreatedAndUpdatedResult() throws Exception {
-                final String personIdentifier = "24917305605";
+                final String personIdentifier = TestData.randomSynpid();
                 final String id = EIDTests.this.createUser(personIdentifier);
                 String eidName = "MinID";
 
@@ -220,7 +221,7 @@ public class UserControllerTest {
             @Test
             @DisplayName("then found users is updated with two different Eids")
             void testCreateDifferentEids() throws Exception {
-                final String personIdentifier = "22860191915";
+                final String personIdentifier = TestData.randomSynpid();
                 final String id = createUser(personIdentifier);
 
                 String eidName = "MinID";
