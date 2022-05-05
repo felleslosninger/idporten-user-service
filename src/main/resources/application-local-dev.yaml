@@ -1,0 +1,15 @@
+---
+server:
+  port: 7070
+spring:
+  datasource:
+    url: "jdbc:mariadb://localhost:3306/idporten_user"
+    driver-class-name: org.mariadb.jdbc.Driver
+    username: user_service
+    password: password
+
+# App-specific config
+idporten-user-service:
+  features:
+    allow-real-pid: false
+    allow-synthetic-pid: true
