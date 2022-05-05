@@ -1,15 +1,15 @@
 package no.idporten.userservice;
 
-import no.idporten.test.generate.fnr.GenerateSynteticFodselsnummer;
+import no.idporten.test.generate.fnr.SyntheticFodselsnummerGenerator;
 
 import java.util.UUID;
 
 public class TestData {
 
-    private static GenerateSynteticFodselsnummer synpidGenerator = new GenerateSynteticFodselsnummer();
+    private static final SyntheticFodselsnummerGenerator synpidGenerator = new SyntheticFodselsnummerGenerator();
 
     public static String randomSynpid() {
-        return synpidGenerator.generateListOfSynteticFodselsnummers(1).get(0);
+        return synpidGenerator.fodselsnummer();
     }
 
     public static UUID randomUserId() {

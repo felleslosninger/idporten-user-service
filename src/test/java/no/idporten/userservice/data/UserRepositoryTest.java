@@ -1,5 +1,6 @@
 package no.idporten.userservice.data;
 
+import no.idporten.userservice.TestData;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -71,7 +72,7 @@ public class UserRepositoryTest {
         @Test
         @DisplayName("with closedCode then the operation must succeed and information be found by UUID and by personidentifier")
         void testUpdateWithClosedCode() {
-            String personIdentifier = "15910600580";
+            String personIdentifier = TestData.randomSynpid();
             UserEntity testUser = UserEntity.builder()
                     .personIdentifier(personIdentifier)
                     .active(Boolean.TRUE)
@@ -83,7 +84,7 @@ public class UserRepositoryTest {
             byUuid.get().setClosedCode("SPERRET");
             assertEquals(saved.getUuid().toString(), byUuid.get().getUuid().toString());
             userRepository.save(byUuid.get());
-            Optional<UserEntity> byPersonIdentifier = userRepository.findByPersonIdentifier("15910600580");
+            Optional<UserEntity> byPersonIdentifier = userRepository.findByPersonIdentifier(personIdentifier);
             assertTrue(byPersonIdentifier.isPresent());
             assertEquals("SPERRET", byPersonIdentifier.get().getClosedCode());
             assertEquals(byUuid, byPersonIdentifier);
@@ -93,7 +94,7 @@ public class UserRepositoryTest {
         @Test
         @DisplayName("then uuid as input is ignored when user is not found in database")
         void testUuidAsInputIsIgnoredOnSaveWhenUserDoesNotExit() {
-            String personIdentifier = "15910600580";
+            String personIdentifier = TestData.randomSynpid();
             UUID uuid = UUID.randomUUID();
             UserEntity testUser = UserEntity.builder()
                     .uuid(uuid)
@@ -118,7 +119,7 @@ public class UserRepositoryTest {
         @Test
         @DisplayName("then user is not found by UUID or by personIdentifierŒ")
         void testDeleteUserByUuid() {
-            String personIdentifier = "15910600580";
+            String personIdentifier = TestData.randomSynpid();
             UserEntity testUser = UserEntity.builder()
                     .personIdentifier(personIdentifier)
                     .active(Boolean.TRUE)
@@ -142,7 +143,7 @@ public class UserRepositoryTest {
         @Test
         @DisplayName("then eId name and last login time is set for eID")
         void testSetEidNameForUser() {
-            String personIdentifier = "15910600580";
+            String personIdentifier = TestData.randomSynpid();
             EIDEntity minID = EIDEntity.builder().name("MinID").build();
             UserEntity testUser = UserEntity.builder()
                     .personIdentifier(personIdentifier)
@@ -165,7 +166,7 @@ public class UserRepositoryTest {
         @Test
         @DisplayName("then eId name and last login time is set for eID when other eId exists")
         void testSetEidNameForUserWhenAnotherExists() {
-            String personIdentifier = "15910600580";
+            String personIdentifier = TestData.randomSynpid();
             List<EIDEntity> eIDs = new ArrayList<>();
 
             UserEntity testUser = UserEntity.builder()
