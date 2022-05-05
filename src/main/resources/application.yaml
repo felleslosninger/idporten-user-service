@@ -1,18 +1,13 @@
 ---
 server:
-  port: 7070
+  port: 8080
 spring:
-  datasource:
-    url: "jdbc:h2:mem:idportenusers,MODE=MySQL;DB_CLOSE_ON_EXIT=FALSE"
-    driver-class-name: org.h2.Driver
-    username: sa
-    password: password
   jpa:
-    database-platform: org.hibernate.dialect.H2Dialect
     hibernate:
       ddl-auto: none
     generate-ddl: false
     show-sql: false
+    database-platform: org.hibernate.dialect.MariaDB103Dialect
   flyway:
     table: flyway_schema_history
 
@@ -42,7 +37,7 @@ management:
       mode: full
   metrics:
     tags:
-      application: "ID-porten user service"
+      application: "IDporten-user-service"
     diskspace:
       enabled: false
 
@@ -64,6 +59,13 @@ springdoc:
 # App-specific config
 idporten-user-service:
   features:
-    allow-real-pid: false
-    allow-synthetic-pid: true
+    allow-real-pid: true
+    allow-synthetic-pid: false
 
+---
+spring:
+  config:
+    activate:
+      on-cloud-platform: 'kubernetes'
+    import:
+      - 'optional:file:/etc/config/'

@@ -1,0 +1,13 @@
+---
+spring:
+  datasource:
+    url: jdbc:mariadb://user-service-mariadb:3306/idporten_user
+    password: ${DATASOURCE_PASSWORD}
+    username: user_service
+    driver-class-name: org.mariadb.jdbc.Driver
+
+# App-specific config
+idporten-user-service:
+  features:
+    allow-real-pid: false
+    allow-synthetic-pid: true

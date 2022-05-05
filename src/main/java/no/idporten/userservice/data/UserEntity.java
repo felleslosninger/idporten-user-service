@@ -1,6 +1,7 @@
 package no.idporten.userservice.data;
 
 import lombok.Builder;
+import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
 import java.time.Instant;
@@ -14,6 +15,8 @@ public class UserEntity {
 
     @Id
     @GeneratedValue
+    @Column(name= "uuid")
+    @Type(type = "uuid-char")
     private UUID uuid;
 
     @Column(name = "person_identifier")
