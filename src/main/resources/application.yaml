@@ -24,13 +24,17 @@ management:
         include: health,info,version,prometheus
   endpoint:
     health:
-      db:
-        enabled: true
       group:
+        readiness:
+          include: db
         liveness:
-          include: livenessProbe
-      diskspace:
-        enabled: false
+          include: livenessState
+        diskspace:
+          enabled: false
+      probes:
+        enabled: true
+      show-details: never
+
 
   info:
     git:
@@ -38,8 +42,6 @@ management:
   metrics:
     tags:
       application: "IDporten-user-service"
-    diskspace:
-      enabled: false
 
 # Swagger with springdoc
 springdoc:
