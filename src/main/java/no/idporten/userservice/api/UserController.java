@@ -1,24 +1,20 @@
 package no.idporten.userservice.api;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import no.idporten.userservice.data.EID;
 import no.idporten.userservice.data.IDPortenUser;
 import no.idporten.userservice.data.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.ReflectionUtils;
-import org.springframework.validation.FieldError;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -29,6 +25,7 @@ import static no.idporten.userservice.api.UserController.PATH;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping(PATH)
+@Slf4j
 public class UserController {
 
     public static final String PATH = "/users";
@@ -75,7 +72,13 @@ public class UserController {
     @Operation(summary = "Create a user", description = "Create a new user", tags = {"crud-api"})
     @PostMapping(path = "/", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<UserResponse> createUser(@Valid @RequestBody CreateUserRequest createUserRequest, HttpServletRequest httpServletRequest) {
-        IDPortenUser created = userService.createUser(copyData(createUserRequest, new IDPortenUser()));
+        IDPortenUser created;
+        try{
+            created = userService.createUser(copyData(createUserRequest, new IDPortenUser()));
+        }catch (IllegalArgumentException e){
+            throw new UserExistsException("User already exits, can not create", e);
+        }
+
         return ResponseEntity
                 .created(UriComponentsBuilder.fromUriString(httpServletRequest.getRequestURI()).path(created.getId().toString()).build().toUri())
                 .body(convert(created));
@@ -160,26 +163,6 @@ public class UserController {
         return toUser;
     }
 
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorResponse> handleInvalidRequest(MethodArgumentNotValidException e) {
-        String errorDescription = null;
-        if (!e.getBindingResult().getAllErrors().isEmpty() && e.getBindingResult().getFieldError() != null && e.getTarget() != null) {
-            FieldError fieldError = e.getBindingResult().getFieldError();
-            Field field = ReflectionUtils.findField(e.getTarget().getClass(), fieldError.getField());
-            if (field != null) {
-                JsonProperty jsonProperty = field.getAnnotation(JsonProperty.class);
-                if (jsonProperty != null) {
-                    errorDescription = "Invalid attribute %s: %s".formatted(jsonProperty.value(), fieldError.getDefaultMessage());
-                } else {
-                    errorDescription = "Invalid attribute %s: %s".formatted(fieldError.getField(), fieldError.getDefaultMessage());
-                }
-            }
-        }
-        return ResponseEntity.badRequest()
-                .body(ErrorResponse.builder()
-                        .error("invalid_request")
-                        .errorDescription(errorDescription)
-                        .build());
-    }
+
 
 }
