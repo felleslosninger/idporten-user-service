@@ -1,6 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <configuration>
+
+    <springProfile name="local-dev | local-h2">
+        <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+        <include resource="org/springframework/boot/logging/logback/console-appender.xml" />
+        <root level="INFO">
+            <appender-ref ref="CONSOLE" />
+        </root>
+    </springProfile>
+
+
     <appender name="APPLICATION" class="ch.qos.logback.core.ConsoleAppender">
         <encoder class="net.logstash.logback.encoder.LogstashEncoder">
             <includeMdc>true</includeMdc>
@@ -14,11 +24,13 @@
         </encoder>
     </appender>
 
-    <logger name="no.idporten" level="INFO" additivity="false">
-        <appender-ref ref="APPLICATION"/>
-    </logger>
+    <springProfile name="!local-dev &amp; !local-h2">
+        <logger name="no.idporten" level="INFO" additivity="false">
+            <appender-ref ref="APPLICATION"/>
+        </logger>
 
-    <root level="WARN">
-        <appender-ref ref="STDOUT"/>
-    </root>
+        <root level="WARN">
+            <appender-ref ref="STDOUT"/>
+        </root>
+    </springProfile>
 </configuration>
