@@ -12,10 +12,12 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class IDPortenUser {
 
     private UUID id;
 
+    @EqualsAndHashCode.Include
     private String pid;
 
     private Instant created;
@@ -27,6 +29,8 @@ public class IDPortenUser {
     private String closedCode;
 
     private Instant closedCodeLastUpdated;
+
+    private IDPortenUser previousUser;
 
     @Singular
     private List<String> helpDeskCaseReferences = Collections.EMPTY_LIST;
@@ -63,6 +67,9 @@ public class IDPortenUser {
 
         if (u.getEIDs() != null && !u.getEIDs().isEmpty()) {
             this.eids = u.getEIDs().stream().map(EID::new).toList();
+        }
+        if(u.getPreviousUser() != null){
+            this.previousUser = new IDPortenUser(u.getPreviousUser());
         }
     }
 
