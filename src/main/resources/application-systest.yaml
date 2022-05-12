@@ -9,5 +9,5 @@ spring:
 # App-specific config
 idporten-user-service:
   features:
-    allow-real-pid: false
+    allow-real-pid: true
     allow-synthetic-pid: true
