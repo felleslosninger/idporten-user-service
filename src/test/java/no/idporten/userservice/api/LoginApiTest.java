@@ -1,4 +1,4 @@
-package no.idporten.userservice.im;
+package no.idporten.userservice.api;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
