@@ -169,4 +169,92 @@ public class UserServiceTest {
             verify(userRepository, times(1)).save(any(UserEntity.class));
         }
     }
+
+    @Nested
+    @DisplayName("When user")
+    public class ChangePidTest {
+
+        @Test
+        @DisplayName("change to new pid then old user is set to inactive and new user is returned")
+        public void changePidForUserTest() {
+            String personIdentifier = "1263";
+            String newPersonIdentifier = "5555";
+
+            UserEntity userEntity = UserEntity.builder().personIdentifier(personIdentifier).active(true).uuid(UUID.randomUUID()).build();
+            Optional<UserEntity> existingUser = Optional.of(userEntity);
+            when(userRepository.findByPersonIdentifier(personIdentifier)).thenReturn(existingUser);
+            when(userRepository.findByPersonIdentifier(newPersonIdentifier)).thenReturn(Optional.ofNullable(null));
+            UserEntity newUserEntity = UserEntity.builder().personIdentifier(newPersonIdentifier).active(true).uuid(UUID.randomUUID()).previousUser(userEntity).build();
+            when(userRepository.save(any(UserEntity.class))).thenReturn(newUserEntity); //wrong second return, but do not care since not used
+
+            IDPortenUser newIdPortenUser = userService.changePid(personIdentifier, newPersonIdentifier);
+
+            assertTrue(newIdPortenUser.isActive());
+            assertEquals(newPersonIdentifier, newIdPortenUser.getPid());
+            assertNotNull(newIdPortenUser.getPreviousUser());
+            assertEquals(userEntity.getUuid(), newIdPortenUser.getPreviousUser().getId());
+            assertFalse(newIdPortenUser.getPreviousUser().isActive());
+            verify(userRepository).findByPersonIdentifier(personIdentifier);
+            verify(userRepository).findByPersonIdentifier(newPersonIdentifier);
+            verify(userRepository, times(2)).save(any(UserEntity.class));
+        }
+
+        @Test
+        @DisplayName("has historic users return all related users in order")
+        public void findHistoryForUserTest() {
+            String currentPid = "333";
+            String oldPid = "222";
+            String oldestPid = "111";
+
+            UserEntity userEntity1 = UserEntity.builder().personIdentifier(oldestPid).active(false).uuid(UUID.randomUUID()).build();
+            UserEntity userEntity2 = UserEntity.builder().personIdentifier(oldPid).active(false).uuid(UUID.randomUUID()).previousUser(userEntity1).build();
+            UserEntity userEntity3 = UserEntity.builder().personIdentifier(currentPid).active(true).uuid(UUID.randomUUID()).previousUser(userEntity2).build();
+
+            Optional<UserEntity> currentUser = Optional.of(userEntity3);
+            when(userRepository.findByPersonIdentifier(currentPid)).thenReturn(currentUser);
+
+            List<IDPortenUser> users = userService.findUserHistoryAndNewer(currentPid);
+            assertNotNull(users);
+            assertEquals(3, users.size());
+            assertEquals(currentPid, users.get(0).getPid());
+            assertEquals(oldPid, users.get(1).getPid());
+            assertEquals(oldestPid, users.get(2).getPid());
+
+            verify(userRepository).findByPersonIdentifier(currentPid);
+
+        }
+
+
+        @Test
+        @DisplayName("has historic users and newer users return all related users in order")
+        public void findHistoryAndNewerForUserTest() {
+            String newerPid = "444";
+            String searchPid = "333";
+            String oldPid = "222";
+            String oldestPid = "111";
+
+            UserEntity userEntity1 = UserEntity.builder().personIdentifier(oldestPid).active(false).uuid(UUID.randomUUID()).build();
+            UserEntity userEntity2 = UserEntity.builder().personIdentifier(oldPid).active(false).uuid(UUID.randomUUID()).previousUser(userEntity1).build();
+            UserEntity userEntity3 = UserEntity.builder().personIdentifier(searchPid).active(false).uuid(UUID.randomUUID()).previousUser(userEntity2).build();
+            UserEntity userEntity4 = UserEntity.builder().personIdentifier(newerPid).active(true).uuid(UUID.randomUUID()).previousUser(userEntity3).build();
+
+            userEntity1.setNextUser(userEntity2);
+            userEntity2.setNextUser(userEntity3);
+            userEntity3.setNextUser(userEntity4);
+
+            Optional<UserEntity> searchUser = Optional.of(userEntity3);
+            when(userRepository.findByPersonIdentifier(searchPid)).thenReturn(searchUser);
+
+            List<IDPortenUser> users = userService.findUserHistoryAndNewer(searchPid);
+            assertNotNull(users);
+            assertEquals(4, users.size());
+            assertEquals(newerPid, users.get(0).getPid());
+            assertEquals(searchPid, users.get(1).getPid());
+            assertEquals(oldPid, users.get(2).getPid());
+            assertEquals(oldestPid, users.get(3).getPid());
+
+            verify(userRepository).findByPersonIdentifier(searchPid);
+
+        }
+    }
 }

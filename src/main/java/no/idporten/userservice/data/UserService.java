@@ -5,10 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
 import java.time.Instant;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @RequiredArgsConstructor
 @Service
@@ -120,5 +117,88 @@ public class UserService {
 
         return new IDPortenUser(userExists.get());
     }
+
+    public IDPortenUser changePid(String currentPid, String newPid) {
+        Optional<UserEntity> userExists = userRepository.findByPersonIdentifier(currentPid);
+        if (userExists.isEmpty()) {
+            throw new IllegalArgumentException("User not found for pid:" + currentPid); // TODO: change to UserNotFoundException or something like that
+        }
+        if (userRepository.findByPersonIdentifier(newPid).isPresent()) {
+            throw new IllegalArgumentException("User already exits for new pid:" + newPid); // TODO: change to different exception
+        }
+        UserEntity currentUser = userExists.get();
+        UserEntity newUser = userRepository.save(UserEntity.builder().personIdentifier(newPid).active(true).previousUser(currentUser).build());
+
+        currentUser.setActive(false);
+        userRepository.save(currentUser);
+
+        return new IDPortenUser(newUser);
+    }
+
+    public List<IDPortenUser> findUserHistory(String pid) {
+        Assert.notNull(pid, "pid is mandatory");
+        Optional<UserEntity> userExists = userRepository.findByPersonIdentifier(pid);
+        if (userExists.isEmpty()) {
+            return null;
+        }
+        List<IDPortenUser> previousUsers = new ArrayList<>();
+        UserEntity user = userExists.get();
+        previousUsers.add(new IDPortenUser(user));
+
+        UserEntity u = user;
+        while (u != null) {
+            u = findAllPreviousUsers(previousUsers, u);
+        }
+
+        return previousUsers;
+    }
+
+
+    public List<IDPortenUser> findUserHistoryAndNewer(String pid) {
+        Assert.notNull(pid, "pid is mandatory");
+        Optional<UserEntity> userExists = userRepository.findByPersonIdentifier(pid);
+        if (userExists.isEmpty()) {
+            return null;
+        }
+        List<IDPortenUser> allUsers = new ArrayList<>();
+        UserEntity currentUser = userExists.get();
+
+
+        UserEntity newUser = currentUser;
+        while (newUser != null) {
+            newUser = findAllNewerUsers(allUsers, newUser);
+        }
+        Collections.reverse(allUsers); // oldest users first in list
+
+        allUsers.add(new IDPortenUser(currentUser));
+
+        UserEntity oldUser = currentUser;
+        while (oldUser != null) {
+            oldUser = findAllPreviousUsers(allUsers, oldUser);
+        }
+
+
+        return allUsers;
+    }
+
+    private UserEntity findAllPreviousUsers(List<IDPortenUser> previousUsers, UserEntity user) {
+        if (user.getPreviousUser() != null) {
+            UserEntity previousUser = user.getPreviousUser();
+            previousUsers.add(new IDPortenUser(previousUser));
+            return previousUser;
+        }
+        return null;
+    }
+
+
+    private UserEntity findAllNewerUsers(List<IDPortenUser> nextUsers, UserEntity user) {
+        if (user.getNextUser() != null) {
+            UserEntity nextUser = user.getNextUser();
+            nextUsers.add(new IDPortenUser(nextUser));
+            return nextUser;
+        }
+        return null;
+    }
+
 
 }

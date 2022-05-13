@@ -95,7 +95,8 @@ public class IdentityManagementApiUserService implements IDPortenIdentityManagem
 
     @Override
     public UserResource changePersonIdentifier(ChangeIdentifierRequest changePersonIdentifierRequest) {
-        return null;
+        IDPortenUser idPortenUser = userService.changePid(changePersonIdentifierRequest.getOldPersonIdentifier(), changePersonIdentifierRequest.getNewPersonIdentifier());
+        return convert(idPortenUser);
     }
 
     protected void validatePersonIdentifier(String personIdentifier) {

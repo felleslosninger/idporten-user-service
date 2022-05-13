@@ -20,6 +20,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -29,6 +30,7 @@ import static no.idporten.userservice.api.UserController.PATH;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping(PATH)
+@Deprecated
 public class UserController {
 
     public static final String PATH = "/users";
@@ -111,6 +113,8 @@ public class UserController {
         return ResponseEntity.ok(convert(userService.updateUser(copyData(updatedUserRequest, idPortenUser))));
     }
 
+
+
     /**
      * Delete a user.
      *
@@ -125,6 +129,38 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         }
         return ResponseEntity.notFound().build();
+    }
+
+    /**
+     * Search for all user history
+     *
+     * @param searchRequest user request
+     * @return List of all users found
+     */
+    @Operation(summary = "Search for all user history", description = "Find older and newer user history", tags = {"crud-api"})
+    @PostMapping(path = "/search/history", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<UserResponse>> searchUserHistory(@Valid @RequestBody SearchRequest searchRequest) {
+        List<IDPortenUser> searchResult = userService.searchForUser(searchRequest.getPid());
+        if(searchResult.isEmpty()){
+            return ResponseEntity.ok(Collections.EMPTY_LIST);
+        }
+        String searchPointUser = searchResult.get(0).getPid();
+        List<IDPortenUser> idPortenUsers = userService.findUserHistoryAndNewer(searchPointUser);
+        List<UserResponse> users = idPortenUsers.stream().map(this::convert).toList();
+        return ResponseEntity.ok(users);
+    }
+
+    /**
+     * Change pid for a user.
+     *
+     * @param changeUserRequest new user user request
+     * @return created user resource
+     */
+    @Operation(summary = "Change pid for a user", description = "Change pid for a user", tags = {"crud-api"})
+    @PostMapping(path = "/change-id", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<UserResponse> changePid( @Valid @RequestBody ChangeUserRequest changeUserRequest) {
+        IDPortenUser created = userService.changePid(changeUserRequest.getCurrentPid(), changeUserRequest.getNewPid());
+        return ResponseEntity.ok(convert(created));
     }
 
     protected UserResponse convert(IDPortenUser idPortenUser) {
