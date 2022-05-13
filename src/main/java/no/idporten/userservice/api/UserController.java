@@ -30,6 +30,7 @@ import static no.idporten.userservice.api.UserController.PATH;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping(PATH)
+@Deprecated
 public class UserController {
 
     public static final String PATH = "/users";
@@ -143,7 +144,7 @@ public class UserController {
         if(searchResult.isEmpty()){
             return ResponseEntity.ok(Collections.EMPTY_LIST);
         }
-        UUID searchPointUser = searchResult.get(0).getId();
+        String searchPointUser = searchResult.get(0).getPid();
         List<IDPortenUser> idPortenUsers = userService.findUserHistoryAndNewer(searchPointUser);
         List<UserResponse> users = idPortenUsers.stream().map(this::convert).toList();
         return ResponseEntity.ok(users);
@@ -152,13 +153,13 @@ public class UserController {
     /**
      * Change pid for a user.
      *
-     * @param createUserRequest new user user request
+     * @param changeUserRequest new user user request
      * @return created user resource
      */
     @Operation(summary = "Change pid for a user", description = "Change pid for a user", tags = {"crud-api"})
-    @PostMapping(path = "/new-id/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<UserResponse> changePid(@PathVariable("id") String id, @Valid @RequestBody CreateUserRequest createUserRequest) {
-        IDPortenUser created = userService.changePid(UUID.fromString(id), createUserRequest.getPid());
+    @PostMapping(path = "/change-id", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<UserResponse> changePid( @Valid @RequestBody ChangeUserRequest changeUserRequest) {
+        IDPortenUser created = userService.changePid(changeUserRequest.getCurrentPid(), changeUserRequest.getNewPid());
         return ResponseEntity.ok(convert(created));
     }
 
