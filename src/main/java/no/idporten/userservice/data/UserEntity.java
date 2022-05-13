@@ -1,6 +1,5 @@
 package no.idporten.userservice.data;
 
-import lombok.Builder;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
@@ -10,12 +9,11 @@ import java.util.UUID;
 
 @Entity(name = "user")
 @Table(name = "user")
-@Builder
 public class UserEntity {
 
     @Id
     @GeneratedValue
-    @Column(name= "uuid")
+    @Column(name = "uuid")
     @Type(type = "uuid-char")
     private UUID uuid;
 
@@ -40,10 +38,19 @@ public class UserEntity {
     @Column(name = "help_desk_case_references")
     private String helpDeskCaseReferences;
 
-    @OneToMany(mappedBy = "user", orphanRemoval = true, cascade = CascadeType.ALL)
+    @OneToOne
+    @JoinColumn(name = "previous_user")
+    @Type(type = "uuid-char")
+    private UserEntity previousUser;
+
+    @OneToOne(mappedBy = "previousUser")
+    private UserEntity nextUser;
+
+    @OneToMany(mappedBy = "user", orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<EIDEntity> eIDs = new java.util.ArrayList<>();
 
-    public UserEntity(){}
+    public UserEntity() {
+    }
 
     public UserEntity(UUID uuid, String personIdentifier, long userCreatedAtEpochMs, long userLastUpdatedAtEpochMs, Boolean active, String closedCode, long closedCodeUpdatedAtEpochMs, String helpDeskCaseReferences, List<EIDEntity> eIDs) {
         this.uuid = uuid;
@@ -55,6 +62,20 @@ public class UserEntity {
         this.closedCodeUpdatedAtEpochMs = closedCodeUpdatedAtEpochMs;
         this.helpDeskCaseReferences = helpDeskCaseReferences;
         setEIDs(eIDs);
+    }
+
+    public UserEntity(UUID uuid, String personIdentifier, long userCreatedAtEpochMs, long userLastUpdatedAtEpochMs, Boolean active, String closedCode, long closedCodeUpdatedAtEpochMs, String helpDeskCaseReferences, List<EIDEntity> eIDs, UserEntity previousUser, UserEntity nextUser) {
+        this.uuid = uuid;
+        this.personIdentifier = personIdentifier;
+        this.userCreatedAtEpochMs = userCreatedAtEpochMs;
+        this.userLastUpdatedAtEpochMs = userLastUpdatedAtEpochMs;
+        this.active = active;
+        this.closedCode = closedCode;
+        this.closedCodeUpdatedAtEpochMs = closedCodeUpdatedAtEpochMs;
+        this.helpDeskCaseReferences = helpDeskCaseReferences;
+        setEIDs(eIDs);
+        setPreviousUser(previousUser);
+        setNextUser(nextUser);
     }
 
     public UUID getUuid() {
@@ -128,6 +149,22 @@ public class UserEntity {
         this.eIDs.add(eid);
     }
 
+    public UserEntity getPreviousUser() {
+        return previousUser;
+    }
+
+    public void setPreviousUser(UserEntity previousUser) {
+        this.previousUser = previousUser;
+    }
+
+    public UserEntity getNextUser() {
+        return nextUser;
+    }
+
+    public void setNextUser(UserEntity nextUser) {
+        this.nextUser = nextUser;
+    }
+
     @PrePersist
     public void onPrePersist() {
         userCreatedAtEpochMs = Instant.now().toEpochMilli();
@@ -137,5 +174,70 @@ public class UserEntity {
     @PreUpdate
     public void onPreUpdate() {
         userLastUpdatedAtEpochMs = Instant.now().toEpochMilli();
+    }
+
+    public static UserEntityBuilder builder() {
+        return new UserEntityBuilder();
+    }
+
+    public static class UserEntityBuilder {
+        private UUID uuid;
+        private String personIdentifier;
+        private String closedCode;
+        private long closedCodeUpdatedAtEpochMs;
+        private String helpDeskCaseReferences;
+        private boolean active;
+        private UserEntity previousUser;
+        private UserEntity nextUser;
+        private List<EIDEntity> eIDs;
+
+        public UserEntityBuilder uuid(UUID uuid) {
+            this.uuid = uuid;
+            return this;
+        }
+
+
+        public UserEntityBuilder personIdentifier(String personIdentifier) {
+            this.personIdentifier = personIdentifier;
+            return this;
+        }
+
+        public UserEntityBuilder closedCode(String closedCode) {
+            this.closedCode = closedCode;
+            return this;
+        }
+
+        public UserEntityBuilder closedCodeUpdatedAtEpochMs(long closedCodeUpdatedAtEpochMs) {
+            this.closedCodeUpdatedAtEpochMs = closedCodeUpdatedAtEpochMs;
+            return this;
+        }
+
+        public UserEntityBuilder helpDeskCaseReferences(String helpDeskCaseReferences) {
+            this.helpDeskCaseReferences = helpDeskCaseReferences;
+            return this;
+        }
+
+        public UserEntityBuilder active(boolean active) {
+            this.active = active;
+            return this;
+        }
+
+        public UserEntityBuilder previousUser(UserEntity previousUser){
+            this.previousUser = previousUser;
+            return this;
+        }
+        public UserEntityBuilder nextUser(UserEntity nextUser){
+            this.nextUser = nextUser;
+            return this;
+        }
+
+        public UserEntityBuilder eIDs(List<EIDEntity> eIDs){
+            this.eIDs = eIDs;
+            return this;
+        }
+
+        public UserEntity build() {
+            return new UserEntity(uuid, personIdentifier, 0l, 0l, active, closedCode, closedCodeUpdatedAtEpochMs, helpDeskCaseReferences, eIDs, previousUser, nextUser);
+        }
     }
 }
