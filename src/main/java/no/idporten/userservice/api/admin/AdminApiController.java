@@ -8,12 +8,10 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import no.idporten.userservice.api.ApiException;
 import no.idporten.userservice.api.ApiUserService;
 import no.idporten.userservice.api.SearchRequest;
 import no.idporten.userservice.api.UserResource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -79,12 +77,9 @@ public class AdminApiController {
                     @ExampleObject(description = "Error response", value = errorResponseExample)
             }))
     })
-    @GetMapping(path = "/im/v1/admin/users/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(path = "/im/v1/admin/users/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<UserResource> retrieveUser(@PathVariable("id") String id) {
         UserResource userResource = apiUserService.lookup(id);
-        if (userResource == null) {
-            throw new ApiException("user_not_found", "User not found", HttpStatus.NOT_FOUND);
-        }
         return ResponseEntity.ok(userResource);
     }
 

@@ -1,10 +1,13 @@
 package no.idporten.userservice.api;
 
 import no.idporten.userservice.TestData;
-import no.idporten.userservice.api.login.*;
+import no.idporten.userservice.api.admin.UpdateAttributesRequest;
+import no.idporten.userservice.api.login.CreateUserRequest;
+import no.idporten.userservice.api.login.UpdateUserLoginRequest;
 import no.idporten.userservice.data.EID;
 import no.idporten.userservice.data.IDPortenUser;
 import no.idporten.userservice.data.UserService;
+import no.idporten.userservice.data.UserServiceException;
 import no.idporten.validators.identifier.PersonIdentifierValidator;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -29,8 +32,7 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class ApiUserServiceTest {
@@ -50,9 +52,9 @@ public class ApiUserServiceTest {
     @Captor
     private ArgumentCaptor<IDPortenUser> idPortenUserCaptor;
 
-    @DisplayName("When the Identity Management Login API is invoked")
+    @DisplayName("When searching for users")
     @Nested
-    class LoginAPITests {
+    class SearchTests {
 
         @DisplayName("then a search for an invalid person identifier will fail with exception")
         @Test
@@ -78,15 +80,48 @@ public class ApiUserServiceTest {
 
         @DisplayName("then a search returns a list of found users")
         @Test
-        public void testSearchUserFoundFound() {
-            String personIdentifier = TestData.randomSynpid();
-            when(userService.searchForUser(eq(personIdentifier))).thenReturn(List.of(IDPortenUser.builder().id(UUID.randomUUID()).pid(personIdentifier).build()));
+        public void testSearchUserFound() {
+            IDPortenUser user = TestData.randomUser();
+            String personIdentifier = user.getPid();
+            when(userService.searchForUser(eq(personIdentifier))).thenReturn(List.of(user));
             List<UserResource> searchResult = apiUserService.searchForUser(personIdentifier);
             assertAll(
                     () -> assertEquals(1, searchResult.size()),
                     () -> assertEquals(personIdentifier, searchResult.get(0).getPersonIdentifier())
             );
         }
+
+    }
+
+    @DisplayName("When looking up users")
+    @Nested
+    class LookupTests {
+
+        @DisplayName("then existing users can be found")
+        @Test
+        public void testLookupExistingUser() {
+            IDPortenUser user = TestData.randomUser();
+            when(userService.findUser(eq(user.getId()))).thenReturn(user);
+            UserResource lookupResult = apiUserService.lookup(user.getId().toString());
+            assertAll(
+                    () -> assertEquals(user.getId().toString(), lookupResult.getId()),
+                    () -> assertEquals(user.getPid(), lookupResult.getPersonIdentifier())
+            );
+        }
+
+        @DisplayName("then non-existing users will throw an exception")
+        @Test
+        public void testLookupNonExistingUser() {
+            UUID userId = TestData.randomUserId();
+            UserServiceException exception = assertThrows(UserServiceException.class, () -> apiUserService.lookup(userId.toString()));
+            assertTrue(exception.getErrorDescription().contains("User not found"));
+        }
+
+    }
+
+    @DisplayName("When creating a new user users")
+    @Nested
+    class CreateTests {
 
         @DisplayName("then create user on first login will fail for invalid person identifiers")
         @Test
@@ -120,8 +155,13 @@ public class ApiUserServiceTest {
                     () -> assertTrue(userResource.isActive())
             );
         }
+    }
 
-        @DisplayName("then a ID-porten user can be updated with logins")
+    @DisplayName("When updating user logins")
+    @Nested
+    class UpdateLoginsTest {
+
+        @DisplayName("then an ID-porten user can be updated with logins")
         @Test
         public void testUpdateUserLogins() {
             UUID userId = TestData.randomUserId();
@@ -140,12 +180,32 @@ public class ApiUserServiceTest {
                     () -> assertEquals(request.getEidName(), userResource.getUserLogins().get(0).getEid())
             );
         }
+    }
+
+    @DisplayName("When updating user attributes")
+    @Nested
+    class UpdateAttributesTest {
+
+        @DisplayName("then an ID-porten user can be updated with help desk references")
+        @Test
+        public void testUpdateAttributes() {
+            IDPortenUser user = TestData.randomUser();
+            when(userService.findUser(eq(user.getId()))).thenReturn(user);
+            UpdateAttributesRequest updateAttributesRequest = UpdateAttributesRequest.builder().helpDeskReferences(List.of("b","a")).build();
+            UserResource userResource = apiUserService.updateUserAttributes(user.getId().toString(), updateAttributesRequest);
+            assertAll(
+                    () -> assertEquals(user.getId().toString(), userResource.getId()),
+                    () -> assertEquals(userResource.getHelpDeskReferences().size(), 2),
+                    () -> assertTrue(userResource.getHelpDeskReferences().containsAll(List.of("a", "b")))
+            );
+            verify(userService).updateUser(any(IDPortenUser.class));
+        }
 
     }
 
-    @DisplayName("When converting data to IM API model")
+    @DisplayName("When converting data to the API model")
     @Nested
-    class ConvertionTests {
+    class ConversionTests {
 
         @DisplayName("then a null instant is converted to null")
         @Test
