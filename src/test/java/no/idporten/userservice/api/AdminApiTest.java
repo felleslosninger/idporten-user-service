@@ -19,10 +19,8 @@ import org.springframework.test.web.servlet.MvcResult;
 
 import java.util.Map;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -70,7 +68,7 @@ public class AdminApiTest {
         @SneakyThrows
         private MvcResult closeUser(String id, String closedCode) {
             return mockMvc.perform(
-                    put("/im/v1/users/%s/status".formatted(id))
+                    put("/im/v1/admin/users/%s/status".formatted(id))
                             .contentType(MediaType.APPLICATION_JSON)
                             .accept(MediaType.APPLICATION_JSON)
                             .content(statusRequest(closedCode)))
@@ -86,7 +84,7 @@ public class AdminApiTest {
             final String id = createUser(personIdentifier);
             final String closedCode = "SPERRET";
             mockMvc.perform(
-                            put("/im/v1/users/%s/status".formatted(id))
+                            put("/im/v1/admin/users/%s/status".formatted(id))
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .accept(MediaType.APPLICATION_JSON)
                                     .content(statusRequest(closedCode)))
@@ -107,13 +105,13 @@ public class AdminApiTest {
             final String id = createUser(personIdentifier);
             final String closedCode = "SPERRET";
             mockMvc.perform(
-                            put("/im/v1/users/%s/status".formatted(id))
+                            put("/im/v1/admin/users/%s/status".formatted(id))
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .accept(MediaType.APPLICATION_JSON)
                                     .content(statusRequest(closedCode)))
                     .andExpect(status().isOk());
             mockMvc.perform(
-                            put("/im/v1/users/%s/status".formatted(id))
+                            put("/im/v1/admin/users/%s/status".formatted(id))
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .accept(MediaType.APPLICATION_JSON)
                                     .content(statusRequest("")))
@@ -125,6 +123,15 @@ public class AdminApiTest {
         }
 
 
+    }
+
+    @DisplayName("then the API is documented with Swagger")
+    @Test
+    void testAPIDocumentedWithSwagger() throws Exception {
+        mockMvc.perform(
+                        get("/swagger-ui/index.html#/admin-api"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.TEXT_HTML));
     }
 
 }

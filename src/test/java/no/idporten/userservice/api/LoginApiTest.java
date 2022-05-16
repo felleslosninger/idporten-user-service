@@ -20,6 +20,7 @@ import org.springframework.test.web.servlet.MvcResult;
 
 import java.util.Map;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -198,5 +199,15 @@ public class LoginApiTest {
         }
 
     }
+
+    @DisplayName("then the API is documented with Swagger")
+    @Test
+    void testAPIDocumentedWithSwagger() throws Exception {
+        mockMvc.perform(
+                        get("/swagger-ui/index.html#/login-api"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.TEXT_HTML));
+    }
+
 
 }

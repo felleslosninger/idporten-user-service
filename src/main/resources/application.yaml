@@ -49,10 +49,10 @@ springdoc:
     groups:
       enabled: true
   group-configs:
-    - group: CRUD API
-      paths-to-match: /users/**
-    - group: Identity Management API
-      paths-to-match: /im/**
+    - group: Admin API
+      paths-to-match: /im/v1/admin/**
+    - group: Login API
+      paths-to-match: /im/v1/login/**
   swagger-ui:
     display-request-duration: true
     disable-swagger-default-url: true
