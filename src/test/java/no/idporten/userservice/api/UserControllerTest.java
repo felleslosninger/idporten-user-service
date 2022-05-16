@@ -5,6 +5,7 @@ import com.jayway.jsonpath.JsonPath;
 import lombok.SneakyThrows;
 import no.idporten.userservice.TestData;
 import org.hamcrest.Matchers;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -30,6 +31,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @DisplayName("When using the user API")
 @ActiveProfiles("test")
+@Disabled
 public class UserControllerTest {
 
     @Autowired
