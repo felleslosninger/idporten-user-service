@@ -101,9 +101,7 @@ public class AdminApiController {
     })
     @PatchMapping(path = "/im/v1/users/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<UserResource> updateUserAttributes(@PathVariable("id") String id,
-                                                             @RequestBody @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Updated attributes", content = @Content(examples = {
-                                                                     @ExampleObject(value = "{\"attribute1\": \"value1\", \"attribute2\": \"value2\"}")
-                                                             })) UpdateAttributesRequest request) {
+                                                             @Valid @RequestBody UpdateAttributesRequest request) {
         return ResponseEntity.ok(apiUserService.updateUserAttributes(id, request));
     }
 
@@ -119,7 +117,8 @@ public class AdminApiController {
             @ApiResponse(responseCode = "404", description = "User is not found")
     })
     @PutMapping(path = "/im/v1/users/{id}/status", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<UserResource> updateUserStatus(@PathVariable("id") String id, @RequestBody UpdateStatusRequest request) {
+    public ResponseEntity<UserResource> updateUserStatus(@PathVariable("id") String id,
+                                                         @Valid @RequestBody UpdateStatusRequest request) {
         return ResponseEntity.ok(apiUserService.updateUserStatus(id, request));
     }
 
@@ -129,7 +128,7 @@ public class AdminApiController {
             @ApiResponse(responseCode = "404", description = "User is not found")
     })
     @PutMapping(path = "/im/v1/users/.change-identifier", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<UserResource> changeIdentifier(@RequestBody ChangeIdentifierRequest request) {
+    public ResponseEntity<UserResource> changeIdentifier(@Valid @RequestBody ChangeIdentifierRequest request) {
         return ResponseEntity.ok(apiUserService.changePersonIdentifier(request));
     }
 

@@ -23,17 +23,4 @@ public class UserStatus {
     @JsonProperty("closed_date")
     private ZonedDateTime closedDate;
 
-    @NoArgsConstructor
-    @Data
-    public static class IDPortenUserResource extends UserResource {
-
-        public IDPortenUserResource(boolean active, String id, String personIdentifier, UserStatus userStatus, List<UserLogin> userLogins, ZonedDateTime created, ZonedDateTime lastModified, List<String> helpDeskReferences) {
-            super(active, id, personIdentifier, userStatus, userLogins, created, lastModified);
-            this.helpDeskReferences = helpDeskReferences;
-        }
-
-        @JsonProperty("help_desk_references")
-        private List<String> helpDeskReferences;
-
-    }
 }

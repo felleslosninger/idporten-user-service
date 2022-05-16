@@ -24,6 +24,9 @@ public class UserResource {
     @JsonProperty("person_identifier")
     private String personIdentifier;
 
+    @JsonProperty("help_desk_references")
+    private List<String> helpDeskReferences;
+
     @JsonProperty("status")
     private UserStatus userStatus;
 

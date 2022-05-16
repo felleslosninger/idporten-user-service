@@ -35,7 +35,11 @@ public class ApiExceptionHandler {
         String errorDescription = null;
         if (!e.getBindingResult().getAllErrors().isEmpty() && e.getBindingResult().getFieldError() != null && e.getTarget() != null) {
             FieldError fieldError = e.getBindingResult().getFieldError();
-            Field field = ReflectionUtils.findField(e.getTarget().getClass(), fieldError.getField());
+            String fieldName = fieldError.getField();
+            if (fieldName.indexOf('[') > 0) {
+                fieldName = fieldName.substring(0, fieldName.indexOf('['));
+            }
+            Field field = ReflectionUtils.findField(e.getTarget().getClass(), fieldName);
             if (field != null) {
                 JsonProperty jsonProperty = field.getAnnotation(JsonProperty.class);
                 if (jsonProperty != null) {

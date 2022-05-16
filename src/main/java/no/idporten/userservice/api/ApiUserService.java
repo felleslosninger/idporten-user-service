@@ -9,6 +9,7 @@ import no.idporten.userservice.api.login.UpdateUserLoginRequest;
 import no.idporten.userservice.data.EID;
 import no.idporten.userservice.data.IDPortenUser;
 import no.idporten.userservice.data.UserService;
+import no.idporten.userservice.data.UserServiceException;
 import no.idporten.validators.identifier.PersonIdentifierValidator;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -20,7 +21,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
@@ -38,8 +39,7 @@ public class ApiUserService {
     public UserResource lookup(String userId) {
         IDPortenUser idPortenUser = userService.findUser(UUID.fromString(userId));
         validateUserExists(idPortenUser);
-        UserResource scimUserResource = convert(idPortenUser);
-        return scimUserResource;
+        return convert(idPortenUser);
     }
 
     public List<UserResource> searchForUser(String personIdentifier) {
@@ -66,11 +66,12 @@ public class ApiUserService {
     public UserResource updateUserAttributes(String id, UpdateAttributesRequest updateAttributesRequest) {
         IDPortenUser idPortenUser = userService.findUser(UUID.fromString(id));
         validateUserExists(idPortenUser);
-        Object value = updateAttributesRequest.getAttribute("help_desk_references");
-        // TODO litt bedre validering
-        if (value != null && value instanceof Collection) {
-            idPortenUser.setHelpDeskCaseReferences(((Collection) value).stream().toList());
+        if (CollectionUtils.isEmpty(updateAttributesRequest.getHelpDeskReferences())) {
+            idPortenUser.setHelpDeskCaseReferences(new ArrayList<>());
+        } else {
+            idPortenUser.setHelpDeskCaseReferences(updateAttributesRequest.getHelpDeskReferences());
         }
+        userService.updateUser(idPortenUser);
         return convert(idPortenUser);
     }
 
@@ -104,11 +105,12 @@ public class ApiUserService {
 
     protected void validateUserExists(IDPortenUser idPortenUser) {
         if (idPortenUser == null) {
+            throw UserServiceException.userNotFound();
         }
     }
 
     protected UserResource convert(IDPortenUser idPortenUser) {
-        UserStatus.IDPortenUserResource userResource = new UserStatus.IDPortenUserResource();
+        UserResource userResource = new UserResource();
         userResource.setId(idPortenUser.getId().toString());
         userResource.setActive(idPortenUser.isActive());
         userResource.setPersonIdentifier(idPortenUser.getPid());
