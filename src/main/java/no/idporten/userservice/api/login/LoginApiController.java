@@ -1,6 +1,8 @@
 package no.idporten.userservice.api.login;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -24,9 +26,25 @@ import java.util.List;
  * API for login operations: checking user status, creating user at first login, and updating logins.
  */
 @Tag(name = "login-api", description = "API for login services")
+@ApiResponses(value = {
+        @ApiResponse(responseCode = "400", description = "Invalid request", content = @Content(examples = {
+                @ExampleObject(description = "Error response", value = LoginApiController.errorResponseExample)
+        })),
+        @ApiResponse(responseCode = "404", description = "User not found", content = @Content(examples = {
+                @ExampleObject(description = "Error response", value = LoginApiController.errorResponseExample)
+        })),
+        @ApiResponse(responseCode = "409", description = "User already exists", content = @Content(examples = {
+                @ExampleObject(description = "Error response", value = LoginApiController.errorResponseExample)
+        })),
+        @ApiResponse(responseCode = "500", description = "Server error", content = @Content(examples = {
+                @ExampleObject(description = "Error response", value = LoginApiController.errorResponseExample)
+        }))
+})
 @Slf4j
 @RestController
 public class LoginApiController {
+
+    public static final String errorResponseExample = "{\"error\": \"error code\", \"error_description\": \"description of the error\"}";
 
     private final ApiUserService apiUserService;
 
