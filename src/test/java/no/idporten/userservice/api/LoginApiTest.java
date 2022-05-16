@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
 import lombok.SneakyThrows;
 import no.idporten.userservice.TestData;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -20,8 +21,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import java.util.Map;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -69,7 +69,7 @@ public class LoginApiTest {
                                     .content(searchRequest(personIdentifier)))
                     .andExpect(status().isBadRequest())
                     .andExpect(jsonPath("$.error").value("invalid_request"))
-                    .andExpect(jsonPath("$.error_description").value("Invalid person_identifier."));
+                    .andExpect(jsonPath("$.error_description", Matchers.containsString("Invalid person identifier")));
         }
 
         @SneakyThrows
@@ -128,7 +128,7 @@ public class LoginApiTest {
                                     .content(createUserRequest(personIdentifier)))
                     .andExpect(status().isBadRequest())
                     .andExpect(jsonPath("$.error").value("invalid_request"))
-                    .andExpect(jsonPath("$.error_description").value("Invalid person_identifier."));
+                    .andExpect(jsonPath("$.error_description", Matchers.containsString("Invalid person identifier")));
         }
 
         @SneakyThrows
@@ -170,7 +170,7 @@ public class LoginApiTest {
                                     .content(addLoginRequest("whatever")))
                     .andExpect(status().isBadRequest())
                     .andExpect(jsonPath("$.error").value("invalid_request"))
-                    .andExpect(jsonPath("$.error_description").value("Invalid person_identifier."));
+                    .andExpect(jsonPath("$.error_description", Matchers.containsString("Invalid person identifier")));
         }
 
         @SneakyThrows
