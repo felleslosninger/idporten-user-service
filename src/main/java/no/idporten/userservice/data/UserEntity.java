@@ -47,12 +47,12 @@ public class UserEntity {
     private UserEntity nextUser;
 
     @OneToMany(mappedBy = "user", orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<EIDEntity> eIDs = new java.util.ArrayList<>();
+    private List<LoginEntity> eIDs = new java.util.ArrayList<>();
 
     public UserEntity() {
     }
 
-    public UserEntity(UUID uuid, String personIdentifier, long userCreatedAtEpochMs, long userLastUpdatedAtEpochMs, Boolean active, String closedCode, long closedCodeUpdatedAtEpochMs, String helpDeskCaseReferences, List<EIDEntity> eIDs) {
+    public UserEntity(UUID uuid, String personIdentifier, long userCreatedAtEpochMs, long userLastUpdatedAtEpochMs, Boolean active, String closedCode, long closedCodeUpdatedAtEpochMs, String helpDeskCaseReferences, List<LoginEntity> eIDs) {
         this.uuid = uuid;
         this.personIdentifier = personIdentifier;
         this.userCreatedAtEpochMs = userCreatedAtEpochMs;
@@ -64,7 +64,7 @@ public class UserEntity {
         setEIDs(eIDs);
     }
 
-    public UserEntity(UUID uuid, String personIdentifier, long userCreatedAtEpochMs, long userLastUpdatedAtEpochMs, Boolean active, String closedCode, long closedCodeUpdatedAtEpochMs, String helpDeskCaseReferences, List<EIDEntity> eIDs, UserEntity previousUser, UserEntity nextUser) {
+    public UserEntity(UUID uuid, String personIdentifier, long userCreatedAtEpochMs, long userLastUpdatedAtEpochMs, Boolean active, String closedCode, long closedCodeUpdatedAtEpochMs, String helpDeskCaseReferences, List<LoginEntity> eIDs, UserEntity previousUser, UserEntity nextUser) {
         this.uuid = uuid;
         this.personIdentifier = personIdentifier;
         this.userCreatedAtEpochMs = userCreatedAtEpochMs;
@@ -134,18 +134,18 @@ public class UserEntity {
         this.helpDeskCaseReferences = helpDeskCaseReferences;
     }
 
-    public List<EIDEntity> getEIDs() {
+    public List<LoginEntity> getEIDs() {
         return this.eIDs;
     }
 
-    public void setEIDs(List<EIDEntity> eIDs) {
+    public void setEIDs(List<LoginEntity> eIDs) {
         this.eIDs.clear();
         if (eIDs != null) {
             this.eIDs.addAll(eIDs);
         }
     }
 
-    public void addEid(EIDEntity eid) {
+    public void addEid(LoginEntity eid) {
         this.eIDs.add(eid);
     }
 
@@ -189,7 +189,7 @@ public class UserEntity {
         private boolean active;
         private UserEntity previousUser;
         private UserEntity nextUser;
-        private List<EIDEntity> eIDs;
+        private List<LoginEntity> eIDs;
 
         public UserEntityBuilder uuid(UUID uuid) {
             this.uuid = uuid;
@@ -231,7 +231,7 @@ public class UserEntity {
             return this;
         }
 
-        public UserEntityBuilder eIDs(List<EIDEntity> eIDs){
+        public UserEntityBuilder eIDs(List<LoginEntity> eIDs){
             this.eIDs = eIDs;
             return this;
         }

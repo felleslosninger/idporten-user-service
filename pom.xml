@@ -125,7 +125,7 @@
         <repository>
             <id>difi-artifactory</id>
             <name>libs-release</name>
-            <url>http://eid-artifactory.dmz.local:8080/artifactory/libs-release</url>
+            <url>http://login-artifactory.dmz.local:8080/artifactory/libs-release</url>
         </repository>
     </repositories>
 </project>
