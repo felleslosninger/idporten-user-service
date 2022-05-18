@@ -1,13 +1,13 @@
-package no.idporten.userservice.im;
+package no.idporten.userservice.api;
 
-import no.idporten.im.IdentityManagementApiException;
-import no.idporten.im.api.UserResource;
-import no.idporten.im.api.login.CreateUserRequest;
-import no.idporten.im.api.login.UpdateUserLoginRequest;
 import no.idporten.userservice.TestData;
+import no.idporten.userservice.api.admin.UpdateAttributesRequest;
+import no.idporten.userservice.api.login.CreateUserRequest;
+import no.idporten.userservice.api.login.UpdateUserLoginRequest;
 import no.idporten.userservice.data.EID;
 import no.idporten.userservice.data.IDPortenUser;
 import no.idporten.userservice.data.UserService;
+import no.idporten.userservice.data.UserServiceException;
 import no.idporten.validators.identifier.PersonIdentifierValidator;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -22,7 +22,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
 import org.springframework.http.HttpStatus;
 
-import javax.persistence.Id;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -33,11 +32,10 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class IdentityManagementApiUserServiceTest {
+public class ApiUserServiceTest {
 
     @BeforeAll
     public static void setUp() {
@@ -49,20 +47,20 @@ public class IdentityManagementApiUserServiceTest {
     private UserService userService;
 
     @InjectMocks
-    private IdentityManagementApiUserService imApiUserService;
+    private ApiUserService apiUserService;
 
     @Captor
     private ArgumentCaptor<IDPortenUser> idPortenUserCaptor;
 
-    @DisplayName("When the Identity Management Login API is invoked")
+    @DisplayName("When searching for users")
     @Nested
-    class LoginAPITests {
+    class SearchTests {
 
         @DisplayName("then a search for an invalid person identifier will fail with exception")
         @Test
         public void testSearchWithInvalidPersonIdentifier() {
             String personIdentifier = "12345678901";
-            IdentityManagementApiException exception = assertThrows(IdentityManagementApiException.class, () -> imApiUserService.searchForUser(personIdentifier));
+            ApiException exception = assertThrows(ApiException.class, () -> apiUserService.searchForUser(personIdentifier));
             assertAll(
                     () -> assertEquals("invalid_request", exception.getError()),
                     () -> assertFalse(exception.getErrorDescription().contains(personIdentifier)),
@@ -76,21 +74,54 @@ public class IdentityManagementApiUserServiceTest {
         public void testSearchNoUsersFound() {
             String personIdentifier = TestData.randomSynpid();
             when(userService.searchForUser(eq(personIdentifier))).thenReturn(Collections.emptyList());
-            List<UserResource> searchResult = imApiUserService.searchForUser(personIdentifier);
+            List<UserResource> searchResult = apiUserService.searchForUser(personIdentifier);
             assertTrue(searchResult.isEmpty());
         }
 
         @DisplayName("then a search returns a list of found users")
         @Test
-        public void testSearchUserFoundFound() {
-            String personIdentifier = TestData.randomSynpid();
-            when(userService.searchForUser(eq(personIdentifier))).thenReturn(List.of(IDPortenUser.builder().id(UUID.randomUUID()).pid(personIdentifier).build()));
-            List<UserResource> searchResult = imApiUserService.searchForUser(personIdentifier);
+        public void testSearchUserFound() {
+            IDPortenUser user = TestData.randomUser();
+            String personIdentifier = user.getPid();
+            when(userService.searchForUser(eq(personIdentifier))).thenReturn(List.of(user));
+            List<UserResource> searchResult = apiUserService.searchForUser(personIdentifier);
             assertAll(
                     () -> assertEquals(1, searchResult.size()),
                     () -> assertEquals(personIdentifier, searchResult.get(0).getPersonIdentifier())
             );
         }
+
+    }
+
+    @DisplayName("When looking up users")
+    @Nested
+    class LookupTests {
+
+        @DisplayName("then existing users can be found")
+        @Test
+        public void testLookupExistingUser() {
+            IDPortenUser user = TestData.randomUser();
+            when(userService.findUser(eq(user.getId()))).thenReturn(user);
+            UserResource lookupResult = apiUserService.lookup(user.getId().toString());
+            assertAll(
+                    () -> assertEquals(user.getId().toString(), lookupResult.getId()),
+                    () -> assertEquals(user.getPid(), lookupResult.getPersonIdentifier())
+            );
+        }
+
+        @DisplayName("then non-existing users will throw an exception")
+        @Test
+        public void testLookupNonExistingUser() {
+            UUID userId = TestData.randomUserId();
+            UserServiceException exception = assertThrows(UserServiceException.class, () -> apiUserService.lookup(userId.toString()));
+            assertTrue(exception.getErrorDescription().contains("User not found"));
+        }
+
+    }
+
+    @DisplayName("When creating a new user users")
+    @Nested
+    class CreateTests {
 
         @DisplayName("then create user on first login will fail for invalid person identifiers")
         @Test
@@ -98,7 +129,7 @@ public class IdentityManagementApiUserServiceTest {
             String personIdentifier = "12345678901";
             CreateUserRequest createUserRequest = new CreateUserRequest();
             createUserRequest.setPersonIdentifier(personIdentifier);
-            IdentityManagementApiException exception = assertThrows(IdentityManagementApiException.class, () -> imApiUserService.createUser(createUserRequest));
+            ApiException exception = assertThrows(ApiException.class, () -> apiUserService.createUser(createUserRequest));
             assertAll(
                     () -> assertEquals("invalid_request", exception.getError()),
                     () -> assertFalse(exception.getErrorDescription().contains(personIdentifier)),
@@ -118,14 +149,19 @@ public class IdentityManagementApiUserServiceTest {
                 idPortenUser.setId(UUID.randomUUID());
                 return idPortenUser;
             });
-            UserResource userResource = imApiUserService.createUser(createUserRequest);
+            UserResource userResource = apiUserService.createUser(createUserRequest);
             assertAll(
                     () -> assertEquals(personIdentifier, userResource.getPersonIdentifier()),
                     () -> assertTrue(userResource.isActive())
             );
         }
+    }
 
-        @DisplayName("then a ID-porten user can be updated with logins")
+    @DisplayName("When updating user logins")
+    @Nested
+    class UpdateLoginsTest {
+
+        @DisplayName("then an ID-porten user can be updated with logins")
         @Test
         public void testUpdateUserLogins() {
             UUID userId = TestData.randomUserId();
@@ -137,30 +173,50 @@ public class IdentityManagementApiUserServiceTest {
                                     .id(invocationOnMock.getArgument(0))
                                     .eid(invocationOnMock.getArgument(1))
                                     .build());
-            UserResource userResource = imApiUserService.updateUserLogins(userId.toString(), request);
+            UserResource userResource = apiUserService.updateUserLogins(userId.toString(), request);
             assertAll(
                     () -> assertEquals(userId.toString(), userResource.getId()),
                     () -> assertEquals(1, userResource.getUserLogins().size()),
                     () -> assertEquals(request.getEidName(), userResource.getUserLogins().get(0).getEid())
             );
         }
+    }
+
+    @DisplayName("When updating user attributes")
+    @Nested
+    class UpdateAttributesTest {
+
+        @DisplayName("then an ID-porten user can be updated with help desk references")
+        @Test
+        public void testUpdateAttributes() {
+            IDPortenUser user = TestData.randomUser();
+            when(userService.findUser(eq(user.getId()))).thenReturn(user);
+            UpdateAttributesRequest updateAttributesRequest = UpdateAttributesRequest.builder().helpDeskReferences(List.of("b","a")).build();
+            UserResource userResource = apiUserService.updateUserAttributes(user.getId().toString(), updateAttributesRequest);
+            assertAll(
+                    () -> assertEquals(user.getId().toString(), userResource.getId()),
+                    () -> assertEquals(userResource.getHelpDeskReferences().size(), 2),
+                    () -> assertTrue(userResource.getHelpDeskReferences().containsAll(List.of("a", "b")))
+            );
+            verify(userService).updateUser(any(IDPortenUser.class));
+        }
 
     }
 
-    @DisplayName("When converting data to IM API model")
+    @DisplayName("When converting data to the API model")
     @Nested
-    class ConvertionTests {
+    class ConversionTests {
 
         @DisplayName("then a null instant is converted to null")
         @Test
         public void testConvertNullInstant() {
-            assertNull(imApiUserService.convert((Instant) null));
+            assertNull(apiUserService.convert((Instant) null));
         }
 
         @DisplayName("then an instant is converted to a zoned date time with system default timezone")
         @Test
         public void testConvertInstantToZonedDateTime() {
-            ZonedDateTime zonedDateTime = imApiUserService.convert(Instant.now());
+            ZonedDateTime zonedDateTime = apiUserService.convert(Instant.now());
             assertAll(
                     () -> assertNotNull(zonedDateTime),
                     () -> assertEquals(ZoneId.systemDefault(), zonedDateTime.getZone())
@@ -171,7 +227,7 @@ public class IdentityManagementApiUserServiceTest {
         @Test
         public void testConvertEmptyHelpDeskReferences() {
             IDPortenUser idPortenUser = new IDPortenUser();
-            List<String> helpDeskReferences = imApiUserService.convertHelpDeskReferences(idPortenUser);
+            List<String> helpDeskReferences = apiUserService.convertHelpDeskReferences(idPortenUser);
             assertTrue(helpDeskReferences.isEmpty());
         }
 
@@ -180,7 +236,7 @@ public class IdentityManagementApiUserServiceTest {
         public void testConvertHelpDeskReferences() {
             IDPortenUser idPortenUser = new IDPortenUser();
             idPortenUser.setHelpDeskCaseReferences(List.of("", "foo", "bar"));
-            List<String> helpDeskReferences = imApiUserService.convertHelpDeskReferences(idPortenUser);
+            List<String> helpDeskReferences = apiUserService.convertHelpDeskReferences(idPortenUser);
             assertAll(
                     () -> assertEquals(2, helpDeskReferences.size()),
                     () -> assertTrue(helpDeskReferences.containsAll(List.of("foo", "bar")))

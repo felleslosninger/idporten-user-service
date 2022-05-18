@@ -2,7 +2,6 @@ package no.idporten.userservice.data;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.util.Assert;
 
 import java.time.Instant;
 import java.util.*;
@@ -30,9 +29,12 @@ public class UserService {
     }
 
     public IDPortenUser createUser(IDPortenUser idPortenUser) {
-        Assert.isNull(idPortenUser.getId(), "id is assigned by server");
-        Assert.isTrue(searchForUser(idPortenUser.getPid()).isEmpty(), "User exists");
-
+        if (idPortenUser.getId() != null) {
+            throw UserServiceException.invalidUserData("User id must be assigned by server.");
+        }
+        if (! searchForUser(idPortenUser.getPid()).isEmpty()) {
+            throw UserServiceException.duplicateUser();
+        }
         idPortenUser.setActive(Boolean.TRUE);
         UserEntity user = toEntity(idPortenUser);
         UserEntity userSaved = userRepository.save(user);
@@ -54,10 +56,12 @@ public class UserService {
     }
 
     public IDPortenUser updateUser(IDPortenUser idPortenUser) {
-        Assert.notNull(idPortenUser.getId(), "id is mandatory");
+        if (idPortenUser.getId() == null) {
+            throw UserServiceException.invalidUserData("User id is mandatory.");
+        }
         Optional<UserEntity> user = userRepository.findByUuid(idPortenUser.getId());
         if (user.isEmpty()) {
-            throw new RuntimeException("User not found for UUID: " + idPortenUser.getId());        // TODO: error handling
+            throw UserServiceException.userNotFound();
         }
         UserEntity existingUser = user.get();
         if (idPortenUser.getClosedCode() == null) {
@@ -78,12 +82,9 @@ public class UserService {
     }
 
     public IDPortenUser updateUserWithEid(UUID userUuid, EID eid) {
-        Assert.notNull(userUuid, "userUuid is mandatory");
-        Assert.notNull(eid, "eid is mandatory");
-
         Optional<UserEntity> byUuid = userRepository.findByUuid(userUuid);
         if (byUuid.isEmpty()) {
-            throw new RuntimeException("User not found for UUID: " + userUuid);        // TODO: error handling
+            throw UserServiceException.userNotFound();
         }
         UserEntity existingUser = byUuid.get();
         List<EIDEntity> existingEIDs = existingUser.getEIDs();
@@ -121,10 +122,10 @@ public class UserService {
     public IDPortenUser changePid(String currentPid, String newPid) {
         Optional<UserEntity> userExists = userRepository.findByPersonIdentifier(currentPid);
         if (userExists.isEmpty()) {
-            throw new IllegalArgumentException("User not found for pid:" + currentPid); // TODO: change to UserNotFoundException or something like that
+            throw UserServiceException.userNotFound("No user found for current person identifier.");
         }
         if (userRepository.findByPersonIdentifier(newPid).isPresent()) {
-            throw new IllegalArgumentException("User already exits for new pid:" + newPid); // TODO: change to different exception
+            throw UserServiceException.duplicateUser("User already exists for new person identifier.");
         }
         UserEntity currentUser = userExists.get();
         UserEntity newUser = userRepository.save(UserEntity.builder().personIdentifier(newPid).active(true).previousUser(currentUser).build());
@@ -136,7 +137,6 @@ public class UserService {
     }
 
     public List<IDPortenUser> findUserHistory(String pid) {
-        Assert.notNull(pid, "pid is mandatory");
         Optional<UserEntity> userExists = userRepository.findByPersonIdentifier(pid);
         if (userExists.isEmpty()) {
             return null;
@@ -155,7 +155,6 @@ public class UserService {
 
 
     public List<IDPortenUser> findUserHistoryAndNewer(String pid) {
-        Assert.notNull(pid, "pid is mandatory");
         Optional<UserEntity> userExists = userRepository.findByPersonIdentifier(pid);
         if (userExists.isEmpty()) {
             return null;

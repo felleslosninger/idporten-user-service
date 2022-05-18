@@ -1,6 +1,7 @@
 package no.idporten.userservice.data;
 
 import lombok.*;
+import org.springframework.util.StringUtils;
 
 import java.time.Instant;
 import java.util.Arrays;
@@ -61,8 +62,8 @@ public class IDPortenUser {
             this.closedCode = u.getClosedCode();
             this.closedCodeLastUpdated = Instant.ofEpochMilli(u.getClosedCodeUpdatedAtEpochMs());
         }
-        if (u.getHelpDeskCaseReferences() != null && u.getHelpDeskCaseReferences().length() > 0 && u.getHelpDeskCaseReferences().contains(",")) {
-            this.helpDeskCaseReferences = Arrays.asList(u.getHelpDeskCaseReferences().split(","));
+        if (StringUtils.hasText(u.getHelpDeskCaseReferences())) {
+            this.helpDeskCaseReferences = Arrays.asList(u.getHelpDeskCaseReferences().split(",")).stream().map(s -> s.trim()).toList();
         }
 
         if (u.getEIDs() != null && !u.getEIDs().isEmpty()) {
