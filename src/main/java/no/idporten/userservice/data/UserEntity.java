@@ -47,12 +47,12 @@ public class UserEntity {
     private UserEntity nextUser;
 
     @OneToMany(mappedBy = "user", orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<LoginEntity> eIDs = new java.util.ArrayList<>();
+    private List<LoginEntity> logins = new java.util.ArrayList<>();
 
     public UserEntity() {
     }
 
-    public UserEntity(UUID uuid, String personIdentifier, long userCreatedAtEpochMs, long userLastUpdatedAtEpochMs, Boolean active, String closedCode, long closedCodeUpdatedAtEpochMs, String helpDeskCaseReferences, List<LoginEntity> eIDs) {
+    public UserEntity(UUID uuid, String personIdentifier, long userCreatedAtEpochMs, long userLastUpdatedAtEpochMs, Boolean active, String closedCode, long closedCodeUpdatedAtEpochMs, String helpDeskCaseReferences, List<LoginEntity> logins) {
         this.uuid = uuid;
         this.personIdentifier = personIdentifier;
         this.userCreatedAtEpochMs = userCreatedAtEpochMs;
@@ -61,10 +61,10 @@ public class UserEntity {
         this.closedCode = closedCode;
         this.closedCodeUpdatedAtEpochMs = closedCodeUpdatedAtEpochMs;
         this.helpDeskCaseReferences = helpDeskCaseReferences;
-        setEIDs(eIDs);
+        setLogins(logins);
     }
 
-    public UserEntity(UUID uuid, String personIdentifier, long userCreatedAtEpochMs, long userLastUpdatedAtEpochMs, Boolean active, String closedCode, long closedCodeUpdatedAtEpochMs, String helpDeskCaseReferences, List<LoginEntity> eIDs, UserEntity previousUser, UserEntity nextUser) {
+    public UserEntity(UUID uuid, String personIdentifier, long userCreatedAtEpochMs, long userLastUpdatedAtEpochMs, Boolean active, String closedCode, long closedCodeUpdatedAtEpochMs, String helpDeskCaseReferences, List<LoginEntity> logins, UserEntity previousUser, UserEntity nextUser) {
         this.uuid = uuid;
         this.personIdentifier = personIdentifier;
         this.userCreatedAtEpochMs = userCreatedAtEpochMs;
@@ -73,7 +73,7 @@ public class UserEntity {
         this.closedCode = closedCode;
         this.closedCodeUpdatedAtEpochMs = closedCodeUpdatedAtEpochMs;
         this.helpDeskCaseReferences = helpDeskCaseReferences;
-        setEIDs(eIDs);
+        setLogins(logins);
         setPreviousUser(previousUser);
         setNextUser(nextUser);
     }
@@ -134,19 +134,19 @@ public class UserEntity {
         this.helpDeskCaseReferences = helpDeskCaseReferences;
     }
 
-    public List<LoginEntity> getEIDs() {
-        return this.eIDs;
+    public List<LoginEntity> getLogins() {
+        return this.logins;
     }
 
-    public void setEIDs(List<LoginEntity> eIDs) {
-        this.eIDs.clear();
-        if (eIDs != null) {
-            this.eIDs.addAll(eIDs);
+    public void setLogins(List<LoginEntity> logins) {
+        this.logins.clear();
+        if (logins != null) {
+            this.logins.addAll(logins);
         }
     }
 
-    public void addEid(LoginEntity eid) {
-        this.eIDs.add(eid);
+    public void addLogin(LoginEntity eid) {
+        this.logins.add(eid);
     }
 
     public UserEntity getPreviousUser() {
@@ -189,7 +189,7 @@ public class UserEntity {
         private boolean active;
         private UserEntity previousUser;
         private UserEntity nextUser;
-        private List<LoginEntity> eIDs;
+        private List<LoginEntity> logins;
 
         public UserEntityBuilder uuid(UUID uuid) {
             this.uuid = uuid;
@@ -231,13 +231,13 @@ public class UserEntity {
             return this;
         }
 
-        public UserEntityBuilder eIDs(List<LoginEntity> eIDs){
-            this.eIDs = eIDs;
+        public UserEntityBuilder logins(List<LoginEntity> logins){
+            this.logins = logins;
             return this;
         }
 
         public UserEntity build() {
-            return new UserEntity(uuid, personIdentifier, 0l, 0l, active, closedCode, closedCodeUpdatedAtEpochMs, helpDeskCaseReferences, eIDs, previousUser, nextUser);
+            return new UserEntity(uuid, personIdentifier, 0l, 0l, active, closedCode, closedCodeUpdatedAtEpochMs, helpDeskCaseReferences, logins, previousUser, nextUser);
         }
     }
 }

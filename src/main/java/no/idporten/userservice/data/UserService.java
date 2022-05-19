@@ -23,7 +23,7 @@ public class UserService {
     public List<IDPortenUser> searchForUser(String personIdentifier) {
         Optional<UserEntity> users = userRepository.findByPersonIdentifier(personIdentifier);
         if (users.isEmpty()) {
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
         return users.stream().map(IDPortenUser::new).toList();
     }
@@ -87,7 +87,7 @@ public class UserService {
             throw UserServiceException.userNotFound();
         }
         UserEntity existingUser = byUuid.get();
-        List<LoginEntity> existingEIDs = existingUser.getEIDs();
+        List<LoginEntity> existingEIDs = existingUser.getLogins();
         LoginEntity eidToUpdate = findExistingEid(eid, existingEIDs);
 
         if (eidToUpdate != null) {

@@ -134,7 +134,7 @@ public class UserServiceTest {
             long now = Instant.now().toEpochMilli();
 
             LoginEntity loginEntity = LoginEntity.builder().eidName("MinID").id(1L).lastLoginAtEpochMs(now).firstLoginAtEpochMs(now).build();
-            UserEntity userEntity = UserEntity.builder().personIdentifier(personIdentifier).uuid(uuid).eIDs(Collections.singletonList(loginEntity)).build();
+            UserEntity userEntity = UserEntity.builder().personIdentifier(personIdentifier).uuid(uuid).logins(Collections.singletonList(loginEntity)).build();
             when(userRepository.save(any(UserEntity.class))).thenReturn(userEntity);
 
             IDPortenUser userSaved = userService.updateUserWithEid(uuid, minid);
@@ -156,7 +156,7 @@ public class UserServiceTest {
             Login minid = Login.builder().eidName("MinID").build();
             long now = Instant.now().toEpochMilli();
             LoginEntity loginEntity = LoginEntity.builder().eidName("MinID").id(1L).lastLoginAtEpochMs(now).firstLoginAtEpochMs(now).build();
-            UserEntity userEntity = UserEntity.builder().personIdentifier(personIdentifier).uuid(uuid).eIDs(Collections.singletonList(loginEntity)).build();
+            UserEntity userEntity = UserEntity.builder().personIdentifier(personIdentifier).uuid(uuid).logins(Collections.singletonList(loginEntity)).build();
             when(userRepository.save(any(UserEntity.class))).thenReturn(userEntity);
             when(userRepository.findByUuid(any(UUID.class))).thenReturn(Optional.ofNullable(userEntity));
             IDPortenUser userSaved = userService.updateUserWithEid(uuid, minid);
