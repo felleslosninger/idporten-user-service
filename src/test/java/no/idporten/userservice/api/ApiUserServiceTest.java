@@ -4,7 +4,7 @@ import no.idporten.userservice.TestData;
 import no.idporten.userservice.api.admin.UpdateAttributesRequest;
 import no.idporten.userservice.api.login.CreateUserRequest;
 import no.idporten.userservice.api.login.UpdateUserLoginRequest;
-import no.idporten.userservice.data.EID;
+import no.idporten.userservice.data.Login;
 import no.idporten.userservice.data.IDPortenUser;
 import no.idporten.userservice.data.UserService;
 import no.idporten.userservice.data.UserServiceException;
@@ -167,11 +167,11 @@ public class ApiUserServiceTest {
             UUID userId = TestData.randomUserId();
             UpdateUserLoginRequest request = new UpdateUserLoginRequest();
             request.setEidName("FooID");
-            when(userService.updateUserWithEid(eq(userId), any(EID.class)))
+            when(userService.updateUserWithEid(eq(userId), any(Login.class)))
                     .thenAnswer((Answer<IDPortenUser>) invocationOnMock ->
                             IDPortenUser.builder()
                                     .id(invocationOnMock.getArgument(0))
-                                    .eid(invocationOnMock.getArgument(1))
+                                    .login(invocationOnMock.getArgument(1))
                                     .build());
             UserResource userResource = apiUserService.updateUserLogins(userId.toString(), request);
             assertAll(

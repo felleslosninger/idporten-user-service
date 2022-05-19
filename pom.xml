@@ -122,10 +122,5 @@
             <name>GitHub felleslosninger Apache Maven Packages</name>
             <url>https://maven.pkg.github.com/felleslosninger/.github</url>
         </repository>
-        <repository>
-            <id>difi-artifactory</id>
-            <name>libs-release</name>
-            <url>http://eid-artifactory.dmz.local:8080/artifactory/libs-release</url>
-        </repository>
     </repositories>
 </project>

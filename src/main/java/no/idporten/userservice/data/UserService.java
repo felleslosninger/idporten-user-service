@@ -23,7 +23,7 @@ public class UserService {
     public List<IDPortenUser> searchForUser(String personIdentifier) {
         Optional<UserEntity> users = userRepository.findByPersonIdentifier(personIdentifier);
         if (users.isEmpty()) {
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
         return users.stream().map(IDPortenUser::new).toList();
     }
@@ -81,28 +81,28 @@ public class UserService {
         return new IDPortenUser(savedUser);
     }
 
-    public IDPortenUser updateUserWithEid(UUID userUuid, EID eid) {
+    public IDPortenUser updateUserWithEid(UUID userUuid, Login eid) {
         Optional<UserEntity> byUuid = userRepository.findByUuid(userUuid);
         if (byUuid.isEmpty()) {
             throw UserServiceException.userNotFound();
         }
         UserEntity existingUser = byUuid.get();
-        List<EIDEntity> existingEIDs = existingUser.getEIDs();
-        EIDEntity eidToUpdate = findExistingEid(eid, existingEIDs);
+        List<LoginEntity> existingEIDs = existingUser.getLogins();
+        LoginEntity eidToUpdate = findExistingEid(eid, existingEIDs);
 
         if (eidToUpdate != null) {
             eidToUpdate.setLastLoginAtEpochMs(Instant.now().toEpochMilli());
         } else {
-            EIDEntity updatedEid = EIDEntity.builder().name(eid.getName()).user(existingUser).build();
+            LoginEntity updatedEid = LoginEntity.builder().eidName(eid.getEidName()).user(existingUser).build();
             existingEIDs.add(updatedEid); //last-login and first-login set via annotations on entity on create
         }
         UserEntity savedUser = userRepository.save(existingUser);
         return new IDPortenUser(savedUser);
     }
 
-    private EIDEntity findExistingEid(EID eid, List<EIDEntity> existingeIDs) {
-        for (EIDEntity e : existingeIDs) {
-            if (e.getName().equals(eid.getName())) {
+    private LoginEntity findExistingEid(Login eid, List<LoginEntity> existingeIDs) {
+        for (LoginEntity e : existingeIDs) {
+            if (e.getEidName().equals(eid.getEidName())) {
                 return e;
             }
         }

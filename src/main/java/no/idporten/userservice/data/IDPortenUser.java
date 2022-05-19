@@ -34,22 +34,22 @@ public class IDPortenUser {
     private IDPortenUser previousUser;
 
     @Singular
-    private List<String> helpDeskCaseReferences = Collections.EMPTY_LIST;
+    private List<String> helpDeskCaseReferences = Collections.emptyList();
 
     @Singular
-    private List<EID> eids;
+    private List<Login> logins;
 
-    public EID getEIDLastLogin() {
+    public Login getLastLogin() {
         long latest = 0L;
-        EID latestEid = null;
-        for (EID e : eids) {
+        Login latestLogin = null;
+        for (Login e : logins) {
             if (e.getLastLogin().toEpochMilli() > latest) {
-                latestEid = e;
-                latest = latestEid.getLastLogin().toEpochMilli();
+                latestLogin = e;
+                latest = latestLogin.getLastLogin().toEpochMilli();
             }
         }
         // Can be null
-        return latestEid;
+        return latestLogin;
     }
 
     public IDPortenUser(UserEntity u) {
@@ -63,11 +63,11 @@ public class IDPortenUser {
             this.closedCodeLastUpdated = Instant.ofEpochMilli(u.getClosedCodeUpdatedAtEpochMs());
         }
         if (StringUtils.hasText(u.getHelpDeskCaseReferences())) {
-            this.helpDeskCaseReferences = Arrays.asList(u.getHelpDeskCaseReferences().split(",")).stream().map(s -> s.trim()).toList();
+            this.helpDeskCaseReferences = Arrays.stream(u.getHelpDeskCaseReferences().split(",")).map(String::trim).toList();
         }
 
-        if (u.getEIDs() != null && !u.getEIDs().isEmpty()) {
-            this.eids = u.getEIDs().stream().map(EID::new).toList();
+        if (u.getLogins() != null && !u.getLogins().isEmpty()) {
+            this.logins = u.getLogins().stream().map(Login::new).toList();
         }
         if(u.getPreviousUser() != null){
             this.previousUser = new IDPortenUser(u.getPreviousUser());

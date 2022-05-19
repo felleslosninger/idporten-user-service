@@ -128,21 +128,21 @@ public class UserServiceTest {
             String personIdentifier = "1263";
             UUID uuid = UUID.randomUUID();
 
-            EID minid = EID.builder().name("MinID").build();
+            Login minid = Login.builder().eidName("MinID").build();
 
             when(userRepository.findByUuid(any(UUID.class))).thenReturn(Optional.of(UserEntity.builder().personIdentifier(personIdentifier).uuid(uuid).build()));
             long now = Instant.now().toEpochMilli();
 
-            EIDEntity eidEntity = EIDEntity.builder().name("MinID").id(1L).lastLoginAtEpochMs(now).firstLoginAtEpochMs(now).build();
-            UserEntity userEntity = UserEntity.builder().personIdentifier(personIdentifier).uuid(uuid).eIDs(Collections.singletonList(eidEntity)).build();
+            LoginEntity loginEntity = LoginEntity.builder().eidName("MinID").id(1L).lastLoginAtEpochMs(now).firstLoginAtEpochMs(now).build();
+            UserEntity userEntity = UserEntity.builder().personIdentifier(personIdentifier).uuid(uuid).logins(Collections.singletonList(loginEntity)).build();
             when(userRepository.save(any(UserEntity.class))).thenReturn(userEntity);
 
             IDPortenUser userSaved = userService.updateUserWithEid(uuid, minid);
             assertNotNull(userSaved);
             assertNotNull(userSaved.getId());
             assertEquals(personIdentifier, userSaved.getPid());
-            assertEquals(minid.getName(), userSaved.getEIDLastLogin().getName());
-            assertTrue(userSaved.getEIDLastLogin().getLastLogin().toEpochMilli() > 0);
+            assertEquals(minid.getEidName(), userSaved.getLastLogin().getEidName());
+            assertTrue(userSaved.getLastLogin().getLastLogin().toEpochMilli() > 0);
             verify(userRepository).findByUuid(any(UUID.class));
             verify(userRepository, times(1)).save(any(UserEntity.class));
         }
@@ -153,18 +153,18 @@ public class UserServiceTest {
             String personIdentifier = "1263";
             UUID uuid = UUID.randomUUID();
 
-            EID minid = EID.builder().name("MinID").build();
+            Login minid = Login.builder().eidName("MinID").build();
             long now = Instant.now().toEpochMilli();
-            EIDEntity eidEntity = EIDEntity.builder().name("MinID").id(1L).lastLoginAtEpochMs(now).firstLoginAtEpochMs(now).build();
-            UserEntity userEntity = UserEntity.builder().personIdentifier(personIdentifier).uuid(uuid).eIDs(Collections.singletonList(eidEntity)).build();
+            LoginEntity loginEntity = LoginEntity.builder().eidName("MinID").id(1L).lastLoginAtEpochMs(now).firstLoginAtEpochMs(now).build();
+            UserEntity userEntity = UserEntity.builder().personIdentifier(personIdentifier).uuid(uuid).logins(Collections.singletonList(loginEntity)).build();
             when(userRepository.save(any(UserEntity.class))).thenReturn(userEntity);
             when(userRepository.findByUuid(any(UUID.class))).thenReturn(Optional.ofNullable(userEntity));
             IDPortenUser userSaved = userService.updateUserWithEid(uuid, minid);
             assertNotNull(userSaved);
             assertNotNull(userSaved.getId());
             assertEquals(personIdentifier, userSaved.getPid());
-            assertEquals(minid.getName(), userSaved.getEIDLastLogin().getName());
-            assertTrue(userSaved.getEIDLastLogin().getLastLogin().toEpochMilli() > 0);
+            assertEquals(minid.getEidName(), userSaved.getLastLogin().getEidName());
+            assertTrue(userSaved.getLastLogin().getLastLogin().toEpochMilli() > 0);
             verify(userRepository).findByUuid(any(UUID.class));
             verify(userRepository, times(1)).save(any(UserEntity.class));
         }
@@ -183,7 +183,7 @@ public class UserServiceTest {
             UserEntity userEntity = UserEntity.builder().personIdentifier(personIdentifier).active(true).uuid(UUID.randomUUID()).build();
             Optional<UserEntity> existingUser = Optional.of(userEntity);
             when(userRepository.findByPersonIdentifier(personIdentifier)).thenReturn(existingUser);
-            when(userRepository.findByPersonIdentifier(newPersonIdentifier)).thenReturn(Optional.ofNullable(null));
+            when(userRepository.findByPersonIdentifier(newPersonIdentifier)).thenReturn(Optional.empty());
             UserEntity newUserEntity = UserEntity.builder().personIdentifier(newPersonIdentifier).active(true).uuid(UUID.randomUUID()).previousUser(userEntity).build();
             when(userRepository.save(any(UserEntity.class))).thenReturn(newUserEntity); //wrong second return, but do not care since not used
 

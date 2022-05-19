@@ -6,7 +6,7 @@ import no.idporten.userservice.api.admin.UpdateAttributesRequest;
 import no.idporten.userservice.api.admin.UpdateStatusRequest;
 import no.idporten.userservice.api.login.CreateUserRequest;
 import no.idporten.userservice.api.login.UpdateUserLoginRequest;
-import no.idporten.userservice.data.EID;
+import no.idporten.userservice.data.Login;
 import no.idporten.userservice.data.IDPortenUser;
 import no.idporten.userservice.data.UserService;
 import no.idporten.userservice.data.UserServiceException;
@@ -60,7 +60,7 @@ public class ApiUserService {
     }
 
     public UserResource updateUserLogins(String id, UpdateUserLoginRequest updateUserLoginRequest) {
-        return convert(userService.updateUserWithEid(UUID.fromString(id), EID.builder().name(updateUserLoginRequest.getEidName()).build()));
+        return convert(userService.updateUserWithEid(UUID.fromString(id), Login.builder().eidName(updateUserLoginRequest.getEidName()).build()));
     }
 
     public UserResource updateUserAttributes(String id, UpdateAttributesRequest updateAttributesRequest) {
@@ -125,19 +125,19 @@ public class ApiUserService {
         return userResource;
     }
 
-    protected UserLogin convert(EID eid) {
+    protected UserLogin convert(Login login) {
         UserLogin userLogin = new UserLogin();
-        userLogin.setEid(eid.getName());
-        userLogin.setFirstLogin(convert(eid.getFirstLogin()));
-        userLogin.setLastLogin(convert(eid.getLastLogin()));
+        userLogin.setEid(login.getEidName());
+        userLogin.setFirstLogin(convert(login.getFirstLogin()));
+        userLogin.setLastLogin(convert(login.getLastLogin()));
         return userLogin;
     }
 
     protected List<UserLogin> convertUserLogins(IDPortenUser idPortenUser) {
-        if (CollectionUtils.isEmpty(idPortenUser.getEids())) {
+        if (CollectionUtils.isEmpty(idPortenUser.getLogins())) {
             return Collections.emptyList();
         }
-        return idPortenUser.getEids().stream().map(this::convert).toList();
+        return idPortenUser.getLogins().stream().map(this::convert).toList();
     }
 
     public List<String> convertHelpDeskReferences(IDPortenUser idPortenUser) {
