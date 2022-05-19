@@ -141,7 +141,7 @@ public class UserRepositoryTest {
 
 
         @Test
-        @DisplayName("then eId name and last login time is set for eID")
+        @DisplayName("then eId name and last login time is set for Login")
         void testSetEidNameForUser() {
             String personIdentifier = TestData.randomSynpid();
             LoginEntity minID = LoginEntity.builder().eidName("MinID").build();
@@ -164,18 +164,18 @@ public class UserRepositoryTest {
 
 
         @Test
-        @DisplayName("then eId name and last login time is set for eID when other eId exists")
+        @DisplayName("then eId name and last login time is set for Login when other Login exists")
         void testSetEidNameForUserWhenAnotherExists() {
             String personIdentifier = TestData.randomSynpid();
-            List<LoginEntity> eIDs = new ArrayList<>();
+            List<LoginEntity> logins = new ArrayList<>();
 
             UserEntity testUser = UserEntity.builder()
                     .personIdentifier(personIdentifier)
                     .active(Boolean.TRUE)
                     .build();
-            eIDs.add(LoginEntity.builder().eidName("MinID").user(testUser).build());
-            eIDs.add(LoginEntity.builder().eidName("BankID").user(testUser).build());
-            testUser.setLogins(eIDs);
+            logins.add(LoginEntity.builder().eidName("MinID").user(testUser).build());
+            logins.add(LoginEntity.builder().eidName("BankID").user(testUser).build());
+            testUser.setLogins(logins);
             UserEntity saved = userRepository.save(testUser);
 
             long lastUpdated = saved.getUserLastUpdatedAtEpochMs();
@@ -198,34 +198,34 @@ public class UserRepositoryTest {
             assertTrue(minidCreated > 0);
             assertTrue(minidUpdatedFirst > 0);
 
-            List<LoginEntity> existingeIDs = saved.getLogins();
-            assertEquals(2, existingeIDs.size());
+            List<LoginEntity> existingLogins = saved.getLogins();
+            assertEquals(2, existingLogins.size());
             LoginEntity minIDToUpdate = LoginEntity.builder().eidName("MinID").lastLoginAtEpochMs(Instant.now().toEpochMilli()).user(testUser).build();
             LoginEntity oldMinid = null;
-            for (LoginEntity e : existingeIDs) {
-                if (e.getEidName().equals(minIDToUpdate.getEidName())) {
-                    minIDToUpdate.setId(e.getId());
-                    minIDToUpdate.setFirstLoginAtEpochMs(e.getFirstLoginAtEpochMs());
-                    oldMinid = e;
+            for (LoginEntity l : existingLogins) {
+                if (l.getEidName().equals(minIDToUpdate.getEidName())) {
+                    minIDToUpdate.setId(l.getId());
+                    minIDToUpdate.setFirstLoginAtEpochMs(l.getFirstLoginAtEpochMs());
+                    oldMinid = l;
                 }
             }
-            existingeIDs.remove(oldMinid);
+            existingLogins.remove(oldMinid);
             UserEntity save2 = userRepository.save(saved);
             minIDToUpdate.setUser(save2);
             save2.addLogin(minIDToUpdate);
-            UserEntity saveWithUpdatedEid = userRepository.save(save2);
+            UserEntity saveWithUpdatedLogin = userRepository.save(save2);
             long minidCreatedSecond = 0L;
             long minidUpdatedSecond = 0L;
-            for (LoginEntity e : saveWithUpdatedEid.getLogins()) {
-                assertTrue("MinID".equals(e.getEidName()) || "BankID".equals(e.getEidName()));
-                assertTrue(e.getLastLoginAtEpochMs() > 0);
-                assertTrue(e.getFirstLoginAtEpochMs() > 0);
-                assertEquals(saved.getUuid().toString(), e.getUser().getUuid().toString());
-                if (e.getEidName().equals("MinID")) {
-                    minidCreatedSecond = e.getFirstLoginAtEpochMs();
-                    minidUpdatedSecond = e.getLastLoginAtEpochMs();
-                    assertTrue(e.getFirstLoginAtEpochMs() > 0);
-                    assertTrue(e.getLastLoginAtEpochMs() > 0);
+            for (LoginEntity l : saveWithUpdatedLogin.getLogins()) {
+                assertTrue("MinID".equals(l.getEidName()) || "BankID".equals(l.getEidName()));
+                assertTrue(l.getLastLoginAtEpochMs() > 0);
+                assertTrue(l.getFirstLoginAtEpochMs() > 0);
+                assertEquals(saved.getUuid().toString(), l.getUser().getUuid().toString());
+                if (l.getEidName().equals("MinID")) {
+                    minidCreatedSecond = l.getFirstLoginAtEpochMs();
+                    minidUpdatedSecond = l.getLastLoginAtEpochMs();
+                    assertTrue(l.getFirstLoginAtEpochMs() > 0);
+                    assertTrue(l.getLastLoginAtEpochMs() > 0);
                 }
             }
             assertEquals(minidCreated, minidCreatedSecond);
