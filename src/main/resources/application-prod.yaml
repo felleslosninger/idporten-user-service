@@ -5,3 +5,7 @@ spring:
     password: ${DATASOURCE_PASSWORD}
     username: user_service
     driver-class-name: org.mariadb.jdbc.Driver
+  security:
+    user:
+      name: ${API_USER}
+      password: ${API_USER_PASSWORD}

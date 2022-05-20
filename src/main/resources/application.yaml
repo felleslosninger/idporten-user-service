@@ -1,6 +1,7 @@
 ---
 server:
   port: 8080
+
 spring:
   jpa:
     hibernate:
@@ -10,7 +11,10 @@ spring:
     database-platform: org.hibernate.dialect.MariaDB103Dialect
   flyway:
     table: flyway_schema_history
-
+  security:
+    user:
+      name: user
+      password: password
 
 project:
   version: '@project.version@'
@@ -63,6 +67,12 @@ idporten-user-service:
   features:
     allow-real-pid: true
     allow-synthetic-pid: false
+  whitelist-config:
+    security:
+      get-allowed:
+        - /health/**
+        - /version
+        - /info
 
 ---
 spring:
