@@ -18,7 +18,7 @@
         <idporten-validators.version>0.1</idporten-validators.version>
         <idporten-fnr-generate.version>1.0.0</idporten-fnr-generate.version>
         <springdoc.version>1.6.8</springdoc.version>
-        <logstash.logback.version>7.1.1</logstash.logback.version>
+        <logstash.logback.version>7.2</logstash.logback.version>
     </properties>
     <dependencies>
         <dependency>
