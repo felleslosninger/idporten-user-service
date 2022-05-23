@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -50,6 +51,7 @@ public class AdminApiTest {
         @SneakyThrows
         @Test
         @DisplayName("then invalid search criteria gives an error response")
+        @WithMockUser(roles = "USER")
         void testInvalidSearchCriteria() {
             final String personIdentifier = "17mai";
             mockMvc.perform(
@@ -65,6 +67,7 @@ public class AdminApiTest {
         @SneakyThrows
         @Test
         @DisplayName("then no results gives an empty list")
+        @WithMockUser(roles = "USER")
         void testEmptyResult() {
             final String personIdentifier = TestData.randomSynpid();
             mockMvc.perform(
@@ -80,6 +83,7 @@ public class AdminApiTest {
         @SneakyThrows
         @Test
         @DisplayName("then found users are included in result")
+        @WithMockUser(roles = "USER")
         void testResult() {
             final String personIdentifier = TestData.randomSynpid();
             UserResource user = apiUserService.createUser(CreateUserRequest.builder().personIdentifier(personIdentifier).build());
@@ -106,6 +110,7 @@ public class AdminApiTest {
         @SneakyThrows
         @DisplayName("then an error is returned if user is not found")
         @Test
+        @WithMockUser(roles = "USER")
         void testUserNotFound() {
             String userId = TestData.randomUserId().toString();
             mockMvc.perform(get("/im/v1/admin/users/%s".formatted(userId))
@@ -118,6 +123,7 @@ public class AdminApiTest {
         @SneakyThrows
         @DisplayName("then an existing user is returned")
         @Test
+        @WithMockUser(roles = "USER")
         void testRetrieveUser() {
             String personIdentifier = TestData.randomSynpid();
             UserResource userResource = createUser(personIdentifier);
@@ -143,6 +149,7 @@ public class AdminApiTest {
         @SneakyThrows
         @DisplayName("then an error is returned if user is not found")
         @Test
+        @WithMockUser(roles = "USER")
         void testUserNotFound() {
             String userId = TestData.randomUserId().toString();
             mockMvc.perform(
@@ -158,6 +165,7 @@ public class AdminApiTest {
         @SneakyThrows
         @Test
         @DisplayName("then a user can be closed and set to inactive")
+        @WithMockUser(roles = "USER")
         void testCloseUser() {
             final String personIdentifier = TestData.randomSynpid();
             UserResource userResource = createUser(personIdentifier);
@@ -180,6 +188,7 @@ public class AdminApiTest {
         @SneakyThrows
         @Test
         @DisplayName("then a user can be re-opened and set to active")
+        @WithMockUser(roles = "USER")
         void testReopenUser() {
             final String personIdentifier = TestData.randomSynpid();
             UserResource userResource = createUser(personIdentifier);
@@ -217,6 +226,7 @@ public class AdminApiTest {
         @SneakyThrows
         @DisplayName("then an error is returned if user is not found")
         @Test
+        @WithMockUser(roles = "USER")
         void testUserNotFound() {
             String userId = TestData.randomUserId().toString();
             mockMvc.perform(
@@ -232,6 +242,7 @@ public class AdminApiTest {
         @SneakyThrows
         @Test
         @DisplayName("then an invalid request gives an error response")
+        @WithMockUser(roles = "USER")
         void testInvalidRequest() {
             String userId = TestData.randomUserId().toString();
             mockMvc.perform(
@@ -247,6 +258,7 @@ public class AdminApiTest {
         @SneakyThrows
         @Test
         @DisplayName("then user attributes are updated")
+        @WithMockUser(roles = "USER")
         void testPatchAttributes() {
             final String personIdentifier = TestData.randomSynpid();
             UserResource userResource = createUser(personIdentifier);

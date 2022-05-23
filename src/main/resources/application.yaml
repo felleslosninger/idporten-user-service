@@ -73,6 +73,7 @@ idporten-user-service:
         - /health/**
         - /version
         - /info
+        - /swagger-ui/**
 
 ---
 spring:
