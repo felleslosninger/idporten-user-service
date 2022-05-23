@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import no.idporten.userservice.api.ApiUserService;
@@ -63,6 +64,7 @@ public class LoginApiController {
             summary = "Search for users",
             description = "Search for users using external references",
             tags = {"login-api"},
+            security = @SecurityRequirement(name = "basic_auth"),
             responses = {
                     @ApiResponse(responseCode = "200", description = "Empty list if no user's are found")
             })
@@ -80,7 +82,7 @@ public class LoginApiController {
      * @param request new user
      * @return created user
      */
-    @Operation(summary = "Create a new user", description = "Create a new user", tags = {"login-api"})
+    @Operation(summary = "Create a new user", description = "Create a new user", tags = {"login-api"}, security = @SecurityRequirement(name = "basic_auth"))
     @PostMapping(path = "/login/v1/users/", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<UserResource> createUser(@Valid @RequestBody CreateUserRequest request) {
          return ResponseEntity.ok(apiUserService.createUser(request));
@@ -93,7 +95,7 @@ public class LoginApiController {
      * @param request new user login
      * @return updates user
      */
-    @Operation(summary = "Update user logins", description = "Update user logins with a new login", tags = {"login-api"})
+    @Operation(summary = "Update user logins", description = "Update user logins with a new login", tags = {"login-api"}, security = @SecurityRequirement(name = "basic_auth"))
     @PostMapping(path = "/login/v1/users/{id}/logins", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<UserResource> updateUserLogins(@PathVariable("id") String userId, @Validated @RequestBody UpdateUserLoginRequest request) {
         return ResponseEntity.ok(apiUserService.updateUserLogins(userId, request));
