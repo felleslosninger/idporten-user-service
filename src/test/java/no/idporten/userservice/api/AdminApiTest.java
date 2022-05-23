@@ -14,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -51,11 +50,10 @@ public class AdminApiTest {
         @SneakyThrows
         @Test
         @DisplayName("then invalid search criteria gives an error response")
-        @WithMockUser(roles = "USER")
         void testInvalidSearchCriteria() {
             final String personIdentifier = "17mai";
             mockMvc.perform(
-                            post("/im/v1/admin/users/.search")
+                            post("/admin/v1/users/.search")
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .accept(MediaType.APPLICATION_JSON)
                                     .content(searchRequest(personIdentifier)))
@@ -67,11 +65,10 @@ public class AdminApiTest {
         @SneakyThrows
         @Test
         @DisplayName("then no results gives an empty list")
-        @WithMockUser(roles = "USER")
         void testEmptyResult() {
             final String personIdentifier = TestData.randomSynpid();
             mockMvc.perform(
-                            post("/im/v1/admin/users/.search")
+                            post("/admin/v1/users/.search")
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .accept(MediaType.APPLICATION_JSON)
                                     .content(searchRequest(personIdentifier)))
@@ -83,12 +80,11 @@ public class AdminApiTest {
         @SneakyThrows
         @Test
         @DisplayName("then found users are included in result")
-        @WithMockUser(roles = "USER")
         void testResult() {
             final String personIdentifier = TestData.randomSynpid();
             UserResource user = apiUserService.createUser(CreateUserRequest.builder().personIdentifier(personIdentifier).build());
             mockMvc.perform(
-                            post("/im/v1/admin/users/.search")
+                            post("/admin/v1/users/.search")
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .accept(MediaType.APPLICATION_JSON)
                                     .content(searchRequest(personIdentifier)))
@@ -110,10 +106,9 @@ public class AdminApiTest {
         @SneakyThrows
         @DisplayName("then an error is returned if user is not found")
         @Test
-        @WithMockUser(roles = "USER")
         void testUserNotFound() {
             String userId = TestData.randomUserId().toString();
-            mockMvc.perform(get("/im/v1/admin/users/%s".formatted(userId))
+            mockMvc.perform(get("/admin/v1/users/%s".formatted(userId))
                             .accept(MediaType.APPLICATION_JSON_VALUE))
                     .andExpect(status().isNotFound())
                     .andExpect(jsonPath("$.error").value("invalid_request"))
@@ -123,12 +118,11 @@ public class AdminApiTest {
         @SneakyThrows
         @DisplayName("then an existing user is returned")
         @Test
-        @WithMockUser(roles = "USER")
         void testRetrieveUser() {
             String personIdentifier = TestData.randomSynpid();
             UserResource userResource = createUser(personIdentifier);
             final String userId = userResource.getId();
-            mockMvc.perform(get("/im/v1/admin/users/%s".formatted(userId))
+            mockMvc.perform(get("/admin/v1/users/%s".formatted(userId))
                             .accept(MediaType.APPLICATION_JSON_VALUE))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.id").value(userId))
@@ -149,11 +143,10 @@ public class AdminApiTest {
         @SneakyThrows
         @DisplayName("then an error is returned if user is not found")
         @Test
-        @WithMockUser(roles = "USER")
         void testUserNotFound() {
             String userId = TestData.randomUserId().toString();
             mockMvc.perform(
-                            put("/im/v1/admin/users/%s/status".formatted(userId))
+                            put("/admin/v1/users/%s/status".formatted(userId))
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .accept(MediaType.APPLICATION_JSON)
                                     .content(statusRequest("FOO")))
@@ -165,14 +158,13 @@ public class AdminApiTest {
         @SneakyThrows
         @Test
         @DisplayName("then a user can be closed and set to inactive")
-        @WithMockUser(roles = "USER")
         void testCloseUser() {
             final String personIdentifier = TestData.randomSynpid();
             UserResource userResource = createUser(personIdentifier);
             final String id = userResource.getId();
             final String closedCode = "SPERRET";
             mockMvc.perform(
-                            put("/im/v1/admin/users/%s/status".formatted(id))
+                            put("/admin/v1/users/%s/status".formatted(id))
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .accept(MediaType.APPLICATION_JSON)
                                     .content(statusRequest(closedCode)))
@@ -188,20 +180,19 @@ public class AdminApiTest {
         @SneakyThrows
         @Test
         @DisplayName("then a user can be re-opened and set to active")
-        @WithMockUser(roles = "USER")
         void testReopenUser() {
             final String personIdentifier = TestData.randomSynpid();
             UserResource userResource = createUser(personIdentifier);
             final String id = userResource.getId();
             final String closedCode = "SPERRET";
             mockMvc.perform(
-                            put("/im/v1/admin/users/%s/status".formatted(id))
+                            put("/admin/v1/users/%s/status".formatted(id))
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .accept(MediaType.APPLICATION_JSON)
                                     .content(statusRequest(closedCode)))
                     .andExpect(status().isOk());
             mockMvc.perform(
-                            put("/im/v1/admin/users/%s/status".formatted(id))
+                            put("/admin/v1/users/%s/status".formatted(id))
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .accept(MediaType.APPLICATION_JSON)
                                     .content(statusRequest("")))
@@ -226,11 +217,10 @@ public class AdminApiTest {
         @SneakyThrows
         @DisplayName("then an error is returned if user is not found")
         @Test
-        @WithMockUser(roles = "USER")
         void testUserNotFound() {
             String userId = TestData.randomUserId().toString();
             mockMvc.perform(
-                            patch("/im/v1/admin/users/%s".formatted(userId))
+                            patch("/admin/v1/users/%s".formatted(userId))
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .accept(MediaType.APPLICATION_JSON)
                                     .content(updateRequest(Collections.emptyList())))
@@ -242,11 +232,10 @@ public class AdminApiTest {
         @SneakyThrows
         @Test
         @DisplayName("then an invalid request gives an error response")
-        @WithMockUser(roles = "USER")
         void testInvalidRequest() {
             String userId = TestData.randomUserId().toString();
             mockMvc.perform(
-                            patch("/im/v1/admin/users/%s".formatted(userId))
+                            patch("/admin/v1/users/%s".formatted(userId))
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .accept(MediaType.APPLICATION_JSON)
                                     .content(updateRequest(List.of("foo", "", "bar"))))
@@ -258,13 +247,12 @@ public class AdminApiTest {
         @SneakyThrows
         @Test
         @DisplayName("then user attributes are updated")
-        @WithMockUser(roles = "USER")
         void testPatchAttributes() {
             final String personIdentifier = TestData.randomSynpid();
             UserResource userResource = createUser(personIdentifier);
             final String userId = userResource.getId();
             mockMvc.perform(
-                            patch("/im/v1/admin/users/%s".formatted(userId))
+                            patch("/admin/v1/users/%s".formatted(userId))
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .accept(MediaType.APPLICATION_JSON)
                                     .content(updateRequest(List.of("foo", "bar"))))

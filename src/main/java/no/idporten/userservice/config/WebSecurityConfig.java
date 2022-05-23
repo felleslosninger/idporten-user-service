@@ -34,7 +34,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         webSecurity
                 .ignoring()
                 //authentication and authorization will be ignored for the following methods
-                .antMatchers(HttpMethod.GET, webSecurityProperties.getGetAllowed().toArray(String[]::new));
+                .antMatchers(HttpMethod.GET, webSecurityProperties.getGetAllowed().toArray(String[]::new))
+                .antMatchers("/admin/**");
     }
 
     @Override

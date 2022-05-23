@@ -48,7 +48,7 @@ public class LoginApiTest {
         void testInvalidSearchCriteria() {
             final String personIdentifier = "17mai";
             mockMvc.perform(
-                            post("/im/v1/login/users/.search")
+                            post("/login/v1/users/.search")
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .accept(MediaType.APPLICATION_JSON)
                                     .content(searchRequest(personIdentifier)))
@@ -64,7 +64,7 @@ public class LoginApiTest {
         void testEmptyResult() {
             final String personIdentifier = TestData.randomSynpid();
             mockMvc.perform(
-                            post("/im/v1/login/users/.search")
+                            post("/login/v1/users/.search")
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .accept(MediaType.APPLICATION_JSON)
                                     .content(searchRequest(personIdentifier)))
@@ -81,7 +81,7 @@ public class LoginApiTest {
             final String personIdentifier = TestData.randomSynpid();
             UserResource user = apiUserService.createUser(CreateUserRequest.builder().personIdentifier(personIdentifier).build());
             mockMvc.perform(
-                            post("/im/v1/login/users/.search")
+                            post("/login/v1/users/.search")
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .accept(MediaType.APPLICATION_JSON)
                                     .content(searchRequest(personIdentifier)))
@@ -110,7 +110,7 @@ public class LoginApiTest {
         void testInvalidRequest() {
             final String personIdentifier = "hækker";
             mockMvc.perform(
-                            post("/im/v1/login/users/")
+                            post("/login/v1/users/")
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .accept(MediaType.APPLICATION_JSON)
                                     .content(createUserRequest(personIdentifier)))
@@ -126,7 +126,7 @@ public class LoginApiTest {
         void testCreateUser() {
             final String personIdentifier = TestData.randomSynpid();
             mockMvc.perform(
-                            post("/im/v1/login/users/")
+                            post("/login/v1/users/")
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .accept(MediaType.APPLICATION_JSON)
                                     .content(createUserRequest(personIdentifier)))
@@ -144,7 +144,7 @@ public class LoginApiTest {
             final String personIdentifier = TestData.randomSynpid();
             UserResource user = apiUserService.createUser(CreateUserRequest.builder().personIdentifier(personIdentifier).build());
             mockMvc.perform(
-                            post("/im/v1/login/users/")
+                            post("/login/v1/users/")
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .accept(MediaType.APPLICATION_JSON)
                                     .content(createUserRequest(personIdentifier)))
@@ -170,7 +170,7 @@ public class LoginApiTest {
         void testInvalidRequest() {
             final String userId = TestData.randomUserId().toString();
             mockMvc.perform(
-                            post("/im/v1/login/users/%s/logins".formatted(userId))
+                            post("/login/v1/users/%s/logins".formatted(userId))
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .accept(MediaType.APPLICATION_JSON)
                                     .content(addLoginRequest(null)))
@@ -186,7 +186,7 @@ public class LoginApiTest {
         void testUnknownUser() {
             final String userId = TestData.randomUserId().toString();
             mockMvc.perform(
-                            post("/im/v1/login/users/%s/logins".formatted(userId))
+                            post("/login/v1/users/%s/logins".formatted(userId))
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .accept(MediaType.APPLICATION_JSON)
                                     .content(addLoginRequest("whatever")))
@@ -204,7 +204,7 @@ public class LoginApiTest {
             UserResource user = apiUserService.createUser(CreateUserRequest.builder().personIdentifier(personIdentifier).build());
             String userId = user.getId();
             mockMvc.perform(
-                            post("/im/v1/login/users/%s/logins".formatted(userId))
+                            post("/login/v1/users/%s/logins".formatted(userId))
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .accept(MediaType.APPLICATION_JSON)
                                     .content(addLoginRequest("JunitID")))

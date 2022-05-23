@@ -59,7 +59,7 @@ public class AdminApiController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "List of users.  Empty list if no users are found")
     })
-    @PostMapping(path = "/im/v1/admin/users/.search", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(path = "/admin/v1/users/.search", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<UserResource>> searchUser(@Valid @RequestBody SearchRequest searchRequest) {
         return ResponseEntity.ok(apiUserService.searchForUser(searchRequest.getPersonIdentifier()));
     }
@@ -77,7 +77,7 @@ public class AdminApiController {
                     @ExampleObject(description = "Error response", value = errorResponseExample)
             }))
     })
-    @GetMapping(path = "/im/v1/admin/users/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(path = "/admin/v1/users/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<UserResource> retrieveUser(@PathVariable("id") String id) {
         UserResource userResource = apiUserService.lookup(id);
         return ResponseEntity.ok(userResource);
@@ -94,7 +94,7 @@ public class AdminApiController {
             @ApiResponse(responseCode = "200", description = "User is updated"),
             @ApiResponse(responseCode = "404", description = "User is not found")
     })
-    @PatchMapping(path = "/im/v1/admin/users/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PatchMapping(path = "/admin/v1/users/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<UserResource> updateUserAttributes(@PathVariable("id") String id,
                                                              @Valid @RequestBody UpdateAttributesRequest request) {
         return ResponseEntity.ok(apiUserService.updateUserAttributes(id, request));
@@ -111,7 +111,7 @@ public class AdminApiController {
             @ApiResponse(responseCode = "200", description = "User status is updated"),
             @ApiResponse(responseCode = "404", description = "User is not found")
     })
-    @PutMapping(path = "/im/v1/admin/users/{id}/status", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(path = "/admin/v1/users/{id}/status", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<UserResource> updateUserStatus(@PathVariable("id") String id,
                                                          @Valid @RequestBody UpdateStatusRequest request) {
         return ResponseEntity.ok(apiUserService.updateUserStatus(id, request));
@@ -122,7 +122,7 @@ public class AdminApiController {
             @ApiResponse(responseCode = "200", description = "User identifier is updated"),
             @ApiResponse(responseCode = "404", description = "User is not found")
     })
-    @PutMapping(path = "/im/v1/admin/users/.change-identifier", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(path = "/admin/v1/users/.change-identifier", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<UserResource> changeIdentifier(@Valid @RequestBody ChangeIdentifierRequest request) {
         return ResponseEntity.ok(apiUserService.changePersonIdentifier(request));
     }

@@ -69,7 +69,7 @@ public class LoginApiController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "List of users.  Empty list if no users are found")
     })
-    @PostMapping(path = "/im/v1/login/users/.search", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(path = "/login/v1/users/.search", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<UserResource>> searchUser(@Valid @RequestBody SearchRequest searchRequest) {
         return ResponseEntity.ok(apiUserService.searchForUser(searchRequest));
     }
@@ -81,7 +81,7 @@ public class LoginApiController {
      * @return created user
      */
     @Operation(summary = "Create a new user", description = "Create a new user", tags = {"login-api"})
-    @PostMapping(path = "/im/v1/login/users/", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(path = "/login/v1/users/", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<UserResource> createUser(@Valid @RequestBody CreateUserRequest request) {
          return ResponseEntity.ok(apiUserService.createUser(request));
     }
@@ -94,7 +94,7 @@ public class LoginApiController {
      * @return updates user
      */
     @Operation(summary = "Update user logins", description = "Update user logins with a new login", tags = {"login-api"})
-    @PostMapping(path = "/im/v1/login/users/{id}/logins", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(path = "/login/v1/users/{id}/logins", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<UserResource> updateUserLogins(@PathVariable("id") String userId, @Validated @RequestBody UpdateUserLoginRequest request) {
         return ResponseEntity.ok(apiUserService.updateUserLogins(userId, request));
     }

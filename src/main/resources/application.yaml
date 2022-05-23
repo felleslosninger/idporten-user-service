@@ -54,9 +54,9 @@ springdoc:
       enabled: true
   group-configs:
     - group: Admin API
-      paths-to-match: /im/v1/admin/**
+      paths-to-match: /admin/v1/**
     - group: Login API
-      paths-to-match: /im/v1/login/**
+      paths-to-match: /login/v1/**
   swagger-ui:
     display-request-duration: true
     disable-swagger-default-url: true
