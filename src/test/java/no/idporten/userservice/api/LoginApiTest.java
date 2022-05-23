@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.util.StringUtils;
@@ -43,10 +44,11 @@ public class LoginApiTest {
         @SneakyThrows
         @Test
         @DisplayName("then invalid search criteria gives an error response")
+        @WithMockUser(roles = "USER")
         void testInvalidSearchCriteria() {
             final String personIdentifier = "17mai";
             mockMvc.perform(
-                            post("/im/v1/login/users/.search")
+                            post("/login/v1/users/.search")
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .accept(MediaType.APPLICATION_JSON)
                                     .content(searchRequest(personIdentifier)))
@@ -58,10 +60,11 @@ public class LoginApiTest {
         @SneakyThrows
         @Test
         @DisplayName("then no results gives an empty list")
+        @WithMockUser(roles = "USER")
         void testEmptyResult() {
             final String personIdentifier = TestData.randomSynpid();
             mockMvc.perform(
-                            post("/im/v1/login/users/.search")
+                            post("/login/v1/users/.search")
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .accept(MediaType.APPLICATION_JSON)
                                     .content(searchRequest(personIdentifier)))
@@ -73,11 +76,12 @@ public class LoginApiTest {
         @SneakyThrows
         @Test
         @DisplayName("then found users are included in result")
+        @WithMockUser(roles = "USER")
         void testResult() {
             final String personIdentifier = TestData.randomSynpid();
             UserResource user = apiUserService.createUser(CreateUserRequest.builder().personIdentifier(personIdentifier).build());
             mockMvc.perform(
-                            post("/im/v1/login/users/.search")
+                            post("/login/v1/users/.search")
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .accept(MediaType.APPLICATION_JSON)
                                     .content(searchRequest(personIdentifier)))
@@ -102,10 +106,11 @@ public class LoginApiTest {
         @SneakyThrows
         @Test
         @DisplayName("then an invalid request gives an error response")
+        @WithMockUser(roles = "USER")
         void testInvalidRequest() {
             final String personIdentifier = "hækker";
             mockMvc.perform(
-                            post("/im/v1/login/users/")
+                            post("/login/v1/users/")
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .accept(MediaType.APPLICATION_JSON)
                                     .content(createUserRequest(personIdentifier)))
@@ -117,10 +122,11 @@ public class LoginApiTest {
         @SneakyThrows
         @Test
         @DisplayName("then an active user is created")
+        @WithMockUser(roles = "USER")
         void testCreateUser() {
             final String personIdentifier = TestData.randomSynpid();
             mockMvc.perform(
-                            post("/im/v1/login/users/")
+                            post("/login/v1/users/")
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .accept(MediaType.APPLICATION_JSON)
                                     .content(createUserRequest(personIdentifier)))
@@ -133,11 +139,12 @@ public class LoginApiTest {
         @SneakyThrows
         @Test
         @DisplayName("then an error response is returned if the user already exists")
+        @WithMockUser(roles = "USER")
         void testFailWhenAlreadyExists() {
             final String personIdentifier = TestData.randomSynpid();
             UserResource user = apiUserService.createUser(CreateUserRequest.builder().personIdentifier(personIdentifier).build());
             mockMvc.perform(
-                            post("/im/v1/login/users/")
+                            post("/login/v1/users/")
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .accept(MediaType.APPLICATION_JSON)
                                     .content(createUserRequest(personIdentifier)))
@@ -159,10 +166,11 @@ public class LoginApiTest {
         @SneakyThrows
         @Test
         @DisplayName("then an invalid request gives an error response")
+        @WithMockUser(roles = "USER")
         void testInvalidRequest() {
             final String userId = TestData.randomUserId().toString();
             mockMvc.perform(
-                            post("/im/v1/login/users/%s/logins".formatted(userId))
+                            post("/login/v1/users/%s/logins".formatted(userId))
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .accept(MediaType.APPLICATION_JSON)
                                     .content(addLoginRequest(null)))
@@ -174,10 +182,11 @@ public class LoginApiTest {
         @SneakyThrows
         @Test
         @DisplayName("then updating an unknown user gives an error response")
+        @WithMockUser(roles = "USER")
         void testUnknownUser() {
             final String userId = TestData.randomUserId().toString();
             mockMvc.perform(
-                            post("/im/v1/login/users/%s/logins".formatted(userId))
+                            post("/login/v1/users/%s/logins".formatted(userId))
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .accept(MediaType.APPLICATION_JSON)
                                     .content(addLoginRequest("whatever")))
@@ -189,12 +198,13 @@ public class LoginApiTest {
         @SneakyThrows
         @Test
         @DisplayName("then adding a login returns user with list of logins")
+        @WithMockUser(roles = "USER")
         void testAddLogin() {
             final String personIdentifier = TestData.randomSynpid();
             UserResource user = apiUserService.createUser(CreateUserRequest.builder().personIdentifier(personIdentifier).build());
             String userId = user.getId();
             mockMvc.perform(
-                            post("/im/v1/login/users/%s/logins".formatted(userId))
+                            post("/login/v1/users/%s/logins".formatted(userId))
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .accept(MediaType.APPLICATION_JSON)
                                     .content(addLoginRequest("JunitID")))

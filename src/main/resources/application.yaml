@@ -1,6 +1,7 @@
 ---
 server:
   port: 8080
+
 spring:
   jpa:
     hibernate:
@@ -10,7 +11,10 @@ spring:
     database-platform: org.hibernate.dialect.MariaDB103Dialect
   flyway:
     table: flyway_schema_history
-
+  security:
+    user:
+      name: user
+      password: password
 
 project:
   version: '@project.version@'
@@ -50,9 +54,9 @@ springdoc:
       enabled: true
   group-configs:
     - group: Admin API
-      paths-to-match: /im/v1/admin/**
+      paths-to-match: /admin/v1/**
     - group: Login API
-      paths-to-match: /im/v1/login/**
+      paths-to-match: /login/v1/**
   swagger-ui:
     display-request-duration: true
     disable-swagger-default-url: true
@@ -63,6 +67,13 @@ idporten-user-service:
   features:
     allow-real-pid: true
     allow-synthetic-pid: false
+  whitelist-config:
+    security:
+      get-allowed:
+        - /health/**
+        - /version
+        - /info
+        - /swagger-ui/**
 
 ---
 spring:

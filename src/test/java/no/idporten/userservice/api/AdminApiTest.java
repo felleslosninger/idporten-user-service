@@ -53,7 +53,7 @@ public class AdminApiTest {
         void testInvalidSearchCriteria() {
             final String personIdentifier = "17mai";
             mockMvc.perform(
-                            post("/im/v1/admin/users/.search")
+                            post("/admin/v1/users/.search")
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .accept(MediaType.APPLICATION_JSON)
                                     .content(searchRequest(personIdentifier)))
@@ -68,7 +68,7 @@ public class AdminApiTest {
         void testEmptyResult() {
             final String personIdentifier = TestData.randomSynpid();
             mockMvc.perform(
-                            post("/im/v1/admin/users/.search")
+                            post("/admin/v1/users/.search")
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .accept(MediaType.APPLICATION_JSON)
                                     .content(searchRequest(personIdentifier)))
@@ -84,7 +84,7 @@ public class AdminApiTest {
             final String personIdentifier = TestData.randomSynpid();
             UserResource user = apiUserService.createUser(CreateUserRequest.builder().personIdentifier(personIdentifier).build());
             mockMvc.perform(
-                            post("/im/v1/admin/users/.search")
+                            post("/admin/v1/users/.search")
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .accept(MediaType.APPLICATION_JSON)
                                     .content(searchRequest(personIdentifier)))
@@ -108,7 +108,7 @@ public class AdminApiTest {
         @Test
         void testUserNotFound() {
             String userId = TestData.randomUserId().toString();
-            mockMvc.perform(get("/im/v1/admin/users/%s".formatted(userId))
+            mockMvc.perform(get("/admin/v1/users/%s".formatted(userId))
                             .accept(MediaType.APPLICATION_JSON_VALUE))
                     .andExpect(status().isNotFound())
                     .andExpect(jsonPath("$.error").value("invalid_request"))
@@ -122,7 +122,7 @@ public class AdminApiTest {
             String personIdentifier = TestData.randomSynpid();
             UserResource userResource = createUser(personIdentifier);
             final String userId = userResource.getId();
-            mockMvc.perform(get("/im/v1/admin/users/%s".formatted(userId))
+            mockMvc.perform(get("/admin/v1/users/%s".formatted(userId))
                             .accept(MediaType.APPLICATION_JSON_VALUE))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.id").value(userId))
@@ -146,7 +146,7 @@ public class AdminApiTest {
         void testUserNotFound() {
             String userId = TestData.randomUserId().toString();
             mockMvc.perform(
-                            put("/im/v1/admin/users/%s/status".formatted(userId))
+                            put("/admin/v1/users/%s/status".formatted(userId))
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .accept(MediaType.APPLICATION_JSON)
                                     .content(statusRequest("FOO")))
@@ -164,7 +164,7 @@ public class AdminApiTest {
             final String id = userResource.getId();
             final String closedCode = "SPERRET";
             mockMvc.perform(
-                            put("/im/v1/admin/users/%s/status".formatted(id))
+                            put("/admin/v1/users/%s/status".formatted(id))
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .accept(MediaType.APPLICATION_JSON)
                                     .content(statusRequest(closedCode)))
@@ -186,13 +186,13 @@ public class AdminApiTest {
             final String id = userResource.getId();
             final String closedCode = "SPERRET";
             mockMvc.perform(
-                            put("/im/v1/admin/users/%s/status".formatted(id))
+                            put("/admin/v1/users/%s/status".formatted(id))
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .accept(MediaType.APPLICATION_JSON)
                                     .content(statusRequest(closedCode)))
                     .andExpect(status().isOk());
             mockMvc.perform(
-                            put("/im/v1/admin/users/%s/status".formatted(id))
+                            put("/admin/v1/users/%s/status".formatted(id))
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .accept(MediaType.APPLICATION_JSON)
                                     .content(statusRequest("")))
@@ -220,7 +220,7 @@ public class AdminApiTest {
         void testUserNotFound() {
             String userId = TestData.randomUserId().toString();
             mockMvc.perform(
-                            patch("/im/v1/admin/users/%s".formatted(userId))
+                            patch("/admin/v1/users/%s".formatted(userId))
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .accept(MediaType.APPLICATION_JSON)
                                     .content(updateRequest(Collections.emptyList())))
@@ -235,7 +235,7 @@ public class AdminApiTest {
         void testInvalidRequest() {
             String userId = TestData.randomUserId().toString();
             mockMvc.perform(
-                            patch("/im/v1/admin/users/%s".formatted(userId))
+                            patch("/admin/v1/users/%s".formatted(userId))
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .accept(MediaType.APPLICATION_JSON)
                                     .content(updateRequest(List.of("foo", "", "bar"))))
@@ -252,7 +252,7 @@ public class AdminApiTest {
             UserResource userResource = createUser(personIdentifier);
             final String userId = userResource.getId();
             mockMvc.perform(
-                            patch("/im/v1/admin/users/%s".formatted(userId))
+                            patch("/admin/v1/users/%s".formatted(userId))
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .accept(MediaType.APPLICATION_JSON)
                                     .content(updateRequest(List.of("foo", "bar"))))
