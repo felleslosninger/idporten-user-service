@@ -13,7 +13,11 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -24,6 +28,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
+//@Import(JwtTestConfiguration.class)
 @AutoConfigureMockMvc
 @DisplayName("When using the admin API")
 @ActiveProfiles("test")
@@ -34,6 +39,9 @@ public class AdminApiTest {
 
     @Autowired
     private ApiUserService apiUserService;
+
+    @MockBean
+    private JwtDecoder jwtDecoder;
 
     protected UserResource createUser(String personIdentifier) {
         return apiUserService.createUser(CreateUserRequest.builder().personIdentifier(personIdentifier).build());
@@ -56,6 +64,7 @@ public class AdminApiTest {
                             post("/admin/v1/users/.search")
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .accept(MediaType.APPLICATION_JSON)
+                                    .with(SecurityMockMvcRequestPostProcessors.jwt()) //TODO fix security
                                     .content(searchRequest(personIdentifier)))
                     .andExpect(status().isBadRequest())
                     .andExpect(jsonPath("$.error").value("invalid_request"))
@@ -71,6 +80,7 @@ public class AdminApiTest {
                             post("/admin/v1/users/.search")
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .accept(MediaType.APPLICATION_JSON)
+                                    .header(HttpHeaders.AUTHORIZATION, "Bearer token")
                                     .content(searchRequest(personIdentifier)))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$").isArray())
@@ -87,6 +97,7 @@ public class AdminApiTest {
                             post("/admin/v1/users/.search")
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .accept(MediaType.APPLICATION_JSON)
+                                    .header(HttpHeaders.AUTHORIZATION, "Bearer token")
                                     .content(searchRequest(personIdentifier)))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$").isArray())
@@ -109,7 +120,8 @@ public class AdminApiTest {
         void testUserNotFound() {
             String userId = TestData.randomUserId().toString();
             mockMvc.perform(get("/admin/v1/users/%s".formatted(userId))
-                            .accept(MediaType.APPLICATION_JSON_VALUE))
+                            .accept(MediaType.APPLICATION_JSON_VALUE)
+                            .header(HttpHeaders.AUTHORIZATION, "Bearer token"))
                     .andExpect(status().isNotFound())
                     .andExpect(jsonPath("$.error").value("invalid_request"))
                     .andExpect(jsonPath("$.error_description", Matchers.containsString("User not found")));
@@ -123,7 +135,8 @@ public class AdminApiTest {
             UserResource userResource = createUser(personIdentifier);
             final String userId = userResource.getId();
             mockMvc.perform(get("/admin/v1/users/%s".formatted(userId))
-                            .accept(MediaType.APPLICATION_JSON_VALUE))
+                            .accept(MediaType.APPLICATION_JSON_VALUE)
+                            .header(HttpHeaders.AUTHORIZATION, "Bearer token"))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.id").value(userId))
                     .andExpect(jsonPath("$.person_identifier").value(personIdentifier))
@@ -149,6 +162,7 @@ public class AdminApiTest {
                             put("/admin/v1/users/%s/status".formatted(userId))
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .accept(MediaType.APPLICATION_JSON)
+                                    .header(HttpHeaders.AUTHORIZATION, "Bearer token")
                                     .content(statusRequest("FOO")))
                     .andExpect(status().isNotFound())
                     .andExpect(jsonPath("$.error").value("invalid_request"))
@@ -167,6 +181,7 @@ public class AdminApiTest {
                             put("/admin/v1/users/%s/status".formatted(id))
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .accept(MediaType.APPLICATION_JSON)
+                                    .header(HttpHeaders.AUTHORIZATION, "Bearer token")
                                     .content(statusRequest(closedCode)))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.person_identifier").value(personIdentifier))
@@ -189,6 +204,7 @@ public class AdminApiTest {
                             put("/admin/v1/users/%s/status".formatted(id))
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .accept(MediaType.APPLICATION_JSON)
+                                    .header(HttpHeaders.AUTHORIZATION, "Bearer token")
                                     .content(statusRequest(closedCode)))
                     .andExpect(status().isOk());
             mockMvc.perform(
@@ -223,6 +239,7 @@ public class AdminApiTest {
                             patch("/admin/v1/users/%s".formatted(userId))
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .accept(MediaType.APPLICATION_JSON)
+                                    .header(HttpHeaders.AUTHORIZATION, "Bearer token")
                                     .content(updateRequest(Collections.emptyList())))
                     .andExpect(status().isNotFound())
                     .andExpect(jsonPath("$.error").value("invalid_request"))
@@ -238,6 +255,7 @@ public class AdminApiTest {
                             patch("/admin/v1/users/%s".formatted(userId))
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .accept(MediaType.APPLICATION_JSON)
+                                    .header(HttpHeaders.AUTHORIZATION, "Bearer token")
                                     .content(updateRequest(List.of("foo", "", "bar"))))
                     .andExpect(status().isBadRequest())
                     .andExpect(jsonPath("$.error").value("invalid_request"))
@@ -255,6 +273,7 @@ public class AdminApiTest {
                             patch("/admin/v1/users/%s".formatted(userId))
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .accept(MediaType.APPLICATION_JSON)
+                                    .header(HttpHeaders.AUTHORIZATION, "Bearer token")
                                     .content(updateRequest(List.of("foo", "bar"))))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.id").value(userId))

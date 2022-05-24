@@ -19,11 +19,16 @@
         <idporten-fnr-generate.version>1.0.0</idporten-fnr-generate.version>
         <springdoc.version>1.6.8</springdoc.version>
         <logstash.logback.version>7.2</logstash.logback.version>
+        <nimbus.jose.jwt.version>9.22</nimbus.jose.jwt.version>
     </properties>
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>

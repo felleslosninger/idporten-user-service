@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import no.idporten.userservice.api.ApiUserService;
 import no.idporten.userservice.api.SearchRequest;
@@ -14,6 +15,7 @@ import no.idporten.userservice.api.UserResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -53,12 +55,14 @@ public class AdminApiController {
             summary = "Search for users",
             description = "Search for users using external references",
             tags = {"admin-api"},
+            security = @SecurityRequirement(name = "access_token"),
             responses = {
                     @ApiResponse(responseCode = "200", description = "Empty list if no user's are found")
             })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "List of users.  Empty list if no users are found")
     })
+    @PreAuthorize("hasAuthority('SCOPE_idporteninternal:user.read')")
     @PostMapping(path = "/admin/v1/users/.search", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<UserResource>> searchUser(@Valid @RequestBody SearchRequest searchRequest) {
         return ResponseEntity.ok(apiUserService.searchForUser(searchRequest.getPersonIdentifier()));
@@ -68,6 +72,7 @@ public class AdminApiController {
             summary = "Retrieve a user",
             description = "Retrieve a user by internal id",
             tags = {"admin-api"},
+            security = @SecurityRequirement(name = "access_token"),
             parameters = {
                     @Parameter(in = ParameterIn.PATH, name = "id", required = true, description = "User id")
             })
@@ -77,6 +82,7 @@ public class AdminApiController {
                     @ExampleObject(description = "Error response", value = errorResponseExample)
             }))
     })
+    @PreAuthorize("hasAuthority('SCOPE_idporteninternal:user.read')")
     @GetMapping(path = "/admin/v1/users/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<UserResource> retrieveUser(@PathVariable("id") String id) {
         UserResource userResource = apiUserService.lookup(id);
@@ -87,6 +93,7 @@ public class AdminApiController {
             summary = "Update attributes for a user",
             description = "Update user attributes",
             tags = {"admin-api"},
+            security = @SecurityRequirement(name = "access_token"),
             parameters = {
                     @Parameter(in = ParameterIn.PATH, name = "id", required = true, description = "User id")
             })
@@ -94,6 +101,7 @@ public class AdminApiController {
             @ApiResponse(responseCode = "200", description = "User is updated"),
             @ApiResponse(responseCode = "404", description = "User is not found")
     })
+    @PreAuthorize("hasAuthority('SCOPE_idporteninternal:user.write')")
     @PatchMapping(path = "/admin/v1/users/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<UserResource> updateUserAttributes(@PathVariable("id") String id,
                                                              @Valid @RequestBody UpdateAttributesRequest request) {
@@ -104,6 +112,7 @@ public class AdminApiController {
             summary = "Update status for a user",
             description = "Update user status",
             tags = {"admin-api"},
+            security = @SecurityRequirement(name = "access_token"),
             parameters = {
                     @Parameter(in = ParameterIn.PATH, name = "id", required = true, description = "User id")
             })
@@ -111,17 +120,19 @@ public class AdminApiController {
             @ApiResponse(responseCode = "200", description = "User status is updated"),
             @ApiResponse(responseCode = "404", description = "User is not found")
     })
+    @PreAuthorize("hasAuthority('SCOPE_idporteninternal:user.write')")
     @PutMapping(path = "/admin/v1/users/{id}/status", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<UserResource> updateUserStatus(@PathVariable("id") String id,
                                                          @Valid @RequestBody UpdateStatusRequest request) {
         return ResponseEntity.ok(apiUserService.updateUserStatus(id, request));
     }
 
-    @Operation(summary = "Change user identifier", description = "Change user identifier", tags = {"admin-api"})
+    @Operation(summary = "Change user identifier", description = "Change user identifier", tags = {"admin-api"}, security = @SecurityRequirement(name = "access_token"))
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "User identifier is updated"),
             @ApiResponse(responseCode = "404", description = "User is not found")
     })
+    @PreAuthorize("hasAuthority('SCOPE_idporteninternal:user.write')")
     @PutMapping(path = "/admin/v1/users/.change-identifier", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<UserResource> changeIdentifier(@Valid @RequestBody ChangeIdentifierRequest request) {
         return ResponseEntity.ok(apiUserService.changePersonIdentifier(request));
