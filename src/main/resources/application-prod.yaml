@@ -15,3 +15,7 @@ spring:
     user:
       name: ${API_USER}
       password: ${API_USER_PASSWORD}
+    oauth2:
+      resource:
+        jwt:
+          jwk-set-uri: https://maskinporten.no/.well-known/jwks.json

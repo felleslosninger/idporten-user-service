@@ -45,7 +45,7 @@ public class SecurityConfiguration {
                 .authorizeHttpRequests((authorize) -> authorize
                         .antMatchers("/login/**").hasAnyRole("USER")
                         .antMatchers(HttpMethod.GET, "/admin/**").hasAuthority("SCOPE_idporteninternal:user.read")
-                        .antMatchers(HttpMethod.POST, "/admin/**").hasAuthority("SCOPE_idporteninternal:user.write")
+                        .antMatchers(HttpMethod.POST, "/admin/**").hasAuthority("SCOPE_idporteninternal:user.read") //maybe wrong this later on
                         .antMatchers(HttpMethod.PATCH, "/admin/**").hasAuthority("SCOPE_idporteninternal:user.write")
                         .antMatchers(HttpMethod.PUT, "/admin/**").hasAuthority("SCOPE_idporteninternal:user.write")
                         .antMatchers(openEndpoints).permitAll()

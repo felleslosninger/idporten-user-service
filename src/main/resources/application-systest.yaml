@@ -15,6 +15,10 @@ spring:
     user:
       name: ${API_USER}
       password: ${API_USER_PASSWORD}
+    oauth2:
+      resource:
+        jwt:
+          jwk-set-uri: https://maskinporten.dev/.well-known/jwks.json
 
 # App-specific config
 idporten-user-service:

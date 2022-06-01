@@ -15,10 +15,7 @@ spring:
     user:
       name: user
       password: password
-    oauth2:
-      resource:
-        jwt:
-          jwk-set-uri: https://maskinporten.dev/.well-known/jwks.json
+
 
 project:
   version: '@project.version@'
@@ -77,6 +74,7 @@ idporten-user-service:
         - /health/**
         - /version
         - /info
+        - /prometheus
         - /swagger-ui/**
         - /v3/api-docs/**
 
