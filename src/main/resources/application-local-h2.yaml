@@ -9,6 +9,10 @@ spring:
     password: password
   jpa:
     database-platform: org.hibernate.dialect.H2Dialect
+  security:
+    user:
+      name: login-user
+      password: login-password
 
 # App-specific config
 idporten-user-service:
