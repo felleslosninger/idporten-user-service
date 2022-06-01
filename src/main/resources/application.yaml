@@ -78,6 +78,7 @@ idporten-user-service:
         - /version
         - /info
         - /swagger-ui/**
+        - /v3/api-docs/**
 
 ---
 spring:
