@@ -1,7 +1,6 @@
 package no.idporten.userservice.api;
 
 import lombok.RequiredArgsConstructor;
-import no.idporten.userservice.api.admin.ChangeIdentifierRequest;
 import no.idporten.userservice.api.admin.UpdateAttributesRequest;
 import no.idporten.userservice.api.admin.UpdateStatusRequest;
 import no.idporten.userservice.api.login.CreateUserRequest;
@@ -90,11 +89,6 @@ public class ApiUserService {
 
         }
         return convert(userService.updateUser(idPortenUser));
-    }
-
-    public UserResource changePersonIdentifier(ChangeIdentifierRequest changePersonIdentifierRequest) {
-        IDPortenUser idPortenUser = userService.changePid(changePersonIdentifierRequest.getOldPersonIdentifier(), changePersonIdentifierRequest.getNewPersonIdentifier());
-        return convert(idPortenUser);
     }
 
     protected void validatePersonIdentifier(String personIdentifier) {
