@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import no.idporten.userservice.api.ApiUserService;
 import no.idporten.userservice.api.SearchRequest;
@@ -14,6 +15,7 @@ import no.idporten.userservice.api.UserResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -25,6 +27,12 @@ import java.util.List;
 @Tag(name = "admin-api", description = "User Service Admin API")
 @ApiResponses(value = {
         @ApiResponse(responseCode = "400", description = "Invalid request", content = @Content(examples = {
+                @ExampleObject(description = "Error response", value = AdminApiController.errorResponseExample)
+        })),
+        @ApiResponse(responseCode = "401", description = "Invalid token", content = @Content(examples = {
+                @ExampleObject(description = "Error response", value = AdminApiController.errorResponseExample)
+        })),
+        @ApiResponse(responseCode = "403", description = "Insufficient scope", content = @Content(examples = {
                 @ExampleObject(description = "Error response", value = AdminApiController.errorResponseExample)
         })),
         @ApiResponse(responseCode = "500", description = "Server error", content = @Content(examples = {
@@ -53,12 +61,14 @@ public class AdminApiController {
             summary = "Search for users",
             description = "Search for users using external references",
             tags = {"admin-api"},
+            security = @SecurityRequirement(name = "access_token"),
             responses = {
                     @ApiResponse(responseCode = "200", description = "Empty list if no user's are found")
             })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "List of users.  Empty list if no users are found")
     })
+    @PreAuthorize("hasAnyAuthority('SCOPE_idporteninternal:user.read','SCOPE_idporteninternal:user.write')")
     @PostMapping(path = "/admin/v1/users/.search", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<UserResource>> searchUser(@Valid @RequestBody SearchRequest searchRequest) {
         return ResponseEntity.ok(apiUserService.searchForUser(searchRequest.getPersonIdentifier()));
@@ -68,6 +78,7 @@ public class AdminApiController {
             summary = "Retrieve a user",
             description = "Retrieve a user by internal id",
             tags = {"admin-api"},
+            security = @SecurityRequirement(name = "access_token"),
             parameters = {
                     @Parameter(in = ParameterIn.PATH, name = "id", required = true, description = "User id")
             })
@@ -77,6 +88,7 @@ public class AdminApiController {
                     @ExampleObject(description = "Error response", value = errorResponseExample)
             }))
     })
+    @PreAuthorize("hasAnyAuthority('SCOPE_idporteninternal:user.read','SCOPE_idporteninternal:user.write')")
     @GetMapping(path = "/admin/v1/users/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<UserResource> retrieveUser(@PathVariable("id") String id) {
         UserResource userResource = apiUserService.lookup(id);
@@ -87,6 +99,7 @@ public class AdminApiController {
             summary = "Update attributes for a user",
             description = "Update user attributes",
             tags = {"admin-api"},
+            security = @SecurityRequirement(name = "access_token"),
             parameters = {
                     @Parameter(in = ParameterIn.PATH, name = "id", required = true, description = "User id")
             })
@@ -94,6 +107,7 @@ public class AdminApiController {
             @ApiResponse(responseCode = "200", description = "User is updated"),
             @ApiResponse(responseCode = "404", description = "User is not found")
     })
+    @PreAuthorize("hasAuthority('SCOPE_idporteninternal:user.write')")
     @PatchMapping(path = "/admin/v1/users/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<UserResource> updateUserAttributes(@PathVariable("id") String id,
                                                              @Valid @RequestBody UpdateAttributesRequest request) {
@@ -104,6 +118,7 @@ public class AdminApiController {
             summary = "Update status for a user",
             description = "Update user status",
             tags = {"admin-api"},
+            security = @SecurityRequirement(name = "access_token"),
             parameters = {
                     @Parameter(in = ParameterIn.PATH, name = "id", required = true, description = "User id")
             })
@@ -111,6 +126,7 @@ public class AdminApiController {
             @ApiResponse(responseCode = "200", description = "User status is updated"),
             @ApiResponse(responseCode = "404", description = "User is not found")
     })
+    @PreAuthorize("hasAuthority('SCOPE_idporteninternal:user.write')")
     @PutMapping(path = "/admin/v1/users/{id}/status", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<UserResource> updateUserStatus(@PathVariable("id") String id,
                                                          @Valid @RequestBody UpdateStatusRequest request) {

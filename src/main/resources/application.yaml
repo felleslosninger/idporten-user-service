@@ -16,6 +16,7 @@ spring:
       name: user
       password: password
 
+
 project:
   version: '@project.version@'
 
@@ -73,7 +74,9 @@ idporten-user-service:
         - /health/**
         - /version
         - /info
+        - /prometheus
         - /swagger-ui/**
+        - /v3/api-docs/**
 
 ---
 spring:

@@ -14,12 +14,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Collections;
 import java.util.List;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -56,6 +58,7 @@ public class AdminApiTest {
                             post("/admin/v1/users/.search")
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .accept(MediaType.APPLICATION_JSON)
+                                    .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_idporteninternal:user.read")))
                                     .content(searchRequest(personIdentifier)))
                     .andExpect(status().isBadRequest())
                     .andExpect(jsonPath("$.error").value("invalid_request"))
@@ -71,6 +74,7 @@ public class AdminApiTest {
                             post("/admin/v1/users/.search")
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .accept(MediaType.APPLICATION_JSON)
+                                    .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_idporteninternal:user.read")))
                                     .content(searchRequest(personIdentifier)))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$").isArray())
@@ -87,6 +91,7 @@ public class AdminApiTest {
                             post("/admin/v1/users/.search")
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .accept(MediaType.APPLICATION_JSON)
+                                    .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_idporteninternal:user.read")))
                                     .content(searchRequest(personIdentifier)))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$").isArray())
@@ -109,7 +114,8 @@ public class AdminApiTest {
         void testUserNotFound() {
             String userId = TestData.randomUserId().toString();
             mockMvc.perform(get("/admin/v1/users/%s".formatted(userId))
-                            .accept(MediaType.APPLICATION_JSON_VALUE))
+                            .accept(MediaType.APPLICATION_JSON_VALUE)
+                            .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_idporteninternal:user.read"))))
                     .andExpect(status().isNotFound())
                     .andExpect(jsonPath("$.error").value("invalid_request"))
                     .andExpect(jsonPath("$.error_description", Matchers.containsString("User not found")));
@@ -123,7 +129,8 @@ public class AdminApiTest {
             UserResource userResource = createUser(personIdentifier);
             final String userId = userResource.getId();
             mockMvc.perform(get("/admin/v1/users/%s".formatted(userId))
-                            .accept(MediaType.APPLICATION_JSON_VALUE))
+                            .accept(MediaType.APPLICATION_JSON_VALUE)
+                            .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_idporteninternal:user.read"))))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.id").value(userId))
                     .andExpect(jsonPath("$.person_identifier").value(personIdentifier))
@@ -149,6 +156,7 @@ public class AdminApiTest {
                             put("/admin/v1/users/%s/status".formatted(userId))
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .accept(MediaType.APPLICATION_JSON)
+                                    .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_idporteninternal:user.write"))) // TODO check correct scope, only checks if one of 2 valid scopes in SecurityConfiguration
                                     .content(statusRequest("FOO")))
                     .andExpect(status().isNotFound())
                     .andExpect(jsonPath("$.error").value("invalid_request"))
@@ -167,6 +175,7 @@ public class AdminApiTest {
                             put("/admin/v1/users/%s/status".formatted(id))
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .accept(MediaType.APPLICATION_JSON)
+                                    .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_idporteninternal:user.write")))
                                     .content(statusRequest(closedCode)))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.person_identifier").value(personIdentifier))
@@ -189,12 +198,14 @@ public class AdminApiTest {
                             put("/admin/v1/users/%s/status".formatted(id))
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .accept(MediaType.APPLICATION_JSON)
+                                    .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_idporteninternal:user.write")))
                                     .content(statusRequest(closedCode)))
                     .andExpect(status().isOk());
             mockMvc.perform(
                             put("/admin/v1/users/%s/status".formatted(id))
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .accept(MediaType.APPLICATION_JSON)
+                                    .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_idporteninternal:user.write")))
                                     .content(statusRequest("")))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.person_identifier").value(personIdentifier))
@@ -223,6 +234,7 @@ public class AdminApiTest {
                             patch("/admin/v1/users/%s".formatted(userId))
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .accept(MediaType.APPLICATION_JSON)
+                                    .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_idporteninternal:user.write")))
                                     .content(updateRequest(Collections.emptyList())))
                     .andExpect(status().isNotFound())
                     .andExpect(jsonPath("$.error").value("invalid_request"))
@@ -238,6 +250,7 @@ public class AdminApiTest {
                             patch("/admin/v1/users/%s".formatted(userId))
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .accept(MediaType.APPLICATION_JSON)
+                                    .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_idporteninternal:user.write")))
                                     .content(updateRequest(List.of("foo", "", "bar"))))
                     .andExpect(status().isBadRequest())
                     .andExpect(jsonPath("$.error").value("invalid_request"))
@@ -255,6 +268,7 @@ public class AdminApiTest {
                             patch("/admin/v1/users/%s".formatted(userId))
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .accept(MediaType.APPLICATION_JSON)
+                                    .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_idporteninternal:user.write")))
                                     .content(updateRequest(List.of("foo", "bar"))))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.id").value(userId))
