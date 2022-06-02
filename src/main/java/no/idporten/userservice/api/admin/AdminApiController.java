@@ -29,6 +29,12 @@ import java.util.List;
         @ApiResponse(responseCode = "400", description = "Invalid request", content = @Content(examples = {
                 @ExampleObject(description = "Error response", value = AdminApiController.errorResponseExample)
         })),
+        @ApiResponse(responseCode = "401", description = "Invalid token", content = @Content(examples = {
+                @ExampleObject(description = "Error response", value = AdminApiController.errorResponseExample)
+        })),
+        @ApiResponse(responseCode = "403", description = "Insufficient scope", content = @Content(examples = {
+                @ExampleObject(description = "Error response", value = AdminApiController.errorResponseExample)
+        })),
         @ApiResponse(responseCode = "500", description = "Server error", content = @Content(examples = {
                 @ExampleObject(description = "Error response", value = AdminApiController.errorResponseExample)
         }))
@@ -62,7 +68,7 @@ public class AdminApiController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "List of users.  Empty list if no users are found")
     })
-    @PreAuthorize("hasAuthority('SCOPE_idporteninternal:user.read')")
+    @PreAuthorize("hasAnyAuthority('SCOPE_idporteninternal:user.read','SCOPE_idporteninternal:user.write')")
     @PostMapping(path = "/admin/v1/users/.search", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<UserResource>> searchUser(@Valid @RequestBody SearchRequest searchRequest) {
         return ResponseEntity.ok(apiUserService.searchForUser(searchRequest.getPersonIdentifier()));
@@ -82,7 +88,7 @@ public class AdminApiController {
                     @ExampleObject(description = "Error response", value = errorResponseExample)
             }))
     })
-    @PreAuthorize("hasAuthority('SCOPE_idporteninternal:user.read')")
+    @PreAuthorize("hasAnyAuthority('SCOPE_idporteninternal:user.read','SCOPE_idporteninternal:user.write')")
     @GetMapping(path = "/admin/v1/users/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<UserResource> retrieveUser(@PathVariable("id") String id) {
         UserResource userResource = apiUserService.lookup(id);

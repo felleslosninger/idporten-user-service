@@ -15,7 +15,14 @@ spring:
     hibernate:
       ddl-auto: none
     generate-ddl: false
-
+  security:
+    user:
+      name: user
+      password: pwd
+    oauth2:
+      resource:
+        jwt:
+          jwk-set-uri: http://my.maskinporten/.well-known/jwks.json
 
 # App-specific config
 idporten-user-service:
