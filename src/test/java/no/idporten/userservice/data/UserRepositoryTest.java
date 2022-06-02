@@ -4,8 +4,9 @@ import no.idporten.userservice.TestData;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.test.context.ActiveProfiles;
 
 import javax.annotation.Resource;
 import java.time.Instant;
@@ -13,7 +14,8 @@ import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@DataJpaTest
+@SpringBootTest
+@ActiveProfiles("test")
 public class UserRepositoryTest {
     @Resource
     private UserRepository userRepository;
@@ -25,7 +27,7 @@ public class UserRepositoryTest {
         @Test
         @DisplayName("then when creating a user with only personIdentifier, the user must be stored and retrieved successfully")
         void testCreateAndRead() {
-            String personIdentifier = "123456";
+            String personIdentifier = TestData.randomSynpid();
             UserEntity testUser = UserEntity.builder()
                     .personIdentifier(personIdentifier)
                     .active(Boolean.TRUE)
@@ -41,20 +43,20 @@ public class UserRepositoryTest {
         @Test
         @DisplayName("then if a user already is registered with the same personIdentifier, an exception must be thrown")
         void testUniquePidConstraint() {
-
+            final String personIdentifier = TestData.randomSynpid();
             UserEntity testUser = UserEntity.builder()
-                    .personIdentifier("123")
+                    .personIdentifier(personIdentifier)
                     .active(Boolean.TRUE)
                     .build();
 
             UserEntity ohNoUser = UserEntity.builder()
-                    .personIdentifier("123")
+                    .personIdentifier(personIdentifier)
                     .active(Boolean.TRUE)
                     .build();
 
-            userRepository.save(testUser);
-            userRepository.save(ohNoUser);
             try {
+                userRepository.save(testUser);
+                userRepository.save(ohNoUser);
                 userRepository.flush();
                 fail("Should have failed");
             } catch (Exception e) {
@@ -72,7 +74,7 @@ public class UserRepositoryTest {
         @Test
         @DisplayName("with closedCode then the operation must succeed and information be found by UUID and by personidentifier")
         void testUpdateWithClosedCode() {
-            String personIdentifier = TestData.randomSynpid();
+            final String personIdentifier = TestData.randomSynpid();
             UserEntity testUser = UserEntity.builder()
                     .personIdentifier(personIdentifier)
                     .active(Boolean.TRUE)
@@ -87,7 +89,7 @@ public class UserRepositoryTest {
             Optional<UserEntity> byPersonIdentifier = userRepository.findByPersonIdentifier(personIdentifier);
             assertTrue(byPersonIdentifier.isPresent());
             assertEquals("SPERRET", byPersonIdentifier.get().getClosedCode());
-            assertEquals(byUuid, byPersonIdentifier);
+            assertEquals(byUuid.get(), byPersonIdentifier.get());
             assertEquals(saved.getUuid().toString(), byPersonIdentifier.get().getUuid().toString());
         }
 
