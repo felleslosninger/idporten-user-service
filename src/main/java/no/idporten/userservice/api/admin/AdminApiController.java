@@ -117,14 +117,4 @@ public class AdminApiController {
         return ResponseEntity.ok(apiUserService.updateUserStatus(id, request));
     }
 
-    @Operation(summary = "Change user identifier", description = "Change user identifier", tags = {"admin-api"})
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "User identifier is updated"),
-            @ApiResponse(responseCode = "404", description = "User is not found")
-    })
-    @PutMapping(path = "/admin/v1/users/.change-identifier", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<UserResource> changeIdentifier(@Valid @RequestBody ChangeIdentifierRequest request) {
-        return ResponseEntity.ok(apiUserService.changePersonIdentifier(request));
-    }
-
 }
