@@ -3,3 +3,5 @@ general:
     - CVE-2021-23463 # h2
     - CVE-2021-42392 # h2
     - CVE-2022-23221 # h2
+    - CVE-2022-22978 # h2, venter på spring boot 2.7
+    - CVE-2022-22970 # h2, venter på spring boot 2.7
