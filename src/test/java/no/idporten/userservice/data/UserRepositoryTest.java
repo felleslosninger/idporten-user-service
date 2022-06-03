@@ -4,8 +4,9 @@ import no.idporten.userservice.TestData;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.test.context.ActiveProfiles;
 
 import javax.annotation.Resource;
 import java.time.Instant;
@@ -13,7 +14,8 @@ import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@DataJpaTest
+@SpringBootTest
+@ActiveProfiles("test")
 public class UserRepositoryTest {
     @Resource
     private UserRepository userRepository;
@@ -25,7 +27,7 @@ public class UserRepositoryTest {
         @Test
         @DisplayName("then when creating a user with only personIdentifier, the user must be stored and retrieved successfully")
         void testCreateAndRead() {
-            String personIdentifier = "123456";
+            String personIdentifier = TestData.randomSynpid();
             UserEntity testUser = UserEntity.builder()
                     .personIdentifier(personIdentifier)
                     .active(Boolean.TRUE)
@@ -41,20 +43,20 @@ public class UserRepositoryTest {
         @Test
         @DisplayName("then if a user already is registered with the same personIdentifier, an exception must be thrown")
         void testUniquePidConstraint() {
-
+            final String personIdentifier = TestData.randomSynpid();
             UserEntity testUser = UserEntity.builder()
-                    .personIdentifier("123")
+                    .personIdentifier(personIdentifier)
                     .active(Boolean.TRUE)
                     .build();
 
             UserEntity ohNoUser = UserEntity.builder()
-                    .personIdentifier("123")
+                    .personIdentifier(personIdentifier)
                     .active(Boolean.TRUE)
                     .build();
 
-            userRepository.save(testUser);
-            userRepository.save(ohNoUser);
             try {
+                userRepository.save(testUser);
+                userRepository.save(ohNoUser);
                 userRepository.flush();
                 fail("Should have failed");
             } catch (Exception e) {
@@ -72,7 +74,7 @@ public class UserRepositoryTest {
         @Test
         @DisplayName("with closedCode then the operation must succeed and information be found by UUID and by personidentifier")
         void testUpdateWithClosedCode() {
-            String personIdentifier = TestData.randomSynpid();
+            final String personIdentifier = TestData.randomSynpid();
             UserEntity testUser = UserEntity.builder()
                     .personIdentifier(personIdentifier)
                     .active(Boolean.TRUE)
@@ -87,7 +89,7 @@ public class UserRepositoryTest {
             Optional<UserEntity> byPersonIdentifier = userRepository.findByPersonIdentifier(personIdentifier);
             assertTrue(byPersonIdentifier.isPresent());
             assertEquals("SPERRET", byPersonIdentifier.get().getClosedCode());
-            assertEquals(byUuid, byPersonIdentifier);
+            assertEquals(byUuid.get().getUuid(), byPersonIdentifier.get().getUuid());
             assertEquals(saved.getUuid().toString(), byPersonIdentifier.get().getUuid().toString());
         }
 
@@ -176,9 +178,9 @@ public class UserRepositoryTest {
             logins.add(LoginEntity.builder().eidName("MinID").user(testUser).build());
             logins.add(LoginEntity.builder().eidName("BankID").user(testUser).build());
             testUser.setLogins(logins);
-            UserEntity saved = userRepository.save(testUser);
 
-            long lastUpdated = saved.getUserLastUpdatedAtEpochMs();
+            // SAVE MinID 1. time createdDate==updatedDate
+            UserEntity saved = userRepository.save(testUser);
             assertNotNull(saved.getUuid());
             assertNotNull(saved.getLogins());
             assertFalse(saved.getLogins().isEmpty());
@@ -201,22 +203,16 @@ public class UserRepositoryTest {
             List<LoginEntity> existingLogins = saved.getLogins();
             assertEquals(2, existingLogins.size());
             LoginEntity minIDToUpdate = LoginEntity.builder().eidName("MinID").lastLoginAtEpochMs(Instant.now().toEpochMilli()).user(testUser).build();
-            LoginEntity oldMinid = null;
             for (LoginEntity l : existingLogins) {
                 if (l.getEidName().equals(minIDToUpdate.getEidName())) {
-                    minIDToUpdate.setId(l.getId());
-                    minIDToUpdate.setFirstLoginAtEpochMs(l.getFirstLoginAtEpochMs());
-                    oldMinid = l;
+                    l.setLastLoginAtEpochMs(Instant.now().toEpochMilli()); // update lastLogin on only MinID
                 }
             }
-            existingLogins.remove(oldMinid);
+            // SAVE MinID 2. time createdDate before updatedDate and createDate unchanged.
             UserEntity save2 = userRepository.save(saved);
-            minIDToUpdate.setUser(save2);
-            save2.addLogin(minIDToUpdate);
-            UserEntity saveWithUpdatedLogin = userRepository.save(save2);
             long minidCreatedSecond = 0L;
             long minidUpdatedSecond = 0L;
-            for (LoginEntity l : saveWithUpdatedLogin.getLogins()) {
+            for (LoginEntity l : save2.getLogins()) {
                 assertTrue("MinID".equals(l.getEidName()) || "BankID".equals(l.getEidName()));
                 assertTrue(l.getLastLoginAtEpochMs() > 0);
                 assertTrue(l.getFirstLoginAtEpochMs() > 0);
@@ -228,8 +224,8 @@ public class UserRepositoryTest {
                     assertTrue(l.getLastLoginAtEpochMs() > 0);
                 }
             }
-            assertEquals(minidCreated, minidCreatedSecond);
-            assertTrue(minidUpdatedFirst < minidUpdatedSecond);
+            assertEquals(minidCreated, minidCreatedSecond); // Unchanged created date
+            assertTrue(minidUpdatedFirst < minidUpdatedSecond); // updateddate changed
         }
 
 
