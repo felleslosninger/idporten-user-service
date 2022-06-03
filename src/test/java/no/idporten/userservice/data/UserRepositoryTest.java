@@ -178,9 +178,9 @@ public class UserRepositoryTest {
             logins.add(LoginEntity.builder().eidName("MinID").user(testUser).build());
             logins.add(LoginEntity.builder().eidName("BankID").user(testUser).build());
             testUser.setLogins(logins);
-            UserEntity saved = userRepository.save(testUser);
 
-            long lastUpdated = saved.getUserLastUpdatedAtEpochMs();
+            // SAVE MinID 1. time createdDate==updatedDate
+            UserEntity saved = userRepository.save(testUser);
             assertNotNull(saved.getUuid());
             assertNotNull(saved.getLogins());
             assertFalse(saved.getLogins().isEmpty());
@@ -203,22 +203,16 @@ public class UserRepositoryTest {
             List<LoginEntity> existingLogins = saved.getLogins();
             assertEquals(2, existingLogins.size());
             LoginEntity minIDToUpdate = LoginEntity.builder().eidName("MinID").lastLoginAtEpochMs(Instant.now().toEpochMilli()).user(testUser).build();
-            LoginEntity oldMinid = null;
             for (LoginEntity l : existingLogins) {
                 if (l.getEidName().equals(minIDToUpdate.getEidName())) {
-                    minIDToUpdate.setId(l.getId());
-                    minIDToUpdate.setFirstLoginAtEpochMs(l.getFirstLoginAtEpochMs());
-                    oldMinid = l;
+                    l.setLastLoginAtEpochMs(Instant.now().toEpochMilli()); // update lastLogin on only MinID
                 }
             }
-            existingLogins.remove(oldMinid);
+            // SAVE MinID 2. time createdDate before updatedDate and createDate unchanged.
             UserEntity save2 = userRepository.save(saved);
-            minIDToUpdate.setUser(save2);
-            save2.addLogin(minIDToUpdate);
-            UserEntity saveWithUpdatedLogin = userRepository.save(save2);
             long minidCreatedSecond = 0L;
             long minidUpdatedSecond = 0L;
-            for (LoginEntity l : saveWithUpdatedLogin.getLogins()) {
+            for (LoginEntity l : save2.getLogins()) {
                 assertTrue("MinID".equals(l.getEidName()) || "BankID".equals(l.getEidName()));
                 assertTrue(l.getLastLoginAtEpochMs() > 0);
                 assertTrue(l.getFirstLoginAtEpochMs() > 0);
@@ -230,8 +224,8 @@ public class UserRepositoryTest {
                     assertTrue(l.getLastLoginAtEpochMs() > 0);
                 }
             }
-            //assertEquals(minidCreated, minidCreatedSecond); TODO: fix test-> created on minid login should not be changed after first create
-            assertTrue(minidUpdatedFirst < minidUpdatedSecond);
+            assertEquals(minidCreated, minidCreatedSecond); // Unchanged created date
+            assertTrue(minidUpdatedFirst < minidUpdatedSecond); // updateddate changed
         }
 
 
