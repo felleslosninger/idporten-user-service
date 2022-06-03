@@ -165,6 +165,22 @@ public class LoginApiTest {
 
         @SneakyThrows
         @Test
+        @DisplayName("then a malformed uuid in path gives an error response")
+        @WithMockUser(roles = "USER")
+        void testInvalidPath() {
+            final String userId = "møh";
+            mockMvc.perform(
+                            post("/login/v1/users/%s/logins".formatted(userId))
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .accept(MediaType.APPLICATION_JSON)
+                                    .content(addLoginRequest("foo")))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.error").value("invalid_request"))
+                    .andExpect(jsonPath("$.error_description", Matchers.containsString("Invalid user UUID")));
+        }
+
+        @SneakyThrows
+        @Test
         @DisplayName("then an invalid request gives an error response")
         @WithMockUser(roles = "USER")
         void testInvalidRequest() {

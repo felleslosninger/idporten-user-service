@@ -7,12 +7,14 @@ import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.validation.BindException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+import javax.validation.ConstraintViolationException;
 import java.lang.reflect.Field;
 
 @Slf4j
@@ -48,6 +50,19 @@ public class ApiExceptionHandler {
                     errorDescription = "Invalid attribute %s: %s".formatted(fieldError.getField(), fieldError.getDefaultMessage());
                 }
             }
+        }
+        return ResponseEntity.badRequest()
+                .body(ErrorResponse.builder()
+                        .error("invalid_request")
+                        .errorDescription(errorDescription)
+                        .build());
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ErrorResponse> handleConstraintViolationException(ConstraintViolationException e) {
+        String errorDescription = null;
+        if (!CollectionUtils.isEmpty(e.getConstraintViolations())) {
+            errorDescription = e.getConstraintViolations().iterator().next().getMessage();
         }
         return ResponseEntity.badRequest()
                 .body(ErrorResponse.builder()
