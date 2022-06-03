@@ -49,7 +49,7 @@ public class UpdateAttributesRequestTest {
     }
 
     @Test
-    @DisplayName("then a list containing valid help desk reference is accepted")
+    @DisplayName("then a list containing valid help desk reference (old format '1234567' and new format '12345 678') is accepted")
     void testValidReferenceInList() {
         UpdateAttributesRequest request = new UpdateAttributesRequest();
         request.setHelpDeskReferences(List.of("9876543", "1234567", "12345 678"));
