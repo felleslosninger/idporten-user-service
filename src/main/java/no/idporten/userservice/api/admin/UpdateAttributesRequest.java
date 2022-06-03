@@ -8,7 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 
-import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.Pattern;
 import java.util.List;
 
 @Data
@@ -20,6 +20,6 @@ import java.util.List;
 public class UpdateAttributesRequest {
 
     @JsonProperty("help_desk_references")
-    private List<@NotEmpty(message = "A help desk reference cannot be empty.") String> helpDeskReferences;
+    private List<@Pattern(regexp = "(\\d{7}|\\d{5}\\s\\d{3})", message = "Invalid help desk reference") String> helpDeskReferences;
 
 }
