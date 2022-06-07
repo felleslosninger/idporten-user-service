@@ -1,9 +1,11 @@
-package no.idporten.userservice.api;
+package no.idporten.userservice.api.admin;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import no.idporten.userservice.TestData;
+import no.idporten.userservice.api.ApiUserService;
+import no.idporten.userservice.api.UserResource;
 import no.idporten.userservice.api.admin.UpdateAttributesRequest;
 import no.idporten.userservice.api.login.CreateUserRequest;
 import org.hamcrest.Matchers;
@@ -251,10 +253,10 @@ public class AdminApiTest {
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .accept(MediaType.APPLICATION_JSON)
                                     .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_idporteninternal:user.write")))
-                                    .content(updateRequest(List.of("foo", "", "bar"))))
+                                    .content(updateRequest(List.of("foo", "bar"))))
                     .andExpect(status().isBadRequest())
                     .andExpect(jsonPath("$.error").value("invalid_request"))
-                    .andExpect(jsonPath("$.error_description", Matchers.containsString("A help desk reference cannot be empty")));
+                    .andExpect(jsonPath("$.error_description", Matchers.containsString("Invalid help desk reference")));
         }
 
         @SneakyThrows
@@ -269,15 +271,15 @@ public class AdminApiTest {
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .accept(MediaType.APPLICATION_JSON)
                                     .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_idporteninternal:user.write")))
-                                    .content(updateRequest(List.of("foo", "bar"))))
+                                    .content(updateRequest(List.of("1234567", "12345 678"))))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.id").value(userId))
                     .andExpect(jsonPath("$.person_identifier").value(personIdentifier))
                     .andExpect(jsonPath("$.active").value(true))
                     .andExpect(jsonPath("$.help_desk_references").isArray())
                     .andExpect(jsonPath("$.help_desk_references").isNotEmpty())
-                    .andExpect(jsonPath("$.help_desk_references[0]").value("foo"))
-                    .andExpect(jsonPath("$.help_desk_references[1]").value("bar"));
+                    .andExpect(jsonPath("$.help_desk_references[0]").value("1234567"))
+                    .andExpect(jsonPath("$.help_desk_references[1]").value("12345 678"));
         }
 
     }
