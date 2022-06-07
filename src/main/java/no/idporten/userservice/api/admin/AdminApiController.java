@@ -12,10 +12,12 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import no.idporten.userservice.api.ApiUserService;
 import no.idporten.userservice.api.SearchRequest;
 import no.idporten.userservice.api.UserResource;
+import no.idporten.userservice.api.validation.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -39,6 +41,7 @@ import java.util.List;
                 @ExampleObject(description = "Error response", value = AdminApiController.errorResponseExample)
         }))
 })
+@Validated
 @RestController
 public class AdminApiController {
 
@@ -90,7 +93,7 @@ public class AdminApiController {
     })
     @PreAuthorize("hasAnyAuthority('SCOPE_idporteninternal:user.read','SCOPE_idporteninternal:user.write')")
     @GetMapping(path = "/admin/v1/users/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<UserResource> retrieveUser(@PathVariable("id") String id) {
+    public ResponseEntity<UserResource> retrieveUser(@UUID(message = "Invalid user UUID in path") @PathVariable("id") String id) {
         UserResource userResource = apiUserService.lookup(id);
         return ResponseEntity.ok(userResource);
     }
@@ -109,7 +112,7 @@ public class AdminApiController {
     })
     @PreAuthorize("hasAuthority('SCOPE_idporteninternal:user.write')")
     @PatchMapping(path = "/admin/v1/users/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<UserResource> updateUserAttributes(@PathVariable("id") String id,
+    public ResponseEntity<UserResource> updateUserAttributes(@UUID(message = "Invalid user UUID in path") @PathVariable("id") String id,
                                                              @Valid @RequestBody UpdateAttributesRequest request) {
         return ResponseEntity.ok(apiUserService.updateUserAttributes(id, request));
     }
@@ -128,7 +131,7 @@ public class AdminApiController {
     })
     @PreAuthorize("hasAuthority('SCOPE_idporteninternal:user.write')")
     @PutMapping(path = "/admin/v1/users/{id}/status", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<UserResource> updateUserStatus(@PathVariable("id") String id,
+    public ResponseEntity<UserResource> updateUserStatus(@UUID(message = "Invalid user UUID in path") @PathVariable("id") String id,
                                                          @Valid @RequestBody UpdateStatusRequest request) {
         return ResponseEntity.ok(apiUserService.updateUserStatus(id, request));
     }

@@ -1,9 +1,10 @@
-package no.idporten.userservice.api;
+package no.idporten.userservice.api.login;
 
 
 import lombok.SneakyThrows;
 import no.idporten.userservice.TestData;
-import no.idporten.userservice.api.login.CreateUserRequest;
+import no.idporten.userservice.api.ApiUserService;
+import no.idporten.userservice.api.UserResource;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
