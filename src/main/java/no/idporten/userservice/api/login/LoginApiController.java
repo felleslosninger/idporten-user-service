@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import no.idporten.userservice.api.ApiUserService;
 import no.idporten.userservice.api.SearchRequest;
 import no.idporten.userservice.api.UserResource;
+import no.idporten.userservice.api.validation.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -42,6 +43,7 @@ import java.util.List;
         }))
 })
 @Slf4j
+@Validated
 @RestController
 public class LoginApiController {
 
@@ -97,7 +99,8 @@ public class LoginApiController {
      */
     @Operation(summary = "Update user logins", description = "Update user logins with a new login", tags = {"login-api"}, security = @SecurityRequirement(name = "basic_auth"))
     @PostMapping(path = "/login/v1/users/{id}/logins", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<UserResource> updateUserLogins(@PathVariable("id") String userId, @Validated @RequestBody UpdateUserLoginRequest request) {
+    public ResponseEntity<UserResource> updateUserLogins(@UUID(message = "Invalid user UUID in path") @PathVariable("id") String userId,
+                                                         @Valid @RequestBody UpdateUserLoginRequest request) {
         return ResponseEntity.ok(apiUserService.updateUserLogins(userId, request));
     }
 

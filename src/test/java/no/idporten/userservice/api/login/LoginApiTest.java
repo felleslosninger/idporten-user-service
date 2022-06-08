@@ -1,9 +1,10 @@
-package no.idporten.userservice.api;
+package no.idporten.userservice.api.login;
 
 
 import lombok.SneakyThrows;
 import no.idporten.userservice.TestData;
-import no.idporten.userservice.api.login.CreateUserRequest;
+import no.idporten.userservice.api.ApiUserService;
+import no.idporten.userservice.api.UserResource;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -161,6 +162,22 @@ public class LoginApiTest {
 
         private String addLoginRequest(String amr) {
             return "{\"eid_name\": \"%s\"}".formatted(StringUtils.hasText(amr) ? amr : "");
+        }
+
+        @SneakyThrows
+        @Test
+        @DisplayName("then a malformed uuid in path gives an error response")
+        @WithMockUser(roles = "USER")
+        void testInvalidPath() {
+            final String userId = "møh";
+            mockMvc.perform(
+                            post("/login/v1/users/%s/logins".formatted(userId))
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .accept(MediaType.APPLICATION_JSON)
+                                    .content(addLoginRequest("foo")))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.error").value("invalid_request"))
+                    .andExpect(jsonPath("$.error_description", Matchers.containsString("Invalid user UUID")));
         }
 
         @SneakyThrows

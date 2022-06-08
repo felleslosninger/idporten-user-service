@@ -6,7 +6,6 @@ import lombok.SneakyThrows;
 import no.idporten.userservice.TestData;
 import no.idporten.userservice.api.ApiUserService;
 import no.idporten.userservice.api.UserResource;
-import no.idporten.userservice.api.admin.UpdateAttributesRequest;
 import no.idporten.userservice.api.login.CreateUserRequest;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.DisplayName;
@@ -17,6 +16,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -111,6 +111,20 @@ public class AdminApiTest {
     class GetUserTests {
 
         @SneakyThrows
+        @Test
+        @DisplayName("then an error is returned if user uuid in path is malformed")
+        @WithMockUser(roles = "USER")
+        void testInvalidPath() {
+            String userId = "foobar";
+            mockMvc.perform(get("/admin/v1/users/%s".formatted(userId))
+                            .accept(MediaType.APPLICATION_JSON)
+                            .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_idporteninternal:user.read"))))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.error").value("invalid_request"))
+                    .andExpect(jsonPath("$.error_description", Matchers.containsString("Invalid user UUID")));
+        }
+
+        @SneakyThrows
         @DisplayName("then an error is returned if user is not found")
         @Test
         void testUserNotFound() {
@@ -147,6 +161,23 @@ public class AdminApiTest {
 
         private String statusRequest(String closedCode) {
             return "{\"closed_code\": \"%s\"}".formatted(closedCode);
+        }
+
+        @SneakyThrows
+        @Test
+        @DisplayName("then an error is returned if user uuid in path is malformed")
+        @WithMockUser(roles = "USER")
+        void testInvalidPath() {
+            String userId = "foobar";
+            mockMvc.perform(
+                            put("/admin/v1/users/%s/status".formatted(userId))
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .accept(MediaType.APPLICATION_JSON)
+                                    .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_idporteninternal:user.write"))) // TODO check correct scope, only checks if one of 2 valid scopes in SecurityConfiguration
+                                    .content(statusRequest("FOO")))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.error").value("invalid_request"))
+                    .andExpect(jsonPath("$.error_description", Matchers.containsString("Invalid user UUID")));
         }
 
         @SneakyThrows
@@ -225,6 +256,23 @@ public class AdminApiTest {
         @SneakyThrows
         private String updateRequest(List<String> references) {
             return new ObjectMapper().writeValueAsString(UpdateAttributesRequest.builder().helpDeskReferences(references).build());
+        }
+
+        @SneakyThrows
+        @Test
+        @DisplayName("then an error is returned if user uuid in path is malformed")
+        @WithMockUser(roles = "USER")
+        void testInvalidPath() {
+            String userId = "foobar";
+            mockMvc.perform(
+                            patch("/admin/v1/users/%s".formatted(userId))
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .accept(MediaType.APPLICATION_JSON)
+                                    .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_idporteninternal:user.write")))
+                                    .content(updateRequest(Collections.emptyList())))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.error").value("invalid_request"))
+                    .andExpect(jsonPath("$.error_description", Matchers.containsString("Invalid user UUID")));
         }
 
         @SneakyThrows
