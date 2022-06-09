@@ -1,5 +1,6 @@
 package no.idporten.userservice.logging.audit;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import no.idporten.logging.audit.AuditEntry;
 import no.idporten.logging.audit.AuditLogger;
 import no.idporten.userservice.TestData;
@@ -32,6 +33,9 @@ import static org.mockito.Mockito.*;
 public class AuditMessageMethodAspectTest {
 
     @Mock
+    private ObjectMapper objectMapper;
+
+    @Mock
     ProceedingJoinPoint joinPoint;
     @Mock
     MethodSignature signature;
@@ -53,13 +57,15 @@ public class AuditMessageMethodAspectTest {
 
         when(requestObjectProvider.getObject()).thenReturn(req);
         String username = "user";
-        String usernamePassword = Base64.getEncoder().encodeToString((username+":password").getBytes());
+        String usernamePassword = Base64.getEncoder().encodeToString((username + ":password").getBytes());
         when(req.getHeader("Authorization")).thenReturn("Basic " + usernamePassword);
 
-        String reqParam1 = "SearchRequest(person_identifier=" + TestData.randomUser().getPid() + ")";
-        mockMethodAndMethodParameters("searchUserLogin", reqParam1);
+        String pid = TestData.randomUser().getPid();
+        String reqParam1 = "SearchRequest(person_identifier=" + pid + ")";
+        mockMethodAndMethodParameters("searchUserLogin", reqParam1, pid);
 
         Object body = auditMessageMethodAspect.auditLog(joinPoint);
+        assertNotNull(body);
 
         verify(auditLogger, times(1)).log(auditEntryCaptor.capture());
         AuditEntry auditEntry = auditEntryCaptor.getValue();
@@ -78,10 +84,12 @@ public class AuditMessageMethodAspectTest {
         String accessToken = Base64.getEncoder().encodeToString("my-nice-token".getBytes());
         when(req.getHeader("Authorization")).thenReturn("Bearer " + accessToken);
 
-        String reqParam1 = "SearchRequest(person_identifier=" + TestData.randomUser().getPid() + ")";
-        mockMethodAndMethodParameters("searchUserAdmin", reqParam1);
+        String pid = TestData.randomUser().getPid();
+        String reqParam1 = "SearchRequest(person_identifier=" + pid + ")";
+        mockMethodAndMethodParameters("searchUserAdmin", reqParam1, pid);
 
         Object body = auditMessageMethodAspect.auditLog(joinPoint);
+        assertNotNull(body);
 
         verify(auditLogger, times(1)).log(auditEntryCaptor.capture());
         AuditEntry auditEntry = auditEntryCaptor.getValue();
@@ -94,11 +102,12 @@ public class AuditMessageMethodAspectTest {
         assertEquals(reqParam1, auditEntry.getAttribute("request_body"));
     }
 
-    private void mockMethodAndMethodParameters(String methodName, String reqParam1) throws NoSuchMethodException {
+    private void mockMethodAndMethodParameters(String methodName, String reqParam1, String pid) throws Throwable {
         when(joinPoint.getSignature()).thenReturn(signature);
         Object[] args = new Object[]{reqParam1};
         when(joinPoint.getArgs()).thenReturn(args);
         when(signature.getMethod()).thenReturn(myMethod(methodName));
+        when(joinPoint.proceed()).thenReturn(responseBody(pid));
     }
 
     public Method myMethod(String methodName) throws NoSuchMethodException {
@@ -107,15 +116,18 @@ public class AuditMessageMethodAspectTest {
 
     @AuditMessage(AuditID.LOGIN_USER_SEARCHED)
     public ResponseEntity<List<UserResource>> searchUserLogin(@RequestBody SearchRequest searchRequest) {
+        return responseBody(searchRequest.getPersonIdentifier());
+    }
+
+    private ResponseEntity<List<UserResource>> responseBody(String personIdentifier) {
         UserResource user = new UserResource();
-        user.setPersonIdentifier(searchRequest.getPersonIdentifier());
+        user.setPersonIdentifier(personIdentifier);
         return ResponseEntity.ok(Collections.singletonList(user));
     }
+
     @AuditMessage(AuditID.ADMIN_USER_SEARCHED)
     public ResponseEntity<List<UserResource>> searchUserAdmin(@RequestBody SearchRequest searchRequest) {
-        UserResource user = new UserResource();
-        user.setPersonIdentifier(searchRequest.getPersonIdentifier());
-        return ResponseEntity.ok(Collections.singletonList(user));
+        return responseBody(searchRequest.getPersonIdentifier());
     }
 
 }
