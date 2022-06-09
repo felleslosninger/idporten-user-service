@@ -74,7 +74,7 @@ public class AdminApiController {
             @ApiResponse(responseCode = "200", description = "List of users.  Empty list if no users are found")
     })
     @PreAuthorize("hasAnyAuthority('SCOPE_idporteninternal:user.read','SCOPE_idporteninternal:user.write')")
-    @AuditMessage(AuditID.ADMIN_SEARCH_USER)
+    @AuditMessage(AuditID.ADMIN_USER_SEARCHED)
     @PostMapping(path = "/admin/v1/users/.search", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<UserResource>> searchUser(@Valid @RequestBody SearchRequest searchRequest) {
         return ResponseEntity.ok(apiUserService.searchForUser(searchRequest.getPersonIdentifier()));
@@ -95,7 +95,7 @@ public class AdminApiController {
             }))
     })
     @PreAuthorize("hasAnyAuthority('SCOPE_idporteninternal:user.read','SCOPE_idporteninternal:user.write')")
-    @AuditMessage(AuditID.ADMIN_GET_USER)
+    @AuditMessage(AuditID.ADMIN_USER_READ)
     @GetMapping(path = "/admin/v1/users/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<UserResource> retrieveUser(@UUID(message = "Invalid user UUID in path") @PathVariable("id") String id) {
         UserResource userResource = apiUserService.lookup(id);
@@ -115,7 +115,7 @@ public class AdminApiController {
             @ApiResponse(responseCode = "404", description = "User is not found")
     })
     @PreAuthorize("hasAuthority('SCOPE_idporteninternal:user.write')")
-    @AuditMessage(AuditID.ADMIN_UPDATE_USER)
+    @AuditMessage(AuditID.ADMIN_USER_UPDATE)
     @PatchMapping(path = "/admin/v1/users/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<UserResource> updateUserAttributes(@UUID(message = "Invalid user UUID in path") @PathVariable("id") String id,
                                                              @Valid @RequestBody UpdateAttributesRequest request) {
@@ -135,7 +135,7 @@ public class AdminApiController {
             @ApiResponse(responseCode = "404", description = "User is not found")
     })
     @PreAuthorize("hasAuthority('SCOPE_idporteninternal:user.write')")
-    @AuditMessage(AuditID.ADMIN_UPDATE_USER_STATUS)
+    @AuditMessage(AuditID.ADMIN_USER_STATUS_UPDATED)
     @PutMapping(path = "/admin/v1/users/{id}/status", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<UserResource> updateUserStatus(@UUID(message = "Invalid user UUID in path") @PathVariable("id") String id,
                                                          @Valid @RequestBody UpdateStatusRequest request) {
