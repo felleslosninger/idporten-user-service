@@ -2,6 +2,8 @@ package no.idporten.userservice.logging;
 
 public class TokenMasker {
 
+    public static String TRUNCATED_POSTFIX = "...";
+
     private TokenMasker() {
     }
 
@@ -9,11 +11,12 @@ public class TokenMasker {
         if (token == null) {
             return token;
         }
+
         if (token.contains(".")) { // jwt
-            return token.substring(0, token.lastIndexOf('.')) + "...";
+            return token.substring(0, token.lastIndexOf('.')) + TRUNCATED_POSTFIX;
         }
         if (token.length() > 10) { //opaque or test-token
-            return token.substring(0, 10) + "...";
+            return token.substring(0, 10) + TRUNCATED_POSTFIX;
         }
         return token;
     }
