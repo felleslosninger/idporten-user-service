@@ -7,7 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.ZonedDateTime;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,12 +33,12 @@ public class UserResource {
     @JsonProperty("logins")
     private List<UserLogin> userLogins = new ArrayList<>();
 
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = JsonDateFormat.ISO_INSTANT_PATTERN, timezone = JsonDateFormat.TIME_ZONE_UTC)
     @JsonProperty("created")
-    private ZonedDateTime created;
+    private Instant created;
 
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = JsonDateFormat.ISO_INSTANT_PATTERN, timezone = JsonDateFormat.TIME_ZONE_UTC)
     @JsonProperty("last_modified")
-    private ZonedDateTime lastModified;
+    private Instant lastModified;
 
 }

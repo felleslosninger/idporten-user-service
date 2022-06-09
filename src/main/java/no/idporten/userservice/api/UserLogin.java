@@ -7,7 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.ZonedDateTime;
+import java.time.Instant;
 
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @Data
@@ -17,13 +17,13 @@ public class UserLogin {
 
     private String eid;
 
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = JsonDateFormat.ISO_INSTANT_PATTERN, timezone = JsonDateFormat.TIME_ZONE_UTC)
     @JsonProperty("first_login")
-    private ZonedDateTime firstLogin;
+    private Instant firstLogin;
 
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = JsonDateFormat.ISO_INSTANT_PATTERN, timezone = JsonDateFormat.TIME_ZONE_UTC)
     @JsonProperty("last_login")
-    private ZonedDateTime lastLogin;
+    private Instant lastLogin;
 
 }
 

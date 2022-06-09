@@ -7,8 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.ZonedDateTime;
-import java.util.List;
+import java.time.Instant;
 
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @Data
@@ -19,8 +18,8 @@ public class UserStatus {
     @JsonProperty("closed_code")
     private String closedCode;
 
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = JsonDateFormat.ISO_INSTANT_PATTERN, timezone = JsonDateFormat.TIME_ZONE_UTC)
     @JsonProperty("closed_date")
-    private ZonedDateTime closedDate;
+    private Instant closedDate;
 
 }

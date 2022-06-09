@@ -216,7 +216,8 @@ public class AdminApiTest {
                     .andExpect(jsonPath("$.id").value(id))
                     .andExpect(jsonPath("$.status").exists())
                     .andExpect(jsonPath("$.status.closed_code").value(closedCode))
-                    .andExpect(jsonPath("$.status.closed_date").exists());
+                    .andExpect(jsonPath("$.status.closed_date").exists())
+                    .andExpect(jsonPath("$.status.closed_date", Matchers.matchesPattern("^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$")));
         }
 
         @SneakyThrows
