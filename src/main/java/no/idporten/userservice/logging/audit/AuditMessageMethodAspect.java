@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import no.idporten.logging.audit.AuditEntry;
 import no.idporten.logging.audit.AuditLogger;
-import no.idporten.userservice.logging.TokenMasker;
+import no.idporten.logging.audit.masking.JwtMasker;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -45,7 +45,7 @@ public class AuditMessageMethodAspect {
         String accessToken = null;
         String username = null;
         if (authorization != null && authorization.startsWith("Bearer")) {
-            accessToken = TokenMasker.maskToken(authorization.replaceFirst("Bearer", "").trim());
+            accessToken = new JwtMasker().mask(authorization.replaceFirst("Bearer", "").trim());
         } else if (authorization != null && authorization.startsWith("Basic")) {
             String userAndPasswordEncoded = authorization.replaceFirst("Basic", "").trim();
             String usernameAndPassword = new String(Base64.getDecoder().decode(userAndPasswordEncoded));

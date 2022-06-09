@@ -25,7 +25,6 @@ import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
 
-import static no.idporten.userservice.logging.TokenMasker.TRUNCATED_POSTFIX;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -96,8 +95,8 @@ public class AuditMessageMethodAspectTest {
         assertTrue(auditEntry.getAuditId().auditId().endsWith(AuditID.ADMIN_USER_SEARCHED.getAuditName()));
         assertNull(auditEntry.getAttribute("username"));
         String accessTokenAnnonymous = (String) auditEntry.getAttribute("access_token");
-        assertTrue(accessTokenAnnonymous.endsWith(TRUNCATED_POSTFIX));
-        assertTrue(accessToken.contains(accessTokenAnnonymous.replace(TRUNCATED_POSTFIX, "")));
+        assertNotEquals(accessToken, accessTokenAnnonymous);
+        assertTrue(accessTokenAnnonymous.contains("*****"));
         assertNull(auditEntry.getAttribute("resource"));
         assertEquals(reqParam1, auditEntry.getAttribute("request_body"));
     }
