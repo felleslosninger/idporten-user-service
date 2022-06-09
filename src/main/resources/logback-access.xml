@@ -17,16 +17,14 @@
                         "request_method" : "%requestMethod",
                         "request_url" : "%requestURL",
                         "request_uri" : "%requestURI",
-                        "status_code" : "#asLong{%statusCode}" ,
+                        "status_code" : "#asLong{%statusCode}",
                         "bytes_sent" : "#asLong{%bytesSent}",
                         "elapsed_time" : "#asLong{%elapsedTime}",
                         "message" : "%requestURL %statusCode",
                         "user_agent": "%i{User-Agent}",
                         "referer": "%header{Referer}",
-                        "traceparent": "%header{traceparent}",
-                        "traceid": "%header{X-B3-TraceId}",
-                        "spanid": "%header{X-B3-SpanId}",
-                        "spanid_parent": "%header{X-B3-ParentSpanId}"
+                        "trace_id": "%header{traceparent}",
+                        "trace_state": "%header{tracestate}"
                         }
                     </pattern>
                 </pattern>

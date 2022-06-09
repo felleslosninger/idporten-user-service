@@ -65,16 +65,21 @@ springdoc:
 
 # App-specific config
 idporten-user-service:
+  audit:
+    application-name: idporten-user-service
+    audit-log-dir:
   features:
     allow-real-pid: true
     allow-synthetic-pid: false
   whitelist-config:
     security:
       get-allowed:
+        - /
         - /health/**
         - /version
         - /info
         - /prometheus
+        - /swagger-ui.html
         - /swagger-ui/**
         - /v3/api-docs/**
 

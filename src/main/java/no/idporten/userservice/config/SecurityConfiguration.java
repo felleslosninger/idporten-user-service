@@ -1,11 +1,11 @@
 package no.idporten.userservice.config;
 
 import lombok.RequiredArgsConstructor;
+import no.idporten.userservice.CustomAccessDeniedHandler;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.oauth2.server.resource.OAuth2ResourceServerConfigurer;
@@ -25,6 +25,8 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @RequiredArgsConstructor
 public class SecurityConfiguration {
 
+    private CustomAccessDeniedHandler accessDeniedHandler;
+
     private final WebSecurityProperties webSecurityProperties;
 
     @Value("${spring.security.user.name}")
@@ -42,6 +44,8 @@ public class SecurityConfiguration {
 
         http
                 .csrf().disable()
+                .exceptionHandling().accessDeniedHandler(accessDeniedHandler)
+                .and()
                 .authorizeHttpRequests((authorize) -> authorize
                         .antMatchers("/login/**").hasAnyRole("USER")
                         .antMatchers("/admin/**").hasAnyAuthority("SCOPE_idporteninternal:user.read", "SCOPE_idporteninternal:user.write")
