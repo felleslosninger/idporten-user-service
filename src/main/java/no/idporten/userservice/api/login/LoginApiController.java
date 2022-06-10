@@ -12,6 +12,8 @@ import no.idporten.userservice.api.ApiUserService;
 import no.idporten.userservice.api.SearchRequest;
 import no.idporten.userservice.api.UserResource;
 import no.idporten.userservice.api.validation.UUID;
+import no.idporten.userservice.logging.audit.AuditID;
+import no.idporten.userservice.logging.audit.AuditMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -73,6 +75,7 @@ public class LoginApiController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "List of users.  Empty list if no users are found")
     })
+    @AuditMessage(AuditID.LOGIN_USER_SEARCHED)
     @PostMapping(path = "/login/v1/users/.search", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<UserResource>> searchUser(@Valid @RequestBody SearchRequest searchRequest) {
         return ResponseEntity.ok(apiUserService.searchForUser(searchRequest));
@@ -85,6 +88,7 @@ public class LoginApiController {
      * @return created user
      */
     @Operation(summary = "Create a new user", description = "Create a new user", tags = {"login-api"}, security = @SecurityRequirement(name = "basic_auth"))
+    @AuditMessage(AuditID.LOGIN_USER_CREATED)
     @PostMapping(path = "/login/v1/users/", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<UserResource> createUser(@Valid @RequestBody CreateUserRequest request) {
          return ResponseEntity.ok(apiUserService.createUser(request));
@@ -98,6 +102,7 @@ public class LoginApiController {
      * @return updates user
      */
     @Operation(summary = "Update user logins", description = "Update user logins with a new login", tags = {"login-api"}, security = @SecurityRequirement(name = "basic_auth"))
+    @AuditMessage(AuditID.LOGIN_USER_LOGGEDIN)
     @PostMapping(path = "/login/v1/users/{id}/logins", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<UserResource> updateUserLogins(@UUID(message = "Invalid user UUID in path") @PathVariable("id") String userId,
                                                          @Valid @RequestBody UpdateUserLoginRequest request) {

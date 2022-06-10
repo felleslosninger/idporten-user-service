@@ -2,22 +2,31 @@ package no.idporten.userservice.api.login;
 
 
 import lombok.SneakyThrows;
+import no.idporten.logging.audit.AuditEntry;
+import no.idporten.logging.audit.AuditLogger;
 import no.idporten.userservice.TestData;
 import no.idporten.userservice.api.ApiUserService;
 import no.idporten.userservice.api.UserResource;
+import no.idporten.userservice.logging.audit.AuditID;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.util.StringUtils;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -33,6 +42,12 @@ public class LoginApiTest {
 
     @Autowired
     private ApiUserService apiUserService;
+
+    @MockBean
+    AuditLogger auditLogger;
+
+    @Captor
+    ArgumentCaptor<AuditEntry> auditEntryCaptor;
 
     @DisplayName("When using the search endpoint to search for users")
     @Nested
@@ -56,6 +71,7 @@ public class LoginApiTest {
                     .andExpect(status().isBadRequest())
                     .andExpect(jsonPath("$.error").value("invalid_request"))
                     .andExpect(jsonPath("$.error_description", Matchers.containsString("Invalid person identifier")));
+            verify(auditLogger, never()).log(any());
         }
 
         @SneakyThrows
@@ -72,6 +88,8 @@ public class LoginApiTest {
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$").isArray())
                     .andExpect(jsonPath("$").isEmpty());
+            verify(auditLogger, times(1)).log(auditEntryCaptor.capture());
+            assertTrue(auditEntryCaptor.getValue().getAuditId().auditId().endsWith(AuditID.LOGIN_USER_SEARCHED.getAuditName()));
         }
 
         @SneakyThrows
@@ -92,6 +110,9 @@ public class LoginApiTest {
                     .andExpect(jsonPath("$.[0].id").value(user.getId()))
                     .andExpect(jsonPath("$.[0].person_identifier").value(personIdentifier))
                     .andExpect(jsonPath("$.[0].active").value(true));
+            verify(auditLogger, times(1)).log(auditEntryCaptor.capture());
+            assertTrue(auditEntryCaptor.getValue().getAuditId().auditId().endsWith(AuditID.LOGIN_USER_SEARCHED.getAuditName()));
+
         }
 
     }
@@ -118,6 +139,8 @@ public class LoginApiTest {
                     .andExpect(status().isBadRequest())
                     .andExpect(jsonPath("$.error").value("invalid_request"))
                     .andExpect(jsonPath("$.error_description", Matchers.containsString("Invalid person identifier")));
+            verify(auditLogger, never()).log(any());
+
         }
 
         @SneakyThrows
@@ -137,6 +160,9 @@ public class LoginApiTest {
                     .andExpect(jsonPath("$.id").exists())
                     .andExpect(jsonPath("$.created", Matchers.matchesPattern("^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$")))
                     .andExpect(jsonPath("$.last_modified", Matchers.matchesPattern("^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$")));
+                    .andExpect(jsonPath("$.id").exists());
+            verify(auditLogger, times(1)).log(auditEntryCaptor.capture());
+            assertTrue(auditEntryCaptor.getValue().getAuditId().auditId().endsWith(AuditID.LOGIN_USER_CREATED.getAuditName()));
         }
 
         @SneakyThrows
@@ -180,6 +206,7 @@ public class LoginApiTest {
                     .andExpect(status().isBadRequest())
                     .andExpect(jsonPath("$.error").value("invalid_request"))
                     .andExpect(jsonPath("$.error_description", Matchers.containsString("Invalid user UUID")));
+            verify(auditLogger, never()).log(any());
         }
 
         @SneakyThrows
@@ -196,6 +223,7 @@ public class LoginApiTest {
                     .andExpect(status().isBadRequest())
                     .andExpect(jsonPath("$.error").value("invalid_request"))
                     .andExpect(jsonPath("$.error_description", Matchers.containsString("Invalid attribute eid_name")));
+            verify(auditLogger, never()).log(any());
         }
 
         @SneakyThrows
@@ -212,6 +240,7 @@ public class LoginApiTest {
                     .andExpect(status().isNotFound())
                     .andExpect(jsonPath("$.error").value("invalid_request"))
                     .andExpect(jsonPath("$.error_description", Matchers.containsString("User not found")));
+            verify(auditLogger, never()).log(any());
         }
 
         @SneakyThrows
@@ -236,6 +265,9 @@ public class LoginApiTest {
                     .andExpect(jsonPath("$.logins[0].eid").value("JunitID"))
                     .andExpect(jsonPath("$.logins[0].first_login").exists())
                     .andExpect(jsonPath("$.logins[0].last_login").exists());
+            verify(auditLogger, times(1)).log(auditEntryCaptor.capture());
+            assertTrue(auditEntryCaptor.getValue().getAuditId().auditId().endsWith(AuditID.LOGIN_USER_LOGGEDIN.getAuditName()));
+
         }
 
     }
@@ -247,6 +279,7 @@ public class LoginApiTest {
                         get("/swagger-ui/index.html#/login-api"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.TEXT_HTML));
+        verify(auditLogger, never()).log(any());
     }
 
 }
