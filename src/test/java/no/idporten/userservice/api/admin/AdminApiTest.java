@@ -3,17 +3,23 @@ package no.idporten.userservice.api.admin;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
+import no.idporten.logging.audit.AuditEntry;
+import no.idporten.logging.audit.AuditLogger;
 import no.idporten.userservice.TestData;
 import no.idporten.userservice.api.ApiUserService;
 import no.idporten.userservice.api.UserResource;
 import no.idporten.userservice.api.login.CreateUserRequest;
+import no.idporten.userservice.logging.audit.AuditID;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -23,6 +29,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.Collections;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -32,6 +41,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @DisplayName("When using the admin API")
 @ActiveProfiles("test")
 public class AdminApiTest {
+    @MockBean
+    private AuditLogger auditLogger;
+
+    @Captor
+    ArgumentCaptor<AuditEntry> auditEntryCaptor;
 
     @Autowired
     private MockMvc mockMvc;
@@ -65,6 +79,7 @@ public class AdminApiTest {
                     .andExpect(status().isBadRequest())
                     .andExpect(jsonPath("$.error").value("invalid_request"))
                     .andExpect(jsonPath("$.error_description", Matchers.containsString("Invalid person identifier")));
+            verify(auditLogger, never()).log(any());
         }
 
         @SneakyThrows
@@ -81,6 +96,9 @@ public class AdminApiTest {
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$").isArray())
                     .andExpect(jsonPath("$").isEmpty());
+            verify(auditLogger, times(1)).log(auditEntryCaptor.capture());
+            assertTrue(auditEntryCaptor.getValue().getAuditId().auditId().endsWith(AuditID.ADMIN_USER_SEARCHED.getAuditName()));
+
         }
 
         @SneakyThrows
@@ -101,6 +119,9 @@ public class AdminApiTest {
                     .andExpect(jsonPath("$.[0].id").value(user.getId()))
                     .andExpect(jsonPath("$.[0].person_identifier").value(personIdentifier))
                     .andExpect(jsonPath("$.[0].active").value(true));
+
+            verify(auditLogger, times(1)).log(auditEntryCaptor.capture());
+            assertTrue(auditEntryCaptor.getValue().getAuditId().auditId().endsWith(AuditID.ADMIN_USER_SEARCHED.getAuditName()));
         }
 
     }
@@ -122,6 +143,8 @@ public class AdminApiTest {
                     .andExpect(status().isBadRequest())
                     .andExpect(jsonPath("$.error").value("invalid_request"))
                     .andExpect(jsonPath("$.error_description", Matchers.containsString("Invalid user UUID")));
+            verify(auditLogger, never()).log(any());
+
         }
 
         @SneakyThrows
@@ -135,6 +158,7 @@ public class AdminApiTest {
                     .andExpect(status().isNotFound())
                     .andExpect(jsonPath("$.error").value("invalid_request"))
                     .andExpect(jsonPath("$.error_description", Matchers.containsString("User not found")));
+            verify(auditLogger, never()).log(any());
         }
 
         @SneakyThrows
@@ -151,6 +175,8 @@ public class AdminApiTest {
                     .andExpect(jsonPath("$.id").value(userId))
                     .andExpect(jsonPath("$.person_identifier").value(personIdentifier))
                     .andExpect(jsonPath("$.active").value(true));
+            verify(auditLogger, times(1)).log(auditEntryCaptor.capture());
+            assertTrue(auditEntryCaptor.getValue().getAuditId().auditId().endsWith(AuditID.ADMIN_USER_READ.getAuditName()));
         }
 
     }
@@ -178,6 +204,7 @@ public class AdminApiTest {
                     .andExpect(status().isBadRequest())
                     .andExpect(jsonPath("$.error").value("invalid_request"))
                     .andExpect(jsonPath("$.error_description", Matchers.containsString("Invalid user UUID")));
+            verify(auditLogger, never()).log(any());
         }
 
         @SneakyThrows
@@ -194,6 +221,7 @@ public class AdminApiTest {
                     .andExpect(status().isNotFound())
                     .andExpect(jsonPath("$.error").value("invalid_request"))
                     .andExpect(jsonPath("$.error_description", Matchers.containsString("User not found")));
+            verify(auditLogger, never()).log(any());
         }
 
         @SneakyThrows
@@ -217,6 +245,8 @@ public class AdminApiTest {
                     .andExpect(jsonPath("$.status").exists())
                     .andExpect(jsonPath("$.status.closed_code").value(closedCode))
                     .andExpect(jsonPath("$.status.closed_date").exists());
+            verify(auditLogger, times(1)).log(auditEntryCaptor.capture());
+            assertTrue(auditEntryCaptor.getValue().getAuditId().auditId().endsWith(AuditID.ADMIN_USER_STATUS_UPDATED.getAuditName()));
         }
 
         @SneakyThrows
@@ -245,6 +275,8 @@ public class AdminApiTest {
                     .andExpect(jsonPath("$.active").value(true))
                     .andExpect(jsonPath("$.id").value(id))
                     .andExpect(jsonPath("$.status").doesNotExist());
+            verify(auditLogger, times(2)).log(auditEntryCaptor.capture());
+            assertTrue(auditEntryCaptor.getValue().getAuditId().auditId().endsWith(AuditID.ADMIN_USER_STATUS_UPDATED.getAuditName()));
         }
 
     }
@@ -273,6 +305,7 @@ public class AdminApiTest {
                     .andExpect(status().isBadRequest())
                     .andExpect(jsonPath("$.error").value("invalid_request"))
                     .andExpect(jsonPath("$.error_description", Matchers.containsString("Invalid user UUID")));
+            verify(auditLogger, never()).log(any());
         }
 
         @SneakyThrows
@@ -289,6 +322,7 @@ public class AdminApiTest {
                     .andExpect(status().isNotFound())
                     .andExpect(jsonPath("$.error").value("invalid_request"))
                     .andExpect(jsonPath("$.error_description", Matchers.containsString("User not found")));
+            verify(auditLogger, never()).log(any());
         }
 
         @SneakyThrows
@@ -305,6 +339,7 @@ public class AdminApiTest {
                     .andExpect(status().isBadRequest())
                     .andExpect(jsonPath("$.error").value("invalid_request"))
                     .andExpect(jsonPath("$.error_description", Matchers.containsString("Invalid help desk reference")));
+            verify(auditLogger, never()).log(any());
         }
 
         @SneakyThrows
@@ -328,6 +363,8 @@ public class AdminApiTest {
                     .andExpect(jsonPath("$.help_desk_references").isNotEmpty())
                     .andExpect(jsonPath("$.help_desk_references[0]").value("1234567"))
                     .andExpect(jsonPath("$.help_desk_references[1]").value("12345 678"));
+            verify(auditLogger, times(1)).log(auditEntryCaptor.capture());
+            assertTrue(auditEntryCaptor.getValue().getAuditId().auditId().endsWith(AuditID.ADMIN_USER_UPDATE.getAuditName()));
         }
 
     }
@@ -339,6 +376,7 @@ public class AdminApiTest {
                         get("/swagger-ui/index.html#/admin-api"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.TEXT_HTML));
+        verify(auditLogger, never()).log(any());
     }
 
 }

@@ -19,6 +19,7 @@
         <idporten-fnr-generate.version>1.0.0</idporten-fnr-generate.version>
         <springdoc.version>1.6.8</springdoc.version>
         <logstash.logback.version>7.2</logstash.logback.version>
+        <idporten-audit-log.version>0.0.17</idporten-audit-log.version>
         <nimbus.jose.jwt.version>9.23</nimbus.jose.jwt.version>
     </properties>
     <dependencies>
@@ -82,6 +83,11 @@
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-access</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>no.idporten.logging</groupId>
+            <artifactId>idporten-log-audit</artifactId>
+            <version>${idporten-audit-log.version}</version>
         </dependency>
         <dependency>
             <groupId>no.idporten.validators</groupId>
