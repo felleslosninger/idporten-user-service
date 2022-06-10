@@ -111,19 +111,21 @@ public class ApiUserService {
         if (StringUtils.hasText(idPortenUser.getClosedCode())) {
             UserStatus userStatus = new UserStatus();
             userStatus.setClosedCode(idPortenUser.getClosedCode());
-            userStatus.setClosedDate(convert(idPortenUser.getClosedCodeLastUpdated()));
+            userStatus.setClosedDate(idPortenUser.getClosedCodeLastUpdated());
             userResource.setUserStatus(userStatus);
         }
         userResource.setUserLogins(convertUserLogins(idPortenUser));
         userResource.setHelpDeskReferences(convertHelpDeskReferences(idPortenUser));
+        userResource.setLastModified(idPortenUser.getLastUpdated());
+        userResource.setCreated(idPortenUser.getCreated());
         return userResource;
     }
 
     protected UserLogin convert(Login login) {
         UserLogin userLogin = new UserLogin();
         userLogin.setEid(login.getEidName());
-        userLogin.setFirstLogin(convert(login.getFirstLogin()));
-        userLogin.setLastLogin(convert(login.getLastLogin()));
+        userLogin.setFirstLogin(login.getFirstLogin());
+        userLogin.setLastLogin(login.getLastLogin());
         return userLogin;
     }
 
@@ -140,13 +142,5 @@ public class ApiUserService {
         }
         return idPortenUser.getHelpDeskCaseReferences().stream().filter(s -> StringUtils.hasText(s)).toList();
     }
-
-    protected ZonedDateTime convert(Instant instant) {
-        if (instant == null) {
-            return null;
-        }
-        return ZonedDateTime.ofInstant(instant, ZoneId.systemDefault());
-    }
-
 
 }

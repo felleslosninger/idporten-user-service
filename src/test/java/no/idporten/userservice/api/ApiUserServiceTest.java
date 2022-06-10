@@ -147,12 +147,16 @@ public class ApiUserServiceTest {
             when(userService.createUser(any(IDPortenUser.class))).thenAnswer((Answer<IDPortenUser>) invocationOnMock -> {
                 IDPortenUser idPortenUser = invocationOnMock.getArgument(0);
                 idPortenUser.setId(UUID.randomUUID());
+                idPortenUser.setCreated(Instant.now());
+                idPortenUser.setLastUpdated(idPortenUser.getCreated());
                 return idPortenUser;
             });
             UserResource userResource = apiUserService.createUser(createUserRequest);
             assertAll(
                     () -> assertEquals(personIdentifier, userResource.getPersonIdentifier()),
-                    () -> assertTrue(userResource.isActive())
+                    () -> assertTrue(userResource.isActive()),
+                    () -> assertNotNull(userResource.getCreated()),
+                    () -> assertEquals(userResource.getLastModified(), userResource.getCreated())
             );
         }
     }
@@ -206,22 +210,6 @@ public class ApiUserServiceTest {
     @DisplayName("When converting data to the API model")
     @Nested
     class ConversionTests {
-
-        @DisplayName("then a null instant is converted to null")
-        @Test
-        public void testConvertNullInstant() {
-            assertNull(apiUserService.convert((Instant) null));
-        }
-
-        @DisplayName("then an instant is converted to a zoned date time with system default timezone")
-        @Test
-        public void testConvertInstantToZonedDateTime() {
-            ZonedDateTime zonedDateTime = apiUserService.convert(Instant.now());
-            assertAll(
-                    () -> assertNotNull(zonedDateTime),
-                    () -> assertEquals(ZoneId.systemDefault(), zonedDateTime.getZone())
-            );
-        }
 
         @DisplayName("then an empty list of help desk references are converted to an empty list")
         @Test
