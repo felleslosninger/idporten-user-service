@@ -160,7 +160,6 @@ public class LoginApiTest {
                     .andExpect(jsonPath("$.id").exists())
                     .andExpect(jsonPath("$.created", Matchers.matchesPattern("^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$")))
                     .andExpect(jsonPath("$.last_modified", Matchers.matchesPattern("^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$")));
-                    .andExpect(jsonPath("$.id").exists());
             verify(auditLogger, times(1)).log(auditEntryCaptor.capture());
             assertTrue(auditEntryCaptor.getValue().getAuditId().auditId().endsWith(AuditID.LOGIN_USER_CREATED.getAuditName()));
         }

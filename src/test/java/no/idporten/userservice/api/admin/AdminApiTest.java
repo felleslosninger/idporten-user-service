@@ -246,7 +246,6 @@ public class AdminApiTest {
                     .andExpect(jsonPath("$.status.closed_code").value(closedCode))
                     .andExpect(jsonPath("$.status.closed_date").exists())
                     .andExpect(jsonPath("$.status.closed_date", Matchers.matchesPattern("^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$")));
-                    .andExpect(jsonPath("$.status.closed_date").exists());
             verify(auditLogger, times(1)).log(auditEntryCaptor.capture());
             assertTrue(auditEntryCaptor.getValue().getAuditId().auditId().endsWith(AuditID.ADMIN_USER_STATUS_UPDATED.getAuditName()));
         }
