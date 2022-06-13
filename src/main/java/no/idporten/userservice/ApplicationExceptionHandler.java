@@ -2,16 +2,13 @@ package no.idporten.userservice;
 
 import lombok.extern.slf4j.Slf4j;
 import no.idporten.userservice.api.ErrorResponse;
-import org.springframework.context.support.DefaultMessageSourceResolvable;
-import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.util.StringUtils;
-import org.springframework.validation.BindException;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.oauth2.server.resource.authentication.AbstractOAuth2TokenAuthenticationToken;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -20,6 +17,11 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
 import javax.servlet.http.HttpServletResponse;
+import java.security.Principal;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+import static no.idporten.userservice.config.CustomOAuth2AuthenticationEntryPoint.computeWWWAuthenticateHeaderValue;
 
 
 /**
@@ -30,28 +32,50 @@ import javax.servlet.http.HttpServletResponse;
 @Order(100)
 public class ApplicationExceptionHandler {
 
+    // Never triggers this one
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<ErrorResponse> handleError(WebRequest request, BadCredentialsException e) {
+        request.getUserPrincipal();
+        Map<String, String> parameters = new LinkedHashMap<>();
+        String wwwAuthenticate = computeWWWAuthenticateHeaderValue(parameters);
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .header("WWW-Authenticate", wwwAuthenticate)
+                .body(ErrorResponse.builder()
+                        .error("access_denied")
+                        .errorDescription(e.getMessage())
+                        .build());
+    }
+
     //spring security 403
     @ExceptionHandler({ AccessDeniedException.class })
-    public ResponseEntity<Object> handleAccessDeniedException(AccessDeniedException ex, WebRequest request, HttpServletResponse response) {
+    public ResponseEntity<ErrorResponse> handleAccessDeniedException(AccessDeniedException e, WebRequest request, HttpServletResponse response) {
+        Principal userPrincipal = request.getUserPrincipal();
+        if (request.getUserPrincipal() instanceof AbstractOAuth2TokenAuthenticationToken) {
+            Map<String, String> parameters = new LinkedHashMap<>();
+            String errorMessage = e.getLocalizedMessage();
+            errorMessage = "The request requires higher privileges than provided by the access token.";
+            parameters.put("error", "insufficient_scope");
+            parameters.put("error_description", errorMessage);
+            parameters.put("error_uri", "https://tools.ietf.org/html/rfc6750#section-3.1");
+            String wwwAuthenticate = computeWWWAuthenticateHeaderValue(parameters);
 
+            return ResponseEntity
+                    .status(HttpStatus.FORBIDDEN)
+                    .header("WWW-Authenticate", wwwAuthenticate)
+                    .body(ErrorResponse.builder()
+                            .error("access_denied")
+                            .errorDescription(errorMessage)
+                            .build());
+
+        }
         return ResponseEntity
                 .status(HttpStatus.FORBIDDEN)
                 .body(ErrorResponse.builder()
                         .error("invalid_scope") // might be something else as well???
-                        .errorDescription(ex.getMessage())
+                        .errorDescription(e.getMessage())
                         .build());
     }
-
-    //spring security 401
-/*    @ExceptionHandler({ AuthenticationException.class })
-    public ResponseEntity<Object> handleAccessDeniedException(AuthenticationException ex, WebRequest request) {
-        return ResponseEntity
-                .status(HttpStatus.FORBIDDEN)
-                .body(ErrorResponse.builder()
-                        .error("invalid_token")
-                        .errorDescription(ex.getMessage())
-                        .build());
-    }*/
 
     // Spring 405
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)

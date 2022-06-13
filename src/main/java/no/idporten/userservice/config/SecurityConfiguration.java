@@ -1,6 +1,5 @@
 package no.idporten.userservice.config;
 
-import com.nimbusds.jose.shaded.json.JSONObject;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -9,7 +8,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configurers.oauth2.server.resource.OAuth2ResourceServerConfigurer;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -18,8 +16,6 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
-
-import javax.servlet.http.HttpServletResponse;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
@@ -44,33 +40,24 @@ public class SecurityConfiguration {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         String[] openEndpoints = webSecurityProperties.getGetAllowed().toArray(String[]::new);
 
+
         http
                 .csrf().disable()
+                .headers().frameOptions().sameOrigin()
+                .and()
                 .authorizeHttpRequests((authorize) -> authorize
-                                .antMatchers("/login/**").hasAnyRole("USER")
-                                .antMatchers("/admin/**").hasAnyAuthority("SCOPE_idporteninternal:user.read", "SCOPE_idporteninternal:user.write")
-                                .antMatchers(openEndpoints).permitAll()
-                                .anyRequest().authenticated()
+                        .antMatchers("/login/**").hasAnyRole("USER")
+                        .antMatchers("/admin/**").hasAnyAuthority("SCOPE_idporteninternal:user.read", "SCOPE_idporteninternal:user.write")
+                        .antMatchers(openEndpoints).permitAll()
+                        .anyRequest().authenticated()
                 )
-                .oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt)
+
+                .oauth2ResourceServer().jwt()
+                .and()
+                .authenticationEntryPoint(new CustomOAuth2AuthenticationEntryPoint())
+                .and()
                 .httpBasic(withDefaults())
-                .formLogin(withDefaults())
-                .headers().frameOptions().sameOrigin();
-
-        http
-                .exceptionHandling()
-                .authenticationEntryPoint((request, response, e) ->
-                {
-                    JSONObject body = new JSONObject();
-                    body.put("error", "access_denied");
-                    body.put("error_description", e.getMessage());
-                    // When no authentication provided (basic auth or access-token)
-                    response.setHeader("www-authenticate", "Bearer");
-                    response.setContentType("application/json;charset=UTF-8");
-                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                    response.getWriter().write(body.toString());
-                });
-
+                .formLogin(withDefaults());
 
         return http.build();
     }
