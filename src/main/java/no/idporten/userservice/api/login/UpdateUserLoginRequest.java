@@ -5,15 +5,19 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.Pattern;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class UpdateUserLoginRequest {
 
-    @NotEmpty(message = "Must hava a value.")
+    @NotEmpty(message = "eID name must have a value")
+    @Length(max = 255, message = "eID name too long")
+    @Pattern(regexp = "^([a-zA-ZæøåÆØÅ])+([a-zA-ZæøåÆØÅ0-9 \\-_])*([a-zA-ZæøåÆØÅ0-9])+$", message = "Invalid format for eID name")
     @JsonProperty("eid_name")
     private String eidName;
 
