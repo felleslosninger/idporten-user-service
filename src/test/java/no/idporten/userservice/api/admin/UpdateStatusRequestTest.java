@@ -37,6 +37,19 @@ public class UpdateStatusRequestTest {
     }
 
     @Test
+    @DisplayName("then an empty closed code is accepted")
+    void testEmptyClosedCode() {
+        UpdateStatusRequest request = new UpdateStatusRequest();
+        request.setClosedCode("");
+        Set<ConstraintViolation<UpdateStatusRequest>> errors = validator.validate(request);
+        assertAll(
+                () -> assertNotNull(errors),
+                () -> assertTrue(errors.isEmpty())
+        );
+    }
+
+
+    @Test
     @DisplayName("then closed codes can contains characters, -_ and numbers")
     void testValidClosedCodes() {
         UpdateStatusRequest request = new UpdateStatusRequest();

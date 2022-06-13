@@ -12,7 +12,7 @@ import javax.validation.constraints.Pattern;
 public class UpdateStatusRequest {
 
     @Length(max = 50, message = "closed code too long")
-    @Pattern(regexp = "^([a-zA-Z])+([a-zA-Z0-9\\-_])*([a-zA-Z0-9])+$", message = "Invalid format for closed code")
+    @Pattern(regexp = "^([a-zA-Z])+([a-zA-Z0-9\\-_])*([a-zA-Z0-9])+|$", message = "Invalid format for closed code")
     @JsonProperty("closed_code")
     private String closedCode;
 
