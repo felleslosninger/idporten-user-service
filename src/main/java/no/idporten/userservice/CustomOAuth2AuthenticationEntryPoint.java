@@ -55,6 +55,7 @@ public class CustomOAuth2AuthenticationEntryPoint implements AuthenticationEntry
             if (request.getRequestURI().contains("login")) {
                 wwwAuthenticate = "Basic realm=\"Realm\"";
             }
+            errorDescription = e.getMessage();
         }
         JSONObject message = new JSONObject();
         message.put("error", error);

@@ -76,6 +76,22 @@ public class LoginApiTest {
 
         @SneakyThrows
         @Test
+        @DisplayName("then no authentication gives an error response")
+        void testNoAuthentication() {
+            final String personIdentifier = "something";
+            mockMvc.perform(
+                            post("/login/v1/users/.search")
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .accept(MediaType.APPLICATION_JSON)
+                                    .content(searchRequest(personIdentifier)))
+                    .andExpect(status().isUnauthorized())
+                    .andExpect(jsonPath("$.error").value("access_denied"))
+                    .andExpect(jsonPath("$.error_description", Matchers.containsString("Full authentication is required to access this resource")));
+            verify(auditLogger, never()).log(any());
+        }
+
+        @SneakyThrows
+        @Test
         @DisplayName("then no results gives an empty list")
         @WithMockUser(roles = "USER")
         void testEmptyResult() {
