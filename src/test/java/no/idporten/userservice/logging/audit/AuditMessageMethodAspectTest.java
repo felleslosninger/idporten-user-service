@@ -1,6 +1,5 @@
 package no.idporten.userservice.logging.audit;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import no.idporten.logging.audit.AuditEntry;
 import no.idporten.logging.audit.AuditLogger;
 import no.idporten.userservice.TestData;
@@ -30,9 +29,6 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class AuditMessageMethodAspectTest {
-
-    @Mock
-    private ObjectMapper objectMapper;
 
     @Mock
     ProceedingJoinPoint joinPoint;
