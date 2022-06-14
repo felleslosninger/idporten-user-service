@@ -50,8 +50,9 @@ public class CustomOAuth2AuthenticationEntryPoint implements AuthenticationEntry
             }
         } else if (e instanceof InsufficientAuthenticationException authenticationException) {
             // No authentication is provided for either /login or /admin.
-            // Should add "Basic realm="Realm" " as www-authentication header for login, but not possible to differentiate them here.
-            log.debug(authenticationException.getMessage());
+            if (request.getRequestURI().contains("login")) {
+                wwwAuthenticate = "Basic realm=\"Realm\"";
+            }
         }
         JSONObject message = new JSONObject();
         message.put("error", "not_authenticated");
