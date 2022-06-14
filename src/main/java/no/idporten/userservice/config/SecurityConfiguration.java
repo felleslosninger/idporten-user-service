@@ -1,13 +1,14 @@
 package no.idporten.userservice.config;
 
 import lombok.RequiredArgsConstructor;
+import no.idporten.userservice.CustomOAuth2AuthenticationEntryPoint;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configurers.oauth2.server.resource.OAuth2ResourceServerConfigurer;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -21,6 +22,7 @@ import static org.springframework.security.config.Customizer.withDefaults;
 
 @Configuration
 @EnableWebSecurity
+@EnableGlobalMethodSecurity(prePostEnabled = true)
 @RequiredArgsConstructor
 public class SecurityConfiguration {
 
@@ -39,23 +41,27 @@ public class SecurityConfiguration {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         String[] openEndpoints = webSecurityProperties.getGetAllowed().toArray(String[]::new);
 
+
         http
                 .csrf().disable()
+                .headers().frameOptions().sameOrigin()
+                .and()
                 .authorizeHttpRequests((authorize) -> authorize
                         .antMatchers("/login/**").hasAnyRole("USER")
                         .antMatchers("/admin/**").hasAnyAuthority("SCOPE_idporteninternal:user.read", "SCOPE_idporteninternal:user.write")
                         .antMatchers(openEndpoints).permitAll()
                         .anyRequest().authenticated()
                 )
-                .oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt)
-                .httpBasic(withDefaults())
-                .formLogin(withDefaults())
-                .headers().frameOptions().sameOrigin();
 
+                .oauth2ResourceServer().jwt()
+                .and()
+                .authenticationEntryPoint(new CustomOAuth2AuthenticationEntryPoint())
+                .and()
+                .httpBasic(withDefaults())
+                .formLogin(withDefaults());
 
         return http.build();
     }
-
 
 
     @Bean

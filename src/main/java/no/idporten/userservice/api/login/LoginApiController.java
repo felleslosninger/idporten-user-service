@@ -34,6 +34,9 @@ import java.util.List;
         @ApiResponse(responseCode = "400", description = "Invalid request", content = @Content(examples = {
                 @ExampleObject(description = "Error response", value = LoginApiController.errorResponseExample)
         })),
+        @ApiResponse(responseCode = "401", description = "Invalid authentication", content = @Content(examples = {
+                @ExampleObject(description = "Error response", value = LoginApiController.errorResponseExample)
+        })),
         @ApiResponse(responseCode = "404", description = "User not found", content = @Content(examples = {
                 @ExampleObject(description = "Error response", value = LoginApiController.errorResponseExample)
         })),

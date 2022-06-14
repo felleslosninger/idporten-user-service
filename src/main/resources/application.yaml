@@ -82,6 +82,7 @@ idporten-user-service:
         - /swagger-ui.html
         - /swagger-ui/**
         - /v3/api-docs/**
+        - /error
 
 ---
 spring:

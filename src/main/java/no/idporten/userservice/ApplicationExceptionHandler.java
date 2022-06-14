@@ -2,19 +2,26 @@ package no.idporten.userservice;
 
 import lombok.extern.slf4j.Slf4j;
 import no.idporten.userservice.api.ErrorResponse;
-import org.springframework.context.support.DefaultMessageSourceResolvable;
-import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.StringUtils;
-import org.springframework.validation.BindException;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.oauth2.server.resource.authentication.AbstractOAuth2TokenAuthenticationToken;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.NoHandlerFoundException;
+
+import javax.servlet.http.HttpServletResponse;
+import java.security.Principal;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.StringJoiner;
 
 
 /**
@@ -24,6 +31,61 @@ import org.springframework.web.servlet.NoHandlerFoundException;
 @ControllerAdvice
 @Order(100)
 public class ApplicationExceptionHandler {
+    protected final static String AUTHENTICATION_HEADER = "WWW-Authenticate";
+
+    public static String computeWWWAuthenticateHeaderValue(Map<String, String> parameters) {
+        StringJoiner wwwAuthenticate = new StringJoiner(", ", "Bearer ", "");
+        if (!parameters.isEmpty()) {
+            parameters.forEach((k, v) -> wwwAuthenticate.add(k + "=\"" + v + "\""));
+        }
+        return wwwAuthenticate.toString();
+    }
+
+    // Never triggers this one
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<ErrorResponse> handleError(WebRequest request, BadCredentialsException e) {
+
+        String wwwAuthenticate = computeWWWAuthenticateHeaderValue(Collections.emptyMap());
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .header(AUTHENTICATION_HEADER, wwwAuthenticate)
+                .body(ErrorResponse.builder()
+                        .error("access_denied")
+                        .errorDescription(e.getMessage())
+                        .build());
+    }
+
+    //spring security 403
+    @ExceptionHandler({ AccessDeniedException.class })
+    public ResponseEntity<ErrorResponse> handleAccessDeniedException(AccessDeniedException e, WebRequest request, HttpServletResponse response) {
+        Principal userPrincipal = request.getUserPrincipal();
+        String error = "access_denied";
+        if (userPrincipal instanceof AbstractOAuth2TokenAuthenticationToken) {
+            Map<String, String> parameters = new LinkedHashMap<>();
+            String errorMessage = "The request requires higher privileges than provided by the access token.";
+            error = "insufficient_scope";
+            parameters.put("error", error);
+            parameters.put("error_description", errorMessage);
+            parameters.put("error_uri", "https://tools.ietf.org/html/rfc6750#section-3.1");
+            String wwwAuthenticate = computeWWWAuthenticateHeaderValue(parameters);
+
+
+            return ResponseEntity
+                    .status(HttpStatus.FORBIDDEN)
+                    .header(AUTHENTICATION_HEADER, wwwAuthenticate)
+                    .body(ErrorResponse.builder()
+                            .error(error)
+                            .errorDescription(errorMessage)
+                            .build());
+
+        }
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(ErrorResponse.builder()
+                        .error(error)
+                        .errorDescription(e.getMessage())
+                        .build());
+    }
 
     // Spring 405
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)

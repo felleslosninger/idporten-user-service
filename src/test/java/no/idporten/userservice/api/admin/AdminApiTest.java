@@ -81,6 +81,21 @@ public class AdminApiTest {
                     .andExpect(jsonPath("$.error_description", Matchers.containsString("Invalid person identifier")));
             verify(auditLogger, never()).log(any());
         }
+        @SneakyThrows
+        @Test
+        @DisplayName("then missing token gives an error response")
+        void testMissingAccessToken() {
+            final String personIdentifier = "something";
+            mockMvc.perform(
+                            post("/admin/v1/users/.search")
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .accept(MediaType.APPLICATION_JSON)
+                                    .content(searchRequest(personIdentifier)))
+                    .andExpect(status().isUnauthorized())
+                    .andExpect(jsonPath("$.error").value("access_denied"))
+                    .andExpect(jsonPath("$.error_description", Matchers.containsString("Full authentication is required to access this resource")));
+            verify(auditLogger, never()).log(any());
+        }
 
         @SneakyThrows
         @Test
@@ -204,6 +219,23 @@ public class AdminApiTest {
                     .andExpect(status().isBadRequest())
                     .andExpect(jsonPath("$.error").value("invalid_request"))
                     .andExpect(jsonPath("$.error_description", Matchers.containsString("Invalid user UUID")));
+            verify(auditLogger, never()).log(any());
+        }
+        @SneakyThrows
+        @Test
+        @DisplayName("then an error is returned if missing write scope")
+        @WithMockUser(roles = "USER")
+        void testMissingScope() {
+            String userId = "foobar";
+            mockMvc.perform(
+                            put("/admin/v1/users/%s/status".formatted(userId))
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .accept(MediaType.APPLICATION_JSON)
+                                    .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_idporteninternal:user.read")))
+                                    .content(statusRequest("FOO")))
+                    .andExpect(status().isForbidden())
+                    .andExpect(jsonPath("$.error").value("insufficient_scope"))
+                    .andExpect(jsonPath("$.error_description", Matchers.containsString("The request requires higher privileges than provided by the access token.")));
             verify(auditLogger, never()).log(any());
         }
 
