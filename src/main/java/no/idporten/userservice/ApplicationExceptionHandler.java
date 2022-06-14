@@ -59,10 +59,12 @@ public class ApplicationExceptionHandler {
     @ExceptionHandler({ AccessDeniedException.class })
     public ResponseEntity<ErrorResponse> handleAccessDeniedException(AccessDeniedException e, WebRequest request, HttpServletResponse response) {
         Principal userPrincipal = request.getUserPrincipal();
+        String error = "access_denied";
         if (userPrincipal instanceof AbstractOAuth2TokenAuthenticationToken) {
             Map<String, String> parameters = new LinkedHashMap<>();
             String errorMessage = "The request requires higher privileges than provided by the access token.";
-            parameters.put("error", "insufficient_scope");
+            error = "insufficient_scope";
+            parameters.put("error", error);
             parameters.put("error_description", errorMessage);
             parameters.put("error_uri", "https://tools.ietf.org/html/rfc6750#section-3.1");
             String wwwAuthenticate = computeWWWAuthenticateHeaderValue(parameters);
@@ -72,7 +74,7 @@ public class ApplicationExceptionHandler {
                     .status(HttpStatus.FORBIDDEN)
                     .header(AUTHENTICATION_HEADER, wwwAuthenticate)
                     .body(ErrorResponse.builder()
-                            .error("access_denied")
+                            .error(error)
                             .errorDescription(errorMessage)
                             .build());
 
@@ -80,7 +82,7 @@ public class ApplicationExceptionHandler {
         return ResponseEntity
                 .status(HttpStatus.FORBIDDEN)
                 .body(ErrorResponse.builder()
-                        .error("access_denied")
+                        .error(error)
                         .errorDescription(e.getMessage())
                         .build());
     }

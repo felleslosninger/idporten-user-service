@@ -28,25 +28,27 @@ public class CustomOAuth2AuthenticationEntryPoint implements AuthenticationEntry
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException e) throws IOException {
 
         HttpStatus status = HttpStatus.UNAUTHORIZED;
-        String errorMessage = "Insufficient authentication details";
+        String error = "access_denied";
+        String errorDescription = "Insufficient authentication details";
         String wwwAuthenticate = null;
         Map<String, String> parameters = new LinkedHashMap<>();
 
         if (e instanceof OAuth2AuthenticationException oAuth2AuthenticationException) {
-            OAuth2Error error = oAuth2AuthenticationException.getError();
-            parameters.put("error", error.getErrorCode());
-            if (StringUtils.hasText(error.getDescription())) {
-                errorMessage = error.getDescription();
-                parameters.put("error_description", errorMessage);
+            OAuth2Error oAuth2Error = oAuth2AuthenticationException.getError();
+            error = oAuth2Error.getErrorCode();
+            parameters.put("error", error);
+            if (StringUtils.hasText(oAuth2Error.getDescription())) {
+                errorDescription = oAuth2Error.getDescription();
+                parameters.put("error_description", errorDescription);
             }
-            if (StringUtils.hasText(error.getUri())) {
-                parameters.put("error_uri", error.getUri());
+            if (StringUtils.hasText(oAuth2Error.getUri())) {
+                parameters.put("error_uri", oAuth2Error.getUri());
             }
-            if (error instanceof BearerTokenError bearerTokenError) {
+            if (oAuth2Error instanceof BearerTokenError bearerTokenError) {
                 if (StringUtils.hasText(bearerTokenError.getScope())) {
                     parameters.put("scope", bearerTokenError.getScope());
                 }
-                status = ((BearerTokenError) error).getHttpStatus();
+                status = ((BearerTokenError) oAuth2Error).getHttpStatus();
             }
         } else if (e instanceof InsufficientAuthenticationException authenticationException) {
             // No authentication is provided for either /login or /admin.
@@ -55,8 +57,8 @@ public class CustomOAuth2AuthenticationEntryPoint implements AuthenticationEntry
             }
         }
         JSONObject message = new JSONObject();
-        message.put("error", "not_authenticated");
-        message.put("error_description", errorMessage);
+        message.put("error", error);
+        message.put("error_description", errorDescription);
 
         if (null == wwwAuthenticate) wwwAuthenticate = computeWWWAuthenticateHeaderValue(parameters);
 
