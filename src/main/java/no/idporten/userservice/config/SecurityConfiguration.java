@@ -1,6 +1,7 @@
 package no.idporten.userservice.config;
 
 import lombok.RequiredArgsConstructor;
+import no.idporten.userservice.CustomOAuth2AuthenticationEntryPoint;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;

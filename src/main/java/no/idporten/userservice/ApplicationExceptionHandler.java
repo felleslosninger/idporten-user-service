@@ -18,10 +18,10 @@ import org.springframework.web.servlet.NoHandlerFoundException;
 
 import javax.servlet.http.HttpServletResponse;
 import java.security.Principal;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
-
-import static no.idporten.userservice.config.CustomOAuth2AuthenticationEntryPoint.computeWWWAuthenticateHeaderValue;
+import java.util.StringJoiner;
 
 
 /**
@@ -31,16 +31,24 @@ import static no.idporten.userservice.config.CustomOAuth2AuthenticationEntryPoin
 @ControllerAdvice
 @Order(100)
 public class ApplicationExceptionHandler {
+    protected final static String AUTHENTICATION_HEADER = "WWW-Authenticate";
+
+    public static String computeWWWAuthenticateHeaderValue(Map<String, String> parameters) {
+        StringJoiner wwwAuthenticate = new StringJoiner(", ", "Bearer ", "");
+        if (!parameters.isEmpty()) {
+            parameters.forEach((k, v) -> wwwAuthenticate.add(k + "=\"" + v + "\""));
+        }
+        return wwwAuthenticate.toString();
+    }
 
     // Never triggers this one
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<ErrorResponse> handleError(WebRequest request, BadCredentialsException e) {
-        request.getUserPrincipal();
-        Map<String, String> parameters = new LinkedHashMap<>();
-        String wwwAuthenticate = computeWWWAuthenticateHeaderValue(parameters);
+
+        String wwwAuthenticate = computeWWWAuthenticateHeaderValue(Collections.emptyMap());
         return ResponseEntity
                 .status(HttpStatus.UNAUTHORIZED)
-                .header("WWW-Authenticate", wwwAuthenticate)
+                .header(AUTHENTICATION_HEADER, wwwAuthenticate)
                 .body(ErrorResponse.builder()
                         .error("access_denied")
                         .errorDescription(e.getMessage())
@@ -51,18 +59,18 @@ public class ApplicationExceptionHandler {
     @ExceptionHandler({ AccessDeniedException.class })
     public ResponseEntity<ErrorResponse> handleAccessDeniedException(AccessDeniedException e, WebRequest request, HttpServletResponse response) {
         Principal userPrincipal = request.getUserPrincipal();
-        if (request.getUserPrincipal() instanceof AbstractOAuth2TokenAuthenticationToken) {
+        if (userPrincipal instanceof AbstractOAuth2TokenAuthenticationToken) {
             Map<String, String> parameters = new LinkedHashMap<>();
-            String errorMessage = e.getLocalizedMessage();
-            errorMessage = "The request requires higher privileges than provided by the access token.";
+            String errorMessage = "The request requires higher privileges than provided by the access token.";
             parameters.put("error", "insufficient_scope");
             parameters.put("error_description", errorMessage);
             parameters.put("error_uri", "https://tools.ietf.org/html/rfc6750#section-3.1");
             String wwwAuthenticate = computeWWWAuthenticateHeaderValue(parameters);
 
+
             return ResponseEntity
                     .status(HttpStatus.FORBIDDEN)
-                    .header("WWW-Authenticate", wwwAuthenticate)
+                    .header(AUTHENTICATION_HEADER, wwwAuthenticate)
                     .body(ErrorResponse.builder()
                             .error("access_denied")
                             .errorDescription(errorMessage)
@@ -72,7 +80,7 @@ public class ApplicationExceptionHandler {
         return ResponseEntity
                 .status(HttpStatus.FORBIDDEN)
                 .body(ErrorResponse.builder()
-                        .error("invalid_scope") // might be something else as well???
+                        .error("access_denied")
                         .errorDescription(e.getMessage())
                         .build());
     }

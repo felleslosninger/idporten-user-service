@@ -1,4 +1,4 @@
-package no.idporten.userservice.config;
+package no.idporten.userservice;
 
 import com.nimbusds.jose.shaded.json.JSONObject;
 import lombok.extern.slf4j.Slf4j;
@@ -17,22 +17,23 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Objects;
-import java.util.StringJoiner;
+
+import static no.idporten.userservice.ApplicationExceptionHandler.AUTHENTICATION_HEADER;
+import static no.idporten.userservice.ApplicationExceptionHandler.computeWWWAuthenticateHeaderValue;
 
 @Slf4j
 public class CustomOAuth2AuthenticationEntryPoint implements AuthenticationEntryPoint {
 
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException e) throws IOException {
-        log.error(e.getLocalizedMessage(), e);
+
         HttpStatus status = HttpStatus.UNAUTHORIZED;
         String errorMessage = "Insufficient authentication details";
         String wwwAuthenticate = null;
         Map<String, String> parameters = new LinkedHashMap<>();
 
-        if (e instanceof OAuth2AuthenticationException) {
-            OAuth2Error error = ((OAuth2AuthenticationException) e).getError();
+        if (e instanceof OAuth2AuthenticationException oAuth2AuthenticationException) {
+            OAuth2Error error = oAuth2AuthenticationException.getError();
             parameters.put("error", error.getErrorCode());
             if (StringUtils.hasText(error.getDescription())) {
                 errorMessage = error.getDescription();
@@ -41,18 +42,16 @@ public class CustomOAuth2AuthenticationEntryPoint implements AuthenticationEntry
             if (StringUtils.hasText(error.getUri())) {
                 parameters.put("error_uri", error.getUri());
             }
-            if (error instanceof BearerTokenError) {
-                BearerTokenError bearerTokenError = (BearerTokenError) error;
+            if (error instanceof BearerTokenError bearerTokenError) {
                 if (StringUtils.hasText(bearerTokenError.getScope())) {
                     parameters.put("scope", bearerTokenError.getScope());
                 }
                 status = ((BearerTokenError) error).getHttpStatus();
             }
         } else if (e instanceof InsufficientAuthenticationException authenticationException) {
-// both login og admin here... :(
-            log.info(authenticationException.getMessage());
-
-
+            // No authentication is provided for either /login or /admin.
+            // Should add "Basic realm="Realm" " as www-authentication header for login, but not possible to differentiate them here.
+            log.debug(authenticationException.getMessage());
         }
         JSONObject message = new JSONObject();
         message.put("error", "not_authenticated");
@@ -60,17 +59,11 @@ public class CustomOAuth2AuthenticationEntryPoint implements AuthenticationEntry
 
         if (null == wwwAuthenticate) wwwAuthenticate = computeWWWAuthenticateHeaderValue(parameters);
 
-        response.addHeader("WWW-Authenticate", wwwAuthenticate);
+        response.addHeader(AUTHENTICATION_HEADER, wwwAuthenticate);
         response.setStatus(status.value());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.getWriter().write(message.toJSONString());
+        log.info(String.format("{%s}, http status: %s, %s header: {%s}. Error message: %s", e.getMessage(), status.value(), AUTHENTICATION_HEADER, wwwAuthenticate, message));
     }
 
-    public static String computeWWWAuthenticateHeaderValue(Map<String, String> parameters) {
-        StringJoiner wwwAuthenticate = new StringJoiner(", ", "Bearer ", "");
-        if (!parameters.isEmpty()) {
-            parameters.forEach((k, v) -> wwwAuthenticate.add(k + "=\"" + v + "\""));
-        }
-        return wwwAuthenticate.toString();
-    }
 }
