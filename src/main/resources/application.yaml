@@ -16,6 +16,8 @@ spring:
       name: user
       password: password
 
+# must be root property
+accesslog-application-name: idporten-user-service
 
 project:
   version: '@project.version@'
@@ -46,7 +48,7 @@ management:
       mode: full
   metrics:
     tags:
-      application: "IDporten-user-service"
+      application: "idporten-user-service"
 
 # Swagger with springdoc
 springdoc:
