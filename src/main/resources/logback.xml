@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <configuration>
-
+    <springProperty name="APP-NAME" source="accesslog-application-name"/>
     <springProfile name="local-dev | local-h2">
+
         <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
         <include resource="org/springframework/boot/logging/logback/console-appender.xml" />
         <root level="INFO">
@@ -14,13 +15,13 @@
     <appender name="APPLICATION" class="ch.qos.logback.core.ConsoleAppender">
         <encoder class="net.logstash.logback.encoder.LogstashEncoder">
             <includeMdc>true</includeMdc>
-            <customFields>{"application":"idporten-user-service","logtype":"application"}</customFields>
+            <customFields>{"application":"${APP-NAME}","logtype":"application"}</customFields>
         </encoder>
     </appender>
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder class="net.logstash.logback.encoder.LogstashEncoder">
             <includeMdc>true</includeMdc>
-            <customFields>{"application":"idporten-user-service","logtype":"application"}</customFields>
+            <customFields>{"application":"${APP-NAME}","logtype":"application"}</customFields>
         </encoder>
     </appender>
 

@@ -90,6 +90,11 @@
             <version>${idporten-audit-log.version}</version>
         </dependency>
         <dependency>
+            <groupId>no.idporten.logging</groupId>
+            <artifactId>idporten-access-log-spring-boot-starter</artifactId>
+            <version>0.1.1</version>
+        </dependency>
+        <dependency>
             <groupId>no.idporten.validators</groupId>
             <artifactId>idporten-validators</artifactId>
             <version>${idporten-validators.version}</version>
