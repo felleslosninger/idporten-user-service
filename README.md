@@ -47,8 +47,13 @@ a [default configuration](src/main/resources/application.yaml) in the applicatio
     mvn io.qameta.allure:allure-maven:serve
 
 
-### Required vault values and kubernetes config
-
+### Required vault values and kubernetes config. Environment variables:
+* DATASOURCE_PASSWORD (password to idporten_user database for user user_service)
+* API_USER (basic-auth for /login access)
+* API_USER_PASSWORD (basic-auth for /login access)
 
 ## Runtime dependencies
+* idporten-validators
+* idporten-access-log-spring-boot-starter
+* idporten-log-audit
 
