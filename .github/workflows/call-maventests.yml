@@ -16,7 +16,7 @@ jobs:
       maven-user: ${{ secrets.MAVEN_USER }}
       maven-password: ${{ secrets.MAVEN_PASSWORD }}
   call-container-scan:
-    uses: felleslosninger/eid-github-workflows/.github/workflows/spring-boot-container-scan.yml@ID-1908
+    uses: felleslosninger/eid-github-workflows/.github/workflows/spring-boot-container-scan.yml@main
     with:
       image-name: idporten-user-service
       java-version: 17
