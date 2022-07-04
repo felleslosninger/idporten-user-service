@@ -47,7 +47,7 @@ a [default configuration](src/main/resources/application.yaml) in the applicatio
     mvn io.qameta.allure:allure-maven:serve
 
 
-### Required vault values and kubernetes config||
+### Required vault values and kubernetes config
 
 
 ## Runtime dependencies
