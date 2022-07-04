@@ -1,4 +1,4 @@
-# This workflow will build a Java project with Maven
+# This workflow will build a Spring Boot/Java project with Maven
 # For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
 
 name: Build/publish Docker image
@@ -9,7 +9,7 @@ on:
 
 jobs:
   build-publish-image:
-    uses: felleslosninger/eid-github-workflows/.github/workflows/eid-spring-boot-build-publish-image-generic.yml@main
+    uses: felleslosninger/eid-github-workflows/.github/workflows/spring-boot-build-publish-image.yml@main
     with:
       image-name: idporten-user-service
       allure-enabled: false
@@ -24,7 +24,7 @@ jobs:
       allure-user: ${{ secrets.ALLURE_USER }}
       allure-password: ${{ secrets.ALLURE_PASSWORD }}
   update-image-version:
-    uses: felleslosninger/eid-github-workflows/.github/workflows/eid-update-image-version.yml@main
+    uses: felleslosninger/eid-github-workflows/.github/workflows/update-image-version.yml@main
     needs: build-publish-image
     with:
       image-name: idporten-user-service
