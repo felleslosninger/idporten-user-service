@@ -49,10 +49,10 @@ public class UpdateAttributesRequestTest {
     }
 
     @Test
-    @DisplayName("then a list containing valid help desk reference (old format e-journal '1234567' and new format TopDesk '1234 56789') is accepted")
+    @DisplayName("then a list containing valid help desk reference (format e-journal 7 digits and new format TopDesk 1-10 digits) are accepted")
     void testValidReferenceInList() {
         UpdateAttributesRequest request = new UpdateAttributesRequest();
-        request.setHelpDeskReferences(List.of("9876543", "1234567", "1234 56789"));
+        request.setHelpDeskReferences(List.of("9876543", "1234567", "1234567890", "1"));
         Set<ConstraintViolation<UpdateAttributesRequest>> errors = validator.validate(request);
         assertAll(
                 () -> assertNotNull(errors),
