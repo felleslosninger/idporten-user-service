@@ -387,7 +387,7 @@ public class AdminApiTest {
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .accept(MediaType.APPLICATION_JSON)
                                     .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_idporteninternal:user.write")))
-                                    .content(updateRequest(List.of("1234567", "1234 56789"))))
+                                    .content(updateRequest(List.of("1234567", "1234567890"))))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.id").value(userId))
                     .andExpect(jsonPath("$.person_identifier").value(personIdentifier))
@@ -395,7 +395,7 @@ public class AdminApiTest {
                     .andExpect(jsonPath("$.help_desk_references").isArray())
                     .andExpect(jsonPath("$.help_desk_references").isNotEmpty())
                     .andExpect(jsonPath("$.help_desk_references[0]").value("1234567"))
-                    .andExpect(jsonPath("$.help_desk_references[1]").value("1234 56789"));
+                    .andExpect(jsonPath("$.help_desk_references[1]").value("1234567890"));
             verify(auditLogger, times(1)).log(auditEntryCaptor.capture());
             assertTrue(auditEntryCaptor.getValue().getAuditId().auditId().endsWith(AuditID.ADMIN_USER_UPDATE.getAuditName()));
         }
