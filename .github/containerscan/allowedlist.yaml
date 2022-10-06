@@ -1,2 +1,5 @@
 general:
   vulnerabilities:
+    - CVE-2022-25857  # snake yaml
+    - CVE-2022-42003 # Jackson databind UNWRAP_SINGLE_VALUE_ARRAYS
+
