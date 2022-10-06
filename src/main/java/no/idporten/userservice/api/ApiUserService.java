@@ -52,9 +52,7 @@ public class ApiUserService {
 
     public UserResource createUser(CreateUserRequest createUserRequest) {
         validatePersonIdentifier(createUserRequest.getPersonIdentifier());
-        IDPortenUser idPortenUser = new IDPortenUser();
-        idPortenUser.setPid(createUserRequest.getPersonIdentifier());
-        idPortenUser.setActive(true);
+        IDPortenUser idPortenUser = IDPortenUser.builder().pid(createUserRequest.getPersonIdentifier()).active(true).build();
         return convert(userService.createUser(idPortenUser));
     }
 
@@ -86,7 +84,6 @@ public class ApiUserService {
             idPortenUser.setActive(false);
             idPortenUser.setClosedCode(closedCode);
             idPortenUser.setClosedCodeLastUpdated(Clock.systemUTC().instant());
-
         }
         return convert(userService.updateUser(idPortenUser));
     }
