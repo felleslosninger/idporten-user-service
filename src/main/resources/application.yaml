@@ -19,16 +19,8 @@ spring:
 # must be root property
 accesslog-application-name: idporten-user-service
 
-project:
-  version: '@project.version@'
-
 # Spring Boot Actuator
 management:
-  endpoints:
-    web:
-      base-path: /
-      exposure:
-        include: health,info,version,prometheus
   endpoint:
     health:
       group:
@@ -40,12 +32,6 @@ management:
           enabled: false
       probes:
         enabled: true
-      show-details: never
-
-
-  info:
-    git:
-      mode: full
   metrics:
     tags:
       application: "idporten-user-service"

@@ -1,7 +1,4 @@
 ---
-project:
-  version: junit
-
 server:
   port: 7070
 spring:
