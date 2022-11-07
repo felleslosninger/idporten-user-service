@@ -1,4 +1,9 @@
 ---
+management:
+  endpoint:
+    health:
+      show-details: always
+      show-components: always
 spring:
   datasource:
     url: jdbc:mariadb://user-service-mariadb:3306/idporten_user
