@@ -17,7 +17,7 @@
         <java.version>17</java.version>
         <idporten-validators.version>0.1.1</idporten-validators.version>
         <idporten-fnr-generate.version>1.0.0</idporten-fnr-generate.version>
-        <springdoc.version>1.6.12</springdoc.version>
+        <springdoc.version>1.6.13</springdoc.version>
         <logstash.logback.version>7.2</logstash.logback.version>
         <idporten-audit-log.version>0.0.19</idporten-audit-log.version>
         <idporten-access-log.version>0.1.7</idporten-access-log.version>
