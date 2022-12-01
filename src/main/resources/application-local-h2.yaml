@@ -1,6 +1,9 @@
 ---
 server:
   port: 7080
+management:
+  server:
+    port:
 spring:
   datasource:
     url: "jdbc:h2:mem:idporten_user;MODE=MySQL;DB_CLOSE_ON_EXIT=FALSE"

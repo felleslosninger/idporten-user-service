@@ -1,6 +1,8 @@
 ---
-server:
-  port: 7070
+management:
+  server:
+    port:
+
 spring:
   datasource:
     url: "jdbc:h2:mem:idporten_user;MODE=MySQL"

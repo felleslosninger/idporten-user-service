@@ -1,6 +1,6 @@
 ---
 server:
-  port: 8080
+  port: 7070
 
 spring:
   jpa:
@@ -21,8 +21,6 @@ accesslog-application-name: idporten-user-service
 
 # Spring Boot Actuator
 management:
-  server:
-    port: 8090
   endpoints:
     web:
       base-path: /
@@ -38,7 +36,7 @@ management:
         diskspace:
           enabled: false
       probes:
-        enabled: true
+        enabled: false
   metrics:
     tags:
       application: "idporten-user-service"
@@ -64,8 +62,8 @@ idporten-user-service:
     application-name: idporten-user-service
     audit-log-dir:
   features:
-    allow-real-pid: true
-    allow-synthetic-pid: false
+    allow-real-pid: false
+    allow-synthetic-pid: true
   whitelist-config:
     security:
       get-allowed:
@@ -79,10 +77,4 @@ idporten-user-service:
         - /v3/api-docs/**
         - /error
 
----
-spring:
-  config:
-    activate:
-      on-cloud-platform: 'kubernetes'
-    import:
-      - 'optional:file:/etc/config/'
+

@@ -1,6 +1,9 @@
 ---
 server:
   port: 7080
+management:
+  server:
+    port:
 spring:
   datasource:
     url: "jdbc:mariadb://localhost:3306/idporten_user"
