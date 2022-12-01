@@ -3,3 +3,4 @@ general:
     - CVE-2022-25857  # snake yaml
     - CVE-2022-42003 # Jackson databind UNWRAP_SINGLE_VALUE_ARRAYS
     - CVE-2022-31692 # Spring security dispatcher types
+    - CVE-2022-45868 #h2
