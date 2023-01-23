@@ -4,3 +4,4 @@ general:
     - CVE-2022-42003 # Jackson databind UNWRAP_SINGLE_VALUE_ARRAYS
     - CVE-2022-31692 # Spring security dispatcher types
     - CVE-2022-45868 #h2
+    - CVE-2016-1000027 # spring-web deserialization. From year 2016, fixed in 6.0.
