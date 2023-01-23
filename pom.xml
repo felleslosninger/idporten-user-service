@@ -20,7 +20,7 @@
         <springdoc.version>1.6.14</springdoc.version>
         <logstash.logback.version>7.2</logstash.logback.version>
         <idporten-audit-log.version>0.0.21</idporten-audit-log.version>
-        <idporten-access-log.version>0.1.7</idporten-access-log.version>
+        <idporten-access-log.version>1.0.1</idporten-access-log.version>
         <nimbus.jose.jwt.version>9.23</nimbus.jose.jwt.version>
         <idporten-actuator-starter.version>0.4.0</idporten-actuator-starter.version>
     </properties>
