@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <configuration>
-    <springProperty name="APP-NAME" source="spring.application.name"/>
-    <springProperty name="APP-ENV" source="spring.application.environment"/>
+    <springProperty name="APP-NAME" source="spring.application.name" defaultValue="-"/>
+    <springProperty name="APP-ENV" source="spring.application.environment" defaultValue="-"/>
     <springProfile name="local-dev | local-h2">
 
         <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
