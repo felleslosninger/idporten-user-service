@@ -15,9 +15,8 @@ spring:
     user:
       name: user
       password: password
-
-# must be root property
-accesslog-application-name: idporten-user-service
+  application:
+    name: idporten-user-service
 
 # Spring Boot Actuator
 management:
@@ -41,7 +40,8 @@ management:
         enabled: true
   metrics:
     tags:
-      application: "idporten-user-service"
+      application: ${spring.application.name}
+      environment: ${spring.application.environment}
 
 # Swagger with springdoc
 springdoc:
@@ -61,7 +61,7 @@ springdoc:
 # App-specific config
 idporten-user-service:
   audit:
-    application-name: idporten-user-service
+    application-name: ${spring.application.name}
     audit-log-dir:
   features:
     allow-real-pid: true
