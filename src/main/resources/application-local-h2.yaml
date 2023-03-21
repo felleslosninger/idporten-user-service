@@ -20,6 +20,8 @@ spring:
       resource:
         jwt:
           jwk-set-uri: https://maskinporten.dev/.well-known/jwks.json
+  application:
+    environment: local-dev
 
 # App-specific config
 idporten-user-service:
