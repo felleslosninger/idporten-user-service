@@ -17,7 +17,6 @@ spring:
       password: password
   application:
     name: idporten-user-service
-    environment: 
 
 # Spring Boot Actuator
 management:
@@ -42,6 +41,7 @@ management:
   metrics:
     tags:
       application: ${spring.application.name}
+      environment: ${spring.application.environment}
 
 # Swagger with springdoc
 springdoc:
