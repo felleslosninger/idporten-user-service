@@ -21,7 +21,7 @@ spring:
           jwk-set-uri: https://test.maskinporten.no/.well-known/jwks.json
   application:
     environment: test
-    
+
 # App-specific config
 idporten-user-service:
   features:
