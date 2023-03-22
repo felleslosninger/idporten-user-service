@@ -16,13 +16,13 @@
     <appender name="APPLICATION" class="ch.qos.logback.core.ConsoleAppender">
         <encoder class="net.logstash.logback.encoder.LogstashEncoder">
             <includeMdc>true</includeMdc>
-            <customFields>{"application":"${APP-NAME}","application":"${APP-ENV}","logtype":"application"}</customFields>
+            <customFields>{"application":"${APP-NAME}","environment":"${APP-ENV}","logtype":"application"}</customFields>
         </encoder>
     </appender>
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder class="net.logstash.logback.encoder.LogstashEncoder">
             <includeMdc>true</includeMdc>
-            <customFields>{"application":"${APP-NAME}","application":"${APP-ENV}","logtype":"application"}</customFields>
+            <customFields>{"application":"${APP-NAME}","environment":"${APP-ENV}","logtype":"application"}</customFields>
         </encoder>
     </appender>
 
