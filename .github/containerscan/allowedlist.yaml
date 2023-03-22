@@ -1,12 +1,10 @@
 ---
 general:
   vulnerabilities:
-  - CVE-2022-25857  # snake yaml
-  - CVE-2022-42003 # Jackson databind UNWRAP_SINGLE_VALUE_ARRAYS
-  - CVE-2022-31692 # Spring security dispatcher types
+  - CVE-2022-25857  # snake yaml, fixed in 1.31
   - CVE-2022-45868 #h2
-  - CVE-2016-1000027 # spring-web deserialization. From year 2016, fixed in 6.0.
-  - CVE-2022-1471 # snake yaml
+  - CVE-2016-1000027 # spring-web deserialization. From year 2016, fixed in 6.0.0
+  - CVE-2022-1471 # snake yaml, fixed in 2.0 (new spring boot version?) https://bitbucket.org/snakeyaml/snakeyaml/wiki/CVE-2022-1471
   bestPracticeViolations:
   - CIS-DI-0005
   - CIS-DI-0006
