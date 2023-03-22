@@ -12,7 +12,6 @@ jobs:
     uses: felleslosninger/eid-github-workflows/.github/workflows/spring-boot-build-publish-image.yml@main
     with:
       image-name: idporten-user-service
-      allure-enabled: false
       java-version: 17
     secrets:
       eid-build-token: ${{ secrets.EID_BUILD_PAT }}
@@ -21,8 +20,6 @@ jobs:
       registry-url: ${{ secrets.REGISTRY_URL }}
       registry-username: ${{ secrets.REGISTRY_USERNAME }}
       registry-password: ${{ secrets.REGISTRY_PASSWORD }}
-      allure-user: ${{ secrets.ALLURE_USER }}
-      allure-password: ${{ secrets.ALLURE_PASSWORD }}
   update-image-version:
     uses: felleslosninger/eid-github-workflows/.github/workflows/update-image-version.yml@main
     needs: build-publish-image
