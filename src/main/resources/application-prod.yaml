@@ -19,3 +19,6 @@ spring:
       resource:
         jwt:
           jwk-set-uri: https://maskinporten.no/.well-known/jwks.json
+  application:
+    environment: prod
+    
