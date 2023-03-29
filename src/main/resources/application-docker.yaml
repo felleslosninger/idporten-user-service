@@ -1,0 +1,34 @@
+---
+server:
+  port: 7080
+management:
+  server:
+    port:
+spring:
+  datasource:
+    url: "jdbc:mariadb://db-us:3306/idporten_user"
+    driver-class-name: org.mariadb.jdbc.Driver
+    username: user_service
+    password: kkd58REBF-asK
+    hikari:
+      connection-timeout: 3000 #maximum number of milliseconds that a client will wait for a connection
+      minimum-idle: 1 #minimum number of idle connections maintained by HikariCP in a connection pool
+      maximum-pool-size: 1 #maximum pool size
+      idle-timeout: 1000 #maximum idle time for connection
+      max-lifetime: 500 # maximum lifetime in milliseconds of a connection in the pool after it is closed.
+  security:
+    user:
+      name: docker-user
+      password: docker-password
+    oauth2:
+      resource:
+        jwt:
+          jwk-set-uri: https://maskinporten.dev/.well-known/jwks.json
+  application:
+    environment: docker
+
+# App-specific config
+idporten-user-service:
+  features:
+    allow-real-pid: false
+    allow-synthetic-pid: true

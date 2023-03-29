@@ -3,6 +3,9 @@ server:
   port: 7070
 
 spring:
+  application:
+    name: user-service
+    environment: test
   jpa:
     hibernate:
       ddl-auto: none
@@ -16,8 +19,16 @@ spring:
       name: user
       password: password
 
-# must be root property
-accesslog-application-name: idporten-user-service
+digdir:
+  audit:
+    application-name: ${spring.application.name}
+    application-environment: ${spring.application.environment}
+    audit-log-dir:
+    filters:
+      bearer-token: false
+  event:
+    logging:
+      environment-name: ${spring.application.environment}
 
 # Spring Boot Actuator
 management:

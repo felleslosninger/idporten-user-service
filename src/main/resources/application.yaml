@@ -17,6 +17,7 @@ spring:
       password: password
   application:
     name: idporten-user-service
+    environment: default
 
 # Spring Boot Actuator
 management:
@@ -60,9 +61,6 @@ springdoc:
 
 # App-specific config
 idporten-user-service:
-  audit:
-    application-name: ${spring.application.name}
-    audit-log-dir:
   features:
     allow-real-pid: true
     allow-synthetic-pid: false
@@ -78,6 +76,17 @@ idporten-user-service:
         - /swagger-ui/**
         - /v3/api-docs/**
         - /error
+
+digdir:
+  audit:
+    application-name: ${spring.application.name}
+    application-environment: ${spring.application.environment}
+    audit-log-dir:
+    filters:
+      bearer-token: false
+  event:
+    logging:
+      environment-name: ${spring.application.environment}
 
 ---
 spring:
