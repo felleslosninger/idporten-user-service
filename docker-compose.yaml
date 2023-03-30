@@ -1,0 +1,52 @@
+name: idporten
+networks:
+  idporten:
+    name: idporten
+    
+services:
+  db-us:
+    image: "mariadb:10.8"
+    restart: on-failure
+    environment:
+          MYSQL_ROOT_PASSWORD: mdbRootPwd4us
+          MYSQL_DATABASE: idporten_user
+          MYSQL_USER: user_service
+          MYSQL_PASSWORD: kkd58REBF-asK
+    ports:
+      - "36306:3306"
+    networks:
+      - idporten
+    healthcheck:
+      test: mysqladmin -p$$MYSQL_ROOT_PASSWORD -uroot ping -h localhost
+      interval: 5s
+      start_period: 5s
+      timeout: 5s
+      retries: 10
+
+  user-service:
+    build:
+      context: .
+      dockerfile: docker/dev.Dockerfile
+      args:
+        GIT_PACKAGE_TOKEN: ${GIT_PACKAGE_TOKEN}
+        GIT_PACKAGE_USERNAME: ${GIT_PACKAGE_USERNAME}
+    environment:
+      spring_profiles_active: docker
+    ports:
+      - "7080:7080"
+    networks:
+      - idporten
+    depends_on:
+      db-us:
+        condition: service_healthy
+    entrypoint: "/bin/bash -c"
+    command:
+      - |
+        cd /usr/local/webapps
+        java -jar application.jar
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://user-service:7080/health/readiness || exit 1
+      interval: 15s
+      start_period: 5s
+      timeout: 5s
+      retries: 20
