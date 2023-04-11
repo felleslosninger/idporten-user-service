@@ -18,6 +18,9 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -38,7 +41,7 @@ public class SecurityConfiguration {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        String[] openEndpoints = webSecurityProperties.getGetAllowed().toArray(String[]::new);
+        List<String> openEndpoints = webSecurityProperties.getGetAllowed();
 
 
         http
@@ -46,9 +49,9 @@ public class SecurityConfiguration {
                 .headers().frameOptions().sameOrigin()
                 .and()
                 .authorizeHttpRequests((authorize) -> authorize
-                        .antMatchers("/login/**").hasAnyRole("USER")
-                        .antMatchers("/admin/**").hasAnyAuthority("SCOPE_idporteninternal:user.read", "SCOPE_idporteninternal:user.write")
-                        .antMatchers(openEndpoints).permitAll()
+                        .requestMatchers(new AntPathRequestMatcher("/login/**")).hasAnyRole("USER")
+                        .requestMatchers(new AntPathRequestMatcher("/admin/**")).hasAnyAuthority("SCOPE_idporteninternal:user.read", "SCOPE_idporteninternal:user.write")
+                        .requestMatchers(openEndpoints.stream().map(AntPathRequestMatcher::new).toList().toArray(AntPathRequestMatcher[]::new)).permitAll()
                         .anyRequest().authenticated()
                 )
 

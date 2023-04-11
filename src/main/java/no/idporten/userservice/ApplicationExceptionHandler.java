@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import no.idporten.userservice.api.ErrorResponse;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -16,7 +17,7 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 import java.security.Principal;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -111,7 +112,7 @@ public class ApplicationExceptionHandler {
     // Spring-exception som gir HTTP-feil
     @ExceptionHandler(ResponseStatusException.class)
     public ResponseEntity<ErrorResponse> handleResponseStatusException(ResponseStatusException e) {
-        return errorResponseEntity(e.getStatus(), errorMessageForHttpStatus(e.getStatus()), e.getReason());
+        return errorResponseEntity(e.getStatusCode(), errorMessageForHttpStatus(e.getStatusCode()), e.getReason());
     }
 
     // Last resort
@@ -121,18 +122,18 @@ public class ApplicationExceptionHandler {
         return errorResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, "server_error", "Failed to process request. See server logs for details.");
     }
 
-    protected String errorMessageForHttpStatus(HttpStatus httpStatus) {
+    protected String errorMessageForHttpStatus(HttpStatusCode httpStatus) {
         if (httpStatus.is4xxClientError()) {
             return "invalid_request";
         }
         return "server_error";
     }
 
-    private ResponseEntity<ErrorResponse> errorResponseEntity(HttpStatus httpStatus, String error, String errorDescription) {
+    private ResponseEntity<ErrorResponse> errorResponseEntity(HttpStatusCode httpStatus, String error, String errorDescription) {
         return errorResponseEntity(httpStatus, ErrorResponse.builder().error(error).errorDescription(errorDescription).build());
     }
 
-    private ResponseEntity<ErrorResponse> errorResponseEntity(HttpStatus httpStatus, ErrorResponse errorResponse) {
+    private ResponseEntity<ErrorResponse> errorResponseEntity(HttpStatusCode httpStatus, ErrorResponse errorResponse) {
         return ResponseEntity
                 .status(httpStatus)
                 .contentType(MediaType.APPLICATION_JSON)
