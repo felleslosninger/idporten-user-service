@@ -1,12 +1,13 @@
 package no.idporten.userservice.api;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import no.idporten.userservice.api.admin.UpdateAttributesRequest;
 import no.idporten.userservice.api.admin.UpdateStatusRequest;
 import no.idporten.userservice.api.login.CreateUserRequest;
 import no.idporten.userservice.api.login.UpdateUserLoginRequest;
-import no.idporten.userservice.data.Login;
 import no.idporten.userservice.data.IDPortenUser;
+import no.idporten.userservice.data.Login;
 import no.idporten.userservice.data.UserService;
 import no.idporten.userservice.data.UserServiceException;
 import no.idporten.validators.identifier.PersonIdentifierValidator;
@@ -15,11 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
-import javax.validation.Valid;
 import java.time.Clock;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -137,7 +134,7 @@ public class ApiUserService {
         if (CollectionUtils.isEmpty(idPortenUser.getHelpDeskCaseReferences())) {
             return Collections.emptyList();
         }
-        return idPortenUser.getHelpDeskCaseReferences().stream().filter(s -> StringUtils.hasText(s)).toList();
+        return idPortenUser.getHelpDeskCaseReferences().stream().filter(StringUtils::hasText).toList();
     }
 
 }
