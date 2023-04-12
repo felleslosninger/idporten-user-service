@@ -15,7 +15,7 @@
     <description>ID-porten user service</description>
     <properties>
         <java.version>17</java.version>
-        <idporten-validators.version>1.0.1</idporten-validators.version>
+        <idporten-validators.version>1.0.2</idporten-validators.version>
         <idporten-fnr-generate.version>1.0.1</idporten-fnr-generate.version>
         <springdoc.version>2.1.0</springdoc.version>
         <logstash.logback.version>7.3</logstash.logback.version>
