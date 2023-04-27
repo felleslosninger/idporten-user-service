@@ -1,8 +1,9 @@
 package no.idporten.userservice.data;
 
-import org.hibernate.annotations.Type;
+import jakarta.persistence.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
-import javax.persistence.*;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
@@ -11,10 +12,14 @@ import java.util.UUID;
 @Table(name = "idp_user")
 public class UserEntity {
 
+    /**
+     * The UUID of the user.
+     * https://bootify.io/spring-data/handle-hibernate-uuid-in-mariadb.html
+     */
     @Id
     @GeneratedValue
-    @Column(name = "uuid")
-    @Type(type = "uuid-char")
+    @Column(columnDefinition = "char(36)", name = "uuid")
+    @JdbcTypeCode(SqlTypes.CHAR)
     private UUID uuid;
 
     @Column(name = "person_identifier")
@@ -39,8 +44,8 @@ public class UserEntity {
     private String helpDeskCaseReferences;
 
     @OneToOne
-    @JoinColumn(name = "previous_user")
-    @Type(type = "uuid-char")
+    @JoinColumn(columnDefinition = "char(36)", name = "previous_user")
+    @JdbcTypeCode(SqlTypes.CHAR)
     private UserEntity previousUser;
 
     @OneToOne(mappedBy = "previousUser")
@@ -237,7 +242,7 @@ public class UserEntity {
         }
 
         public UserEntity build() {
-            return new UserEntity(uuid, personIdentifier, 0l, 0l, active, closedCode, closedCodeUpdatedAtEpochMs, helpDeskCaseReferences, logins, previousUser, nextUser);
+            return new UserEntity(uuid, personIdentifier, 0L, 0L, active, closedCode, closedCodeUpdatedAtEpochMs, helpDeskCaseReferences, logins, previousUser, nextUser);
         }
     }
 }

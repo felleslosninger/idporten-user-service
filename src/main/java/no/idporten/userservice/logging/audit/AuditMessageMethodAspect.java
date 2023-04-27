@@ -11,17 +11,17 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Aspect
 @Component
@@ -29,6 +29,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class AuditMessageMethodAspect {
 
+    @Qualifier("auditLogger")
     private final AuditLogger auditLogger;
     private final ObjectProvider<HttpServletRequest> requestObjectProvider;
 

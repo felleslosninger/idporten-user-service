@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.7.9</version>
+        <version>3.0.5</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>no.idporten</groupId>
@@ -15,14 +15,15 @@
     <description>ID-porten user service</description>
     <properties>
         <java.version>17</java.version>
-        <idporten-validators.version>0.2.0</idporten-validators.version>
+        <idporten-validators.version>1.0.1</idporten-validators.version>
         <idporten-fnr-generate.version>1.0.1</idporten-fnr-generate.version>
-        <springdoc.version>1.6.15</springdoc.version>
+        <springdoc.version>2.1.0</springdoc.version>
         <logstash.logback.version>7.3</logstash.logback.version>
-        <idporten-audit-log.version>0.0.22</idporten-audit-log.version>
-        <idporten-access-log.version>1.1.1</idporten-access-log.version>
+        <idporten-audit-log.version>1.0.0</idporten-audit-log.version>
+        <idporten-access-log.version>2.0.0</idporten-access-log.version>
         <nimbus.jose.jwt.version>9.23</nimbus.jose.jwt.version>
         <idporten-actuator-starter.version>0.4.3</idporten-actuator-starter.version>
+        <open.telemetry.version>1.25.0</open.telemetry.version>
     </properties>
     <dependencies>
         <dependency>
@@ -37,6 +38,12 @@
             <groupId>no.idporten.actuator</groupId>
             <artifactId>idporten-actuator-starter</artifactId>
             <version>${idporten-actuator-starter.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.hibernate.validator</groupId>
+                    <artifactId>hibernate-validator</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -71,9 +78,10 @@
         </dependency>
         <dependency>
             <groupId>org.springdoc</groupId>
-            <artifactId>springdoc-openapi-ui</artifactId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
             <version>${springdoc.version}</version>
         </dependency>
+
         <dependency>
             <groupId>net.logstash.logback</groupId>
             <artifactId>logstash-logback-encoder</artifactId>
@@ -84,8 +92,17 @@
             <artifactId>logback-access</artifactId>
         </dependency>
         <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.opentelemetry.instrumentation</groupId>
+            <artifactId>opentelemetry-instrumentation-api</artifactId>
+            <version>${open.telemetry.version}</version>
+        </dependency>
+        <dependency>
             <groupId>no.idporten.logging</groupId>
-            <artifactId>idporten-log-audit</artifactId>
+            <artifactId>idporten-log-audit-spring-boot-3-starter</artifactId>
             <version>${idporten-audit-log.version}</version>
         </dependency>
         <dependency>
@@ -119,6 +136,10 @@
             <version>${idporten-fnr-generate.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>net.minidev</groupId>
+            <artifactId>json-smart</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -126,13 +147,6 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>build-info</goal>
-                        </goals>
-                    </execution>
-                </executions>
                 <configuration>
                     <excludes>
                         <exclude>
@@ -141,6 +155,27 @@
                         </exclude>
                     </excludes>
                 </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>build-info</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin> <!-- attach source package -->
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>${maven-source-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>jar-no-fork</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

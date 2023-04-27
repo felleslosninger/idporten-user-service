@@ -23,7 +23,8 @@ public class RepositoryLivenessStateIndicator extends LivenessStateHealthIndicat
     @Override
     public Health getHealth(boolean includeDetails) {
         try {
-            userRepository.count();
+            // TODO: Temp. disabled, see JIRA-issue ID-2800
+            //userRepository.count();
             return Health.up().build();
         } catch (Exception e) {
             log.error("Health check to repository failed with exception " + e.getMessage(), e);
