@@ -1,0 +1,7 @@
+# CVE-2022-25857    # snake yaml, fixed in 1.31
+# CVE-2022-45868    # h2
+# CVE-2016-1000027  # spring-web deserialization. From year 2016, fixed in 6.0.0
+# CVE-2022-1471     # snake yaml, fixed in 2.0 (new spring boot version?) https://bitbucket.org/snakeyaml/snakeyaml/wiki/CVE-2022-1471
+# CVE-2023-1370     # Json-smart, no limit of nesting opening up to DoS attack
+# CIS-DI-0005
+# CIS-DI-0006
