@@ -9,12 +9,11 @@ on:
 
 jobs:
   build-publish-image:
-    uses: felleslosninger/eid-github-workflows/.github/workflows/spring-boot-build-publish-image.yml@main
+    uses: felleslosninger/eid-github-workflows/.github/workflows/spring-boot-build-publish-image.yml@ID-2198
     with:
       image-name: idporten-user-service
       java-version: 17
     secrets:
-      eid-build-token: ${{ secrets.EID_BUILD_PAT }}
       maven-user: ${{ secrets.MAVEN_USER }}
       maven-password: ${{ secrets.MAVEN_PASSWORD }}
       registry-url: ${{ secrets.REGISTRY_URL }}
