@@ -22,8 +22,8 @@
         <idporten-audit-log.version>1.0.0</idporten-audit-log.version>
         <idporten-access-log.version>2.0.2</idporten-access-log.version>
         <nimbus.jose.jwt.version>9.23</nimbus.jose.jwt.version>
-        <idporten-actuator-starter.version>0.4.3</idporten-actuator-starter.version>
-        <open.telemetry.version>1.25.0</open.telemetry.version>
+        <idporten-actuator-starter.version>1.0.1</idporten-actuator-starter.version>
+        <open.telemetry.version>1.26.0</open.telemetry.version>
     </properties>
     <dependencies>
         <dependency>
