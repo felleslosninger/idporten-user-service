@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.0.5</version>
+        <version>3.1.1</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>no.idporten</groupId>
@@ -19,7 +19,7 @@
         <idporten-fnr-generate.version>1.0.1</idporten-fnr-generate.version>
         <springdoc.version>2.1.0</springdoc.version>
         <logstash.logback.version>7.3</logstash.logback.version>
-        <idporten-audit-log.version>1.0.2</idporten-audit-log.version>
+        <idporten-audit-log.version>1.0.6</idporten-audit-log.version>
         <idporten-access-log.version>2.0.2</idporten-access-log.version>
         <nimbus.jose.jwt.version>9.23</nimbus.jose.jwt.version>
         <idporten-actuator-starter.version>1.0.1</idporten-actuator-starter.version>

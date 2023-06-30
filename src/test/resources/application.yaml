@@ -43,7 +43,7 @@ management:
         readiness:
           include: db
         liveness:
-          include: livenessState
+          include: 
         diskspace:
           enabled: false
       probes:
