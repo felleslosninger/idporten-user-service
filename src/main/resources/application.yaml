@@ -8,7 +8,7 @@ spring:
       ddl-auto: none
     generate-ddl: false
     show-sql: false
-    database-platform: org.hibernate.dialect.MariaDB103Dialect
+    database-platform: org.hibernate.dialect.MariaDBDialect
   flyway:
     table: flyway_schema_history
   security:
