@@ -102,7 +102,7 @@ public class UserService {
 
     private LoginEntity findExistingEid(Login eid, List<LoginEntity> existingeIDs) {
         for (LoginEntity e : existingeIDs) {
-            if (e.getEidName().equals(eid.getEidName())) {
+            if (e.getEidName().equalsIgnoreCase(eid.getEidName())) {
                 return e;
             }
         }
