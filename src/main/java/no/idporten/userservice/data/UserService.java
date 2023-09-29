@@ -75,6 +75,8 @@ public class UserService {
         }
         if (!idPortenUser.getHelpDeskCaseReferences().isEmpty()) {
             existingUser.setHelpDeskCaseReferences(String.join(",", idPortenUser.getHelpDeskCaseReferences()));
+        } else {
+            existingUser.setHelpDeskCaseReferences(null);
         }
 
         UserEntity savedUser = userRepository.save(existingUser);

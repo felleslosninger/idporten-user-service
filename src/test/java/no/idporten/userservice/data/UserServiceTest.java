@@ -9,10 +9,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.Instant;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -51,8 +48,8 @@ public class UserServiceTest {
     @DisplayName("When update a user")
     public class UpdateUserTest {
         @Test
-        @DisplayName("by person-identifier then updated user is returned")
-        public void testUpdateUser() {
+        @DisplayName("by person-identifier with changed status then updated user is returned")
+        public void testUpdateUserStatus() {
             String personIdentifier = "1263";
             UUID uuid = UUID.randomUUID();
             IDPortenUser user = IDPortenUser.builder().id(uuid).pid(personIdentifier).closedCode("SPERRET").build();
@@ -65,6 +62,44 @@ public class UserServiceTest {
             assertNotNull(userSaved.getId());
             assertEquals(personIdentifier, userSaved.getPid());
             assertEquals(user.getClosedCode(), userSaved.getClosedCode());
+            verify(userRepository).save(any(UserEntity.class));
+        }
+
+        @Test
+        @DisplayName("by person-identifier with empty helpDeskCaseReferences then updated user is returned with empty helpDeskCaseReferences")
+        public void testUpdateUserNullHelpDeskCaseReferences() {
+            String personIdentifier = "1263";
+            UUID uuid = UUID.randomUUID();
+            IDPortenUser user = IDPortenUser.builder().id(uuid).pid(personIdentifier).helpDeskCaseReferences(Collections.emptyList()).build();
+
+            UserEntity userEntity = UserEntity.builder().personIdentifier(personIdentifier).uuid(uuid).build();
+            when(userRepository.findByUuid(uuid)).thenReturn(Optional.ofNullable(userEntity));
+            when(userRepository.save(any(UserEntity.class))).thenReturn(userEntity);
+            IDPortenUser userSaved = userService.updateUser(user);
+            assertNotNull(userSaved);
+            assertNotNull(userSaved.getId());
+            assertEquals(personIdentifier, userSaved.getPid());
+            assertTrue(userSaved.getHelpDeskCaseReferences().isEmpty());
+            verify(userRepository).save(any(UserEntity.class));
+        }
+        @Test
+        @DisplayName("by person-identifier with helpDeskCaseReferences list then updated user is returned with same helpDeskCaseReferences list")
+        public void testUpdateUserHelpDeskCaseReferences() {
+            String personIdentifier = "1263";
+            UUID uuid = UUID.randomUUID();
+            List<String> helpDeskCaseReferences = new ArrayList<>();
+            helpDeskCaseReferences.add("123");
+            helpDeskCaseReferences.add("456");
+            IDPortenUser user = IDPortenUser.builder().id(uuid).pid(personIdentifier).helpDeskCaseReferences(helpDeskCaseReferences).build();
+
+            UserEntity userEntity = UserEntity.builder().personIdentifier(personIdentifier).uuid(uuid).build();
+            when(userRepository.findByUuid(uuid)).thenReturn(Optional.ofNullable(userEntity));
+            when(userRepository.save(any(UserEntity.class))).thenReturn(userEntity);
+            IDPortenUser userSaved = userService.updateUser(user);
+            assertNotNull(userSaved);
+            assertNotNull(userSaved.getId());
+            assertEquals(personIdentifier, userSaved.getPid());
+            assertTrue(userSaved.getHelpDeskCaseReferences().size() == 2 );
             verify(userRepository).save(any(UserEntity.class));
         }
     }
