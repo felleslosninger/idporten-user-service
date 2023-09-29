@@ -2,6 +2,7 @@ package no.idporten.userservice.data;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.time.Instant;
 import java.util.*;
@@ -73,7 +74,7 @@ public class UserService {
             existingUser.setClosedCodeUpdatedAtEpochMs(Instant.now().toEpochMilli());
             existingUser.setActive(false);
         }
-        if (!idPortenUser.getHelpDeskCaseReferences().isEmpty()) {
+        if (!CollectionUtils.isEmpty(idPortenUser.getHelpDeskCaseReferences())) {
             existingUser.setHelpDeskCaseReferences(String.join(",", idPortenUser.getHelpDeskCaseReferences()));
         } else {
             existingUser.setHelpDeskCaseReferences(null);
