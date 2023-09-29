@@ -29,7 +29,7 @@ import java.util.List;
 /**
  * API for login operations: checking user status, creating user at first login, and updating logins.
  */
-@Tag(name = "login-api", description = "API for login services")
+@Tag(name = "login-api", description = "NOT AVAILABLE: API for login services")
 @ApiResponses(value = {
         @ApiResponse(responseCode = "400", description = "Invalid request", content = @Content(examples = {
                 @ExampleObject(description = "Error response", value = LoginApiController.errorResponseExample)
@@ -68,7 +68,7 @@ public class LoginApiController {
      * @return list of found users
      */
     @Operation(
-            summary = "Search for users",
+            summary = "NOT AVAILABLE - Search for users",
             description = "Search for users using external references",
             tags = {"login-api"},
             security = @SecurityRequirement(name = "basic_auth"),
@@ -90,7 +90,7 @@ public class LoginApiController {
      * @param request new user
      * @return created user
      */
-    @Operation(summary = "Create a new user", description = "Create a new user", tags = {"login-api"}, security = @SecurityRequirement(name = "basic_auth"))
+    @Operation(summary = "NOT AVAILABLE - Create a new user", description = "Create a new user", tags = {"login-api"}, security = @SecurityRequirement(name = "basic_auth"))
     @AuditMessage(AuditID.LOGIN_USER_CREATED)
     @PostMapping(path = "/login/v1/users/", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<UserResource> createUser(@Valid @RequestBody CreateUserRequest request) {
@@ -104,7 +104,7 @@ public class LoginApiController {
      * @param request new user login
      * @return updates user
      */
-    @Operation(summary = "Update user logins", description = "Update user logins with a new login", tags = {"login-api"}, security = @SecurityRequirement(name = "basic_auth"))
+    @Operation(summary = "NOT AVAILABLE - Update user logins", description = "Update user logins with a new login", tags = {"login-api"}, security = @SecurityRequirement(name = "basic_auth"))
     @AuditMessage(AuditID.LOGIN_USER_LOGGEDIN)
     @PostMapping(path = "/login/v1/users/{id}/logins", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<UserResource> updateUserLogins(@UUID(message = "Invalid user UUID in path") @PathVariable("id") String userId,
