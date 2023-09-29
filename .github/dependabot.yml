@@ -11,9 +11,14 @@ registries:
     username: ${{secrets.MAVEN_USER}}
     password: ${{secrets.MAVEN_PASSWORD}}
 updates:
-  - package-ecosystem: "maven" # See documentation for possible values
+  - package-ecosystem: "docker"
+    directory: "/docker"
+    schedule:
+      interval: "daily"
+  - package-ecosystem: "maven"
     directory: "/" # Location of package manifests
     registries:
       - maven-github
     schedule:
       interval: "daily"
+    open-pull-requests-limit: 10
