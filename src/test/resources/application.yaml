@@ -12,6 +12,7 @@ spring:
     generate-ddl: false
     show-sql: false
     database-platform: org.hibernate.dialect.H2Dialect
+    open-in-view: false
   flyway:
     table: flyway_schema_history
   security:
@@ -50,7 +51,8 @@ management:
         enabled: false
   metrics:
     tags:
-      application: "idporten-user-service"
+      application: ${spring.application.name}
+      environment: ${spring.application.environment}
 
 # Swagger with springdoc
 springdoc:
@@ -69,9 +71,6 @@ springdoc:
 
 # App-specific config
 idporten-user-service:
-  audit:
-    application-name: idporten-user-service
-    audit-log-dir:
   features:
     allow-real-pid: false
     allow-synthetic-pid: true

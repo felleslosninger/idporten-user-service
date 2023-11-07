@@ -1,4 +1,4 @@
-FROM maven:3.8-eclipse-temurin-17 as builder
+FROM maven:3.9-eclipse-temurin-21 as builder
 
 ARG GIT_PACKAGE_TOKEN
 ARG GIT_PACKAGE_USERNAME
@@ -13,7 +13,7 @@ COPY src /home/app/src
 RUN --mount=type=cache,target=/root/.m2/repository mvn -f /home/app/pom.xml clean package -Dmaven.test.skip=true -Dmaven.gitcommitid.skip=true
 
 
-FROM eclipse-temurin:17-jre-jammy
+FROM eclipse-temurin:21-jre-jammy
 
 ARG APPLICATION=idporten-user-service
 RUN mkdir /var/log/${APPLICATION}

@@ -124,7 +124,7 @@ public class UserServiceTest {
 
         @Test
         @DisplayName("by person-identifier then one user is returned")
-        public void testfindUserByPid() {
+        public void testSearchUsersByPid() {
             String personIdentifier = "1263";
 
             UserEntity userEntity = UserEntity.builder().personIdentifier(personIdentifier).uuid(UUID.randomUUID()).build();
@@ -132,6 +132,20 @@ public class UserServiceTest {
             List<IDPortenUser> usersFound = userService.searchForUser(personIdentifier);
             assertNotNull(usersFound);
             assertEquals(1, usersFound.size());
+            verify(userRepository).findByPersonIdentifier(personIdentifier);
+
+        }
+
+        @Test
+        @DisplayName("by person-identifier then one user is returned")
+        public void testfindFirstUserByPid() {
+            String personIdentifier = "1263";
+
+            UserEntity userEntity = UserEntity.builder().personIdentifier(personIdentifier).uuid(UUID.randomUUID()).build();
+            when(userRepository.findByPersonIdentifier(personIdentifier)).thenReturn(Optional.of(userEntity));
+            IDPortenUser userFound = userService.findFirstUser(personIdentifier);
+            assertNotNull(userFound);
+            assertEquals(personIdentifier, userFound.getPid());
             verify(userRepository).findByPersonIdentifier(personIdentifier);
 
         }

@@ -4,7 +4,28 @@ server:
 management:
   server:
     port:
+logging:
+  level:
+    org:
+      hibernate:
+        stat: DEBUG
+        SQL: DEBUG
+        type:
+          descriptor:
+            sql:
+              BasicBinder: TRACE
+        orm:
+          jdbc:
+            bind: TRACE
 spring:
+  jpa:
+    properties:
+      hibernate:
+        generate_statistics: true
+        dialect: org.hibernate.dialect.MariaDBDialect
+        format_sql: true
+        show_sql: true
+    show-sql: true
   datasource:
     url: "jdbc:mariadb://db-us:3306/idporten_user"
     driver-class-name: org.mariadb.jdbc.Driver
