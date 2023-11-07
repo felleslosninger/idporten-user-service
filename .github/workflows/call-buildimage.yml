@@ -18,7 +18,7 @@ jobs:
     uses: felleslosninger/eid-github-workflows/.github/workflows/spring-boot-build-publish-image.yml@main
     with:
       image-name: idporten-user-service
-      java-version: 17
+      java-version: 21
     secrets:
       maven-user: ${{ secrets.MAVEN_USER }}
       maven-password: ${{ secrets.MAVEN_PASSWORD }}
