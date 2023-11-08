@@ -53,6 +53,16 @@ public class UserService {
         return new IDPortenUser(userSaved);
     }
 
+    @Transactional
+    public IDPortenUser createStatusUser(IDPortenUser idPortenUser) {
+        if (idPortenUser.getId() != null) {
+            throw UserServiceException.invalidUserData("User id must be assigned by server.");
+        }
+        UserEntity user = toEntity(idPortenUser);
+        UserEntity userSaved = userRepository.save(user);
+        return new IDPortenUser(userSaved);
+    }
+
     public UserEntity toEntity(IDPortenUser user) {
         UserEntity.UserEntityBuilder builder = UserEntity.builder();
         builder.personIdentifier(user.getPid()).uuid(user.getId()).active(user.isActive());
