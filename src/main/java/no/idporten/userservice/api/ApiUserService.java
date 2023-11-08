@@ -9,7 +9,6 @@ import no.idporten.userservice.api.login.CreateUserRequest;
 import no.idporten.userservice.api.login.UpdateUserLoginRequest;
 import no.idporten.userservice.data.IDPortenUser;
 import no.idporten.userservice.data.Login;
-import no.idporten.userservice.data.UserEntity;
 import no.idporten.userservice.data.UserService;
 import no.idporten.userservice.data.UserServiceException;
 import no.idporten.validators.identifier.PersonIdentifierValidator;
