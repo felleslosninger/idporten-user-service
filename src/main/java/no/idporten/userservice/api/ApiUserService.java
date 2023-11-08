@@ -80,28 +80,28 @@ public class ApiUserService {
         IDPortenUser idPortenUser = userService.findUser(UUID.fromString(userId));
         validateUserExists(idPortenUser);
         String closedCode = StringUtils.hasText(updateUserStatusRequest.getClosedCode()) ? updateUserStatusRequest.getClosedCode() : null;
-        if (closedCode == null) {
-            idPortenUser.setActive(true);
-            idPortenUser.setClosedCode(null);
-            idPortenUser.setClosedCodeLastUpdated(null);
-        } else {
-            idPortenUser.setActive(false);
-            idPortenUser.setClosedCode(closedCode);
-            idPortenUser.setClosedCodeLastUpdated(Clock.systemUTC().instant());
-        }
+        idPortenUser = setStatus(idPortenUser, closedCode);
         return convert(userService.updateUser(idPortenUser));
     }
 
     @Transactional
     public UserResource updateUserPidStatus(UpdatePidStatusRequest updateUserStatusRequest) {
+        String closedCode = StringUtils.hasText(updateUserStatusRequest.getClosedCode()) ? updateUserStatusRequest.getClosedCode() : null;
         IDPortenUser idPortenUser = userService.findFirstUser(updateUserStatusRequest.getPersonIdentifier());
         if(idPortenUser == null){
             // create user
             IDPortenUser newUser = IDPortenUser.builder().pid(updateUserStatusRequest.getPersonIdentifier()).active(true).build();
+            newUser = setStatus(newUser, closedCode);
             idPortenUser = userService.createUser(newUser);
+        }else{
+            // update user
+            idPortenUser = setStatus(idPortenUser, closedCode);
+            idPortenUser = userService.updateUser(idPortenUser);
         }
-        validateUserExists(idPortenUser);
-        String closedCode = StringUtils.hasText(updateUserStatusRequest.getClosedCode()) ? updateUserStatusRequest.getClosedCode() : null;
+        return convert(idPortenUser);
+    }
+
+    private IDPortenUser setStatus(IDPortenUser idPortenUser,String closedCode) {
         if (closedCode == null) {
             idPortenUser.setActive(true);
             idPortenUser.setClosedCode(null);
@@ -111,7 +111,7 @@ public class ApiUserService {
             idPortenUser.setClosedCode(closedCode);
             idPortenUser.setClosedCodeLastUpdated(Clock.systemUTC().instant());
         }
-        return convert(userService.updateUser(idPortenUser));
+        return idPortenUser;
     }
 
     protected void validatePersonIdentifier(String personIdentifier) {
