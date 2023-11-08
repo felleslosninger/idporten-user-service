@@ -142,4 +142,23 @@ public class AdminApiController {
         return ResponseEntity.ok(apiUserService.updateUserStatus(id, request));
     }
 
+    @Operation(
+            summary = "Update status for user",
+            description = "Update user status based on external id. Note that if the user does not exist, it will be created.",
+            tags = {"admin-api"},
+            security = @SecurityRequirement(name = "access_token"),
+            parameters = {
+                    @Parameter(in = ParameterIn.PATH, name = "pid", required = true, description = "User external id")
+            })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "User status is updated"),
+            @ApiResponse(responseCode = "404", description = "User is not found")
+    })
+    @PreAuthorize("hasAuthority('SCOPE_idporteninternal:user.write')")
+    @AuditMessage(AuditID.ADMIN_USER_STATUS_UPDATED)
+    @PutMapping(path = "/admin/v1/users/status", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<UserResource> updateUserStatus(@Valid @RequestBody UpdatePidStatusRequest request) {
+        return ResponseEntity.ok(apiUserService.updateUserPidStatus(request));
+    }
+
 }

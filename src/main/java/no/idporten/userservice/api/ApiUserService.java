@@ -3,6 +3,7 @@ package no.idporten.userservice.api;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import no.idporten.userservice.api.admin.UpdateAttributesRequest;
+import no.idporten.userservice.api.admin.UpdatePidStatusRequest;
 import no.idporten.userservice.api.admin.UpdateStatusRequest;
 import no.idporten.userservice.api.login.CreateUserRequest;
 import no.idporten.userservice.api.login.UpdateUserLoginRequest;
@@ -13,6 +14,7 @@ import no.idporten.userservice.data.UserServiceException;
 import no.idporten.validators.identifier.PersonIdentifierValidator;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
@@ -28,6 +30,7 @@ import java.util.stream.Collectors;
  */
 @RequiredArgsConstructor
 @Service
+@Transactional(readOnly = true) 
 public class ApiUserService {
 
     private final UserService userService;
@@ -47,16 +50,19 @@ public class ApiUserService {
         return userService.searchForUser(searchRequest.getPersonIdentifier()).stream().map(this::convert).collect(Collectors.toList());
     }
 
+    @Transactional
     public UserResource createUser(CreateUserRequest createUserRequest) {
         validatePersonIdentifier(createUserRequest.getPersonIdentifier());
         IDPortenUser idPortenUser = IDPortenUser.builder().pid(createUserRequest.getPersonIdentifier()).active(true).build();
         return convert(userService.createUser(idPortenUser));
     }
 
+    @Transactional
     public UserResource updateUserLogins(String id, UpdateUserLoginRequest updateUserLoginRequest) {
         return convert(userService.updateUserWithEid(UUID.fromString(id), Login.builder().eidName(updateUserLoginRequest.getEidName()).build()));
     }
 
+    @Transactional
     public UserResource updateUserAttributes(String id, UpdateAttributesRequest updateAttributesRequest) {
         IDPortenUser idPortenUser = userService.findUser(UUID.fromString(id));
         validateUserExists(idPortenUser);
@@ -69,10 +75,33 @@ public class ApiUserService {
         return convert(idPortenUser);
     }
 
+    @Transactional
     public UserResource updateUserStatus(String userId, UpdateStatusRequest updateUserStatusRequest) {
         IDPortenUser idPortenUser = userService.findUser(UUID.fromString(userId));
         validateUserExists(idPortenUser);
         String closedCode = StringUtils.hasText(updateUserStatusRequest.getClosedCode()) ? updateUserStatusRequest.getClosedCode() : null;
+        idPortenUser = setStatus(idPortenUser, closedCode);
+        return convert(userService.updateUser(idPortenUser));
+    }
+
+    @Transactional
+    public UserResource updateUserPidStatus(UpdatePidStatusRequest updateUserStatusRequest) {
+        String closedCode = StringUtils.hasText(updateUserStatusRequest.getClosedCode()) ? updateUserStatusRequest.getClosedCode() : null;
+        IDPortenUser idPortenUser = userService.findFirstUser(updateUserStatusRequest.getPersonIdentifier());
+        if(idPortenUser == null){
+            // create user
+            IDPortenUser newUser = IDPortenUser.builder().pid(updateUserStatusRequest.getPersonIdentifier()).active(true).build();
+            newUser = setStatus(newUser, closedCode);
+            idPortenUser = userService.createUser(newUser);
+        }else{
+            // update user
+            idPortenUser = setStatus(idPortenUser, closedCode);
+            idPortenUser = userService.updateUser(idPortenUser);
+        }
+        return convert(idPortenUser);
+    }
+
+    private IDPortenUser setStatus(IDPortenUser idPortenUser,String closedCode) {
         if (closedCode == null) {
             idPortenUser.setActive(true);
             idPortenUser.setClosedCode(null);
@@ -82,7 +111,7 @@ public class ApiUserService {
             idPortenUser.setClosedCode(closedCode);
             idPortenUser.setClosedCodeLastUpdated(Clock.systemUTC().instant());
         }
-        return convert(userService.updateUser(idPortenUser));
+        return idPortenUser;
     }
 
     protected void validatePersonIdentifier(String personIdentifier) {

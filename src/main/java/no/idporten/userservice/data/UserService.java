@@ -2,6 +2,7 @@ package no.idporten.userservice.data;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.time.Instant;
@@ -9,6 +10,7 @@ import java.util.*;
 
 @RequiredArgsConstructor
 @Service
+@Transactional(readOnly = true)
 public class UserService {
 
     private final UserRepository userRepository;
@@ -29,11 +31,20 @@ public class UserService {
         return users.stream().map(IDPortenUser::new).toList();
     }
 
+    public IDPortenUser findFirstUser(String personIdentifier) {
+        Optional<UserEntity> user = userRepository.findByPersonIdentifier(personIdentifier);
+        if (user.isEmpty()) {
+            return null;
+        }
+        return new IDPortenUser(user.get());
+    }
+
+    @Transactional
     public IDPortenUser createUser(IDPortenUser idPortenUser) {
         if (idPortenUser.getId() != null) {
             throw UserServiceException.invalidUserData("User id must be assigned by server.");
         }
-        if (! searchForUser(idPortenUser.getPid()).isEmpty()) {
+        if (findFirstUser(idPortenUser.getPid()) != null) {
             throw UserServiceException.duplicateUser();
         }
         idPortenUser.setActive(Boolean.TRUE);
@@ -56,6 +67,7 @@ public class UserService {
         return builder.build();
     }
 
+    @Transactional
     public IDPortenUser updateUser(IDPortenUser idPortenUser) {
         if (idPortenUser.getId() == null) {
             throw UserServiceException.invalidUserData("User id is mandatory.");
@@ -84,6 +96,7 @@ public class UserService {
         return new IDPortenUser(savedUser);
     }
 
+    @Transactional
     public IDPortenUser updateUserWithEid(UUID userUuid, Login eid) {
         Optional<UserEntity> byUuid = userRepository.findByUuid(userUuid);
         if (byUuid.isEmpty()) {
@@ -112,6 +125,7 @@ public class UserService {
         return null;
     }
 
+    @Transactional
     public IDPortenUser deleteUser(UUID userUuid) {
         Optional<UserEntity> userExists = userRepository.findByUuid(userUuid);
         if (userExists.isEmpty()) {
@@ -122,6 +136,7 @@ public class UserService {
         return new IDPortenUser(userExists.get());
     }
 
+    @Transactional
     public IDPortenUser changePid(String currentPid, String newPid) {
         Optional<UserEntity> userExists = userRepository.findByPersonIdentifier(currentPid);
         if (userExists.isEmpty()) {
