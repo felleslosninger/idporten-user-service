@@ -10,7 +10,7 @@
     </parent>
     <groupId>no.idporten</groupId>
     <artifactId>idporten-user-service</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>DEV-SNAPSHOT</version>
     <name>idporten-user-service</name>
     <description>ID-porten user service</description>
     <properties>

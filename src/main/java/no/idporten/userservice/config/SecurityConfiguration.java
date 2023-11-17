@@ -37,11 +37,11 @@ public class SecurityConfiguration {
         http
                 .csrf(csrf -> csrf.disable())
                 .headers(headers -> headers.frameOptions(frameOptions -> frameOptions.sameOrigin()))
-                .addFilterBefore(tokenAuthenticationFilter, BearerTokenAuthenticationFilter.class)
+                .addFilterBefore(tokenAuthenticationFilter, BearerTokenAuthenticationFilter.class) // check and verify api-key for login
                 .sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeRequests((authorize) -> authorize
-                        .requestMatchers("/login/**").hasRole("USER")
-                        .requestMatchers("/admin/**").hasAnyAuthority("SCOPE_idporteninternal:user.read", "SCOPE_idporteninternal:user.write")
+                        .requestMatchers("/login/**").hasRole("USER") // verify user has this role if found user in HttpFilter
+                        .requestMatchers("/admin/**").hasAnyAuthority("SCOPE_idporteninternal:user.read", "SCOPE_idporteninternal:user.write") //verify correct scope if has bearer token
                         .requestMatchers(openEndpoints.stream().toArray(String[]::new)).permitAll()
                         .anyRequest().authenticated()
                 )
