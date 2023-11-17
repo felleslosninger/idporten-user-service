@@ -16,9 +16,7 @@ spring:
   flyway:
     table: flyway_schema_history
   security:
-    user:
-      name: user
-      password: password
+    token: mytoken
 
 digdir:
   audit:
@@ -44,9 +42,7 @@ management:
         readiness:
           include: db
         liveness:
-          include: 
-        diskspace:
-          enabled: false
+          include:
       probes:
         enabled: false
   metrics:

@@ -14,6 +14,7 @@ import org.springframework.util.StringUtils;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -50,20 +51,16 @@ public class CustomOAuth2AuthenticationEntryPoint implements AuthenticationEntry
                 }
                 status = ((BearerTokenError) oAuth2Error).getHttpStatus();
             }
-        } else if (e instanceof InsufficientAuthenticationException authenticationException) {
+            wwwAuthenticate = computeWWWAuthenticateHeaderValue(parameters);
+            response.addHeader(AUTHENTICATION_HEADER, wwwAuthenticate);
+        } else if (e instanceof InsufficientAuthenticationException) {
             // No authentication is provided for either /login or /admin.
-            if (request.getRequestURI().contains("login")) {
-                wwwAuthenticate = "Basic realm=\"Realm\"";
-            }
-            errorDescription = e.getMessage();
+            errorDescription = e.getMessage() + ", missing api-key";
         }
         JSONObject message = new JSONObject();
         message.put("error", error);
         message.put("error_description", errorDescription);
 
-        if (null == wwwAuthenticate) wwwAuthenticate = computeWWWAuthenticateHeaderValue(parameters);
-
-        response.addHeader(AUTHENTICATION_HEADER, wwwAuthenticate);
         response.setStatus(status.value());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.getWriter().write(message.toJSONString());

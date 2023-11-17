@@ -10,9 +10,7 @@ spring:
     username: sa
     password: password
   security:
-    user:
-      name: user
-      password: pwd
+    token: mytoken
     oauth2:
       resource:
         jwt:

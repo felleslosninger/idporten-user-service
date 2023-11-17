@@ -10,15 +10,10 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import java.util.List;
 
@@ -30,11 +25,7 @@ public class SecurityConfiguration {
 
     private final WebSecurityProperties webSecurityProperties;
 
-    @Value("${spring.security.user.name}")
-    private String basicUsername;
-
-    @Value("${spring.security.user.password}")
-    private String basicPassword;
+    private final TokenAuthenticationFilter tokenAuthenticationFilter;
 
     @Value("${spring.security.oauth2.resource.jwt.jwk-set-uri}")
     private String jwkSetUri;
@@ -43,44 +34,26 @@ public class SecurityConfiguration {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         List<String> openEndpoints = webSecurityProperties.getGetAllowed();
 
-
         http
-                .csrf().disable()
-                .headers().frameOptions().sameOrigin()
-                .and()
-                .authorizeHttpRequests((authorize) -> authorize
-                        .requestMatchers(new AntPathRequestMatcher("/login/**")).hasAnyRole("USER")
-                        .requestMatchers(new AntPathRequestMatcher("/admin/**")).hasAnyAuthority("SCOPE_idporteninternal:user.read", "SCOPE_idporteninternal:user.write")
-                        .requestMatchers(openEndpoints.stream().map(AntPathRequestMatcher::new).toList().toArray(AntPathRequestMatcher[]::new)).permitAll()
+                .csrf(csrf -> csrf.disable())
+                .headers(headers -> headers.frameOptions(frameOptions -> frameOptions.sameOrigin()))
+                .addFilterBefore(tokenAuthenticationFilter, BearerTokenAuthenticationFilter.class)
+                .sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeRequests((authorize) -> authorize
+                        .requestMatchers("/login/**").hasRole("USER")
+                        .requestMatchers("/admin/**").hasAnyAuthority("SCOPE_idporteninternal:user.read", "SCOPE_idporteninternal:user.write")
+                        .requestMatchers(openEndpoints.stream().toArray(String[]::new)).permitAll()
                         .anyRequest().authenticated()
                 )
-
-                .oauth2ResourceServer().jwt()
-                .and()
-                .authenticationEntryPoint(new CustomOAuth2AuthenticationEntryPoint())
-                .and()
-                .httpBasic()
-                .and()
-                .sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+                // will trigger if Bearer token is supplied in Authentication header regardless of what is path is specified in requestMatchers above
+                .oauth2ResourceServer((oauth2RS) -> oauth2RS
+                        .authenticationEntryPoint(new CustomOAuth2AuthenticationEntryPoint())
+                        .jwt((jwt) -> jwt.decoder(jwtDecoder()))
+                );
 
         return http.build();
     }
 
-
-    @Bean
-    public InMemoryUserDetailsManager userDetailsService() {
-        UserDetails user = User.withUsername(basicUsername)
-                .password(passwordEncoder().encode(basicPassword))
-                .authorities("ROLE_USER")
-                .build();
-        return new InMemoryUserDetailsManager(user);
-    }
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder(7);
-    }
 
     @Bean
     @ConditionalOnMissingBean
