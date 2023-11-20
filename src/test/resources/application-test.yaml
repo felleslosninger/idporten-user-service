@@ -11,6 +11,9 @@ spring:
     password: password
   security:
     token: mytoken
+    user:
+      name: user
+      password: password
     oauth2:
       resource:
         jwt:
