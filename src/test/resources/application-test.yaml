@@ -10,7 +10,7 @@ spring:
     username: sa
     password: password
   security:
-    token: mytoken
+    api-key: mytoken
     user:
       name: user
       password: password

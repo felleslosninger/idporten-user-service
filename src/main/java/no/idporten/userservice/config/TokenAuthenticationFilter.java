@@ -27,8 +27,10 @@ import java.util.Collection;
 @Component
 public class TokenAuthenticationFilter extends HttpFilter {
 
-    @Value("${spring.security.token}")
-    private String token;
+    public static final String API_KEY_NAME = "api-key";
+
+    @Value("${spring.security.api-key}")
+    private String apiKey;
 
     @Value("${spring.security.user.name}") //TODO: remove this when login is updated with api-key
     private String basicUsername;
@@ -42,9 +44,9 @@ public class TokenAuthenticationFilter extends HttpFilter {
 
         if (request.getRequestURI().contains("login")) {
 
-            String apiKey = request.getHeader("api-key");
+            String apiKey = request.getHeader(API_KEY_NAME);
             boolean isBasicAuth = isBasicAuth(request);
-            if ((apiKey == null || !apiKey.equals(token)) && !isBasicAuth) {
+            if ((apiKey == null || !apiKey.equals(apiKey)) && !isBasicAuth) {
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             } else {
                 // create default user and add to context

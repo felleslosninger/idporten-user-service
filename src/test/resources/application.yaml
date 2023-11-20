@@ -16,7 +16,7 @@ spring:
   flyway:
     table: flyway_schema_history
   security:
-    token: mytoken
+    api-key: mytoken
 
 digdir:
   audit:
