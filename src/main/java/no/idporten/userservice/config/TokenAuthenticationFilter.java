@@ -44,9 +44,9 @@ public class TokenAuthenticationFilter extends HttpFilter {
 
         if (request.getRequestURI().contains("login")) {
 
-            String apiKey = request.getHeader(API_KEY_NAME);
+            String apiKeyRecived = request.getHeader(API_KEY_NAME);
             boolean isBasicAuth = isBasicAuth(request);
-            if ((apiKey == null || !apiKey.equals(apiKey)) && !isBasicAuth) {
+            if ((apiKey == null || !apiKey.equals(apiKeyRecived)) && !isBasicAuth) {
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             } else {
                 // create default user and add to context
