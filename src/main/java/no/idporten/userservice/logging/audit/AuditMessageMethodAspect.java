@@ -23,6 +23,8 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 
+import static no.idporten.userservice.config.TokenAuthenticationFilter.API_KEY_NAME;
+
 @Aspect
 @Component
 @RequiredArgsConstructor
@@ -45,12 +47,14 @@ public class AuditMessageMethodAspect {
         String username = null;
         if (authorization != null && authorization.startsWith("Bearer")) {
             accessToken = new JwtMasker().mask(authorization.replaceFirst("Bearer", "").trim());
-        } else if (authorization != null && authorization.startsWith("Basic")) {
+        } else if (authorization != null && authorization.startsWith("Basic")) { // TODO: remove this when login is updated with api-key
             String userAndPasswordEncoded = authorization.replaceFirst("Basic", "").trim();
             String usernameAndPassword = new String(Base64.getDecoder().decode(userAndPasswordEncoded));
             if (usernameAndPassword.contains(":")) {
                 username = usernameAndPassword.substring(0, usernameAndPassword.indexOf(":"));
             }
+        } else if(request.getHeader(API_KEY_NAME) != null){
+            username = API_KEY_NAME;
         }
 
 

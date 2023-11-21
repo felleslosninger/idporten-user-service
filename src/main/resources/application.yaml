@@ -13,10 +13,6 @@ spring:
     open-in-view: false
   flyway:
     table: flyway_schema_history
-  security:
-    user:
-      name: user
-      password: password
   application:
     name: idporten-user-service
     environment: default
@@ -37,8 +33,6 @@ management:
           include: db
         liveness:
           include: livenessState
-        diskspace:
-          enabled: false
       probes:
         enabled: true
   metrics:

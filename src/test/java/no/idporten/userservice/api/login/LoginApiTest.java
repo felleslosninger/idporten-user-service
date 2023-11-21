@@ -92,6 +92,40 @@ public class LoginApiTest {
 
         @SneakyThrows
         @Test
+        @DisplayName("then with api-key and no results gives an empty list")
+        void testEmptyResultWithApikey() {
+            final String personIdentifier = TestData.randomSynpid();
+            mockMvc.perform(
+                            post("/login/v1/users/.search")
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .accept(MediaType.APPLICATION_JSON)
+                                    .header("api-key","mytoken")
+                                    .content(searchRequest(personIdentifier)))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$").isArray())
+                    .andExpect(jsonPath("$").isEmpty());
+            verify(auditLogger, times(1)).log(auditEntryCaptor.capture());
+            assertTrue(auditEntryCaptor.getValue().getAuditId().auditId().endsWith(AuditID.LOGIN_USER_SEARCHED.getAuditName()));
+        }
+
+        @SneakyThrows
+        @Test
+        @DisplayName("then with invalid api-key and no results gives an error response")
+        void testInvalidApikey() {
+            final String personIdentifier = TestData.randomSynpid();
+            mockMvc.perform(
+                            post("/login/v1/users/.search")
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .accept(MediaType.APPLICATION_JSON)
+                                    .header("api-key","invalid")
+                                    .content(searchRequest(personIdentifier)))
+                    .andExpect(status().isUnauthorized())
+                    .andExpect(jsonPath("$.error").value("access_denied"))
+                    .andExpect(jsonPath("$.error_description", Matchers.containsString("Full authentication is required to access this resource")));
+            verify(auditLogger, never()).log(any());        }
+
+        @SneakyThrows
+        @Test
         @DisplayName("then no results gives an empty list")
         @WithMockUser(roles = "USER")
         void testEmptyResult() {
