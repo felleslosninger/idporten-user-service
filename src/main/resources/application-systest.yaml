@@ -18,9 +18,6 @@ spring:
       max-lifetime: 1000 # maximum lifetime in milliseconds of a connection in the pool after it is closed.
   security:
     api-key: ${API_KEY}
-    user:
-      name: ${API_USER}
-      password: ${API_USER_PASSWORD}
     oauth2:
       resource:
         jwt:
