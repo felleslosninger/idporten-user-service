@@ -90,9 +90,9 @@ public class ApiUserService {
         IDPortenUser idPortenUser = userService.findFirstUser(updateUserStatusRequest.getPersonIdentifier());
         if(idPortenUser == null){
             // create user
-            IDPortenUser newUser = IDPortenUser.builder().pid(updateUserStatusRequest.getPersonIdentifier()).active(true).build();
+            IDPortenUser newUser = IDPortenUser.builder().pid(updateUserStatusRequest.getPersonIdentifier()).build();
             newUser = setStatus(newUser, closedCode);
-            idPortenUser = userService.createUser(newUser);
+            idPortenUser = userService.createStatusUser(newUser);
         }else{
             // update user
             idPortenUser = setStatus(idPortenUser, closedCode);

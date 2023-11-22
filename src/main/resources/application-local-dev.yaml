@@ -17,6 +17,7 @@ spring:
       idle-timeout: 1000 #maximum idle time for connection
       max-lifetime: 500 # maximum lifetime in milliseconds of a connection in the pool after it is closed.
   security:
+    api-key: mytoken
     user:
       name: user
       password: password
