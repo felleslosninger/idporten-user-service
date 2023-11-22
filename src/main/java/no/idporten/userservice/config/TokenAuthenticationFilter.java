@@ -6,6 +6,8 @@ import jakarta.servlet.annotation.WebFilter;
 import jakarta.servlet.http.HttpFilter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -15,6 +17,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
+import org.springframework.validation.annotation.Validated;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -23,11 +26,13 @@ import java.util.Collection;
 @WebFilter(urlPatterns = "/login/*")
 @Order(Ordered.HIGHEST_PRECEDENCE)
 @Component
+@Validated
 public class TokenAuthenticationFilter extends HttpFilter {
 
     public static final String API_KEY_NAME = "api-key";
 
     @Value("${spring.security.api-key}")
+    @NotBlank(message = "api-key must not be blank")
     private String apiKey;
 
     @Override
