@@ -17,9 +17,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.Collection;
 
 @WebFilter(urlPatterns = "/login/*")
@@ -32,12 +30,6 @@ public class TokenAuthenticationFilter extends HttpFilter {
     @Value("${spring.security.api-key}")
     private String apiKey;
 
-    @Value("${spring.security.user.name}") //TODO: remove this when login is updated with api-key
-    private String basicUsername;
-
-    @Value("${spring.security.user.password}") //TODO: remove this when login is updated with api-key
-    private String basicPassword;
-
     @Override
     public void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
         // get api-key from request header
@@ -45,8 +37,7 @@ public class TokenAuthenticationFilter extends HttpFilter {
         if (request.getRequestURI().contains("login")) {
 
             String apiKeyRecived = request.getHeader(API_KEY_NAME);
-            boolean isBasicAuth = isBasicAuth(request);
-            if ((apiKey == null || !apiKey.equals(apiKeyRecived)) && !isBasicAuth) {
+            if (apiKey == null || !apiKey.equals(apiKeyRecived)) {
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             } else {
                 // create default user and add to context
@@ -61,29 +52,4 @@ public class TokenAuthenticationFilter extends HttpFilter {
         chain.doFilter(request, response);
     }
 
-    /**
-     * Check if request is using basic auth and verify it
-     *
-     * TODO: REMOVE when login has changed to api-key
-     *
-     * @param request
-     * @return
-     * @throws UnsupportedEncodingException
-     */
-    private boolean isBasicAuth(HttpServletRequest request) throws UnsupportedEncodingException {
-        String basicauth = request.getHeader("Authorization");
-        if (basicauth == null || !basicauth.startsWith("Basic ")) {
-            return false;
-        }
-        byte[] decoded = Base64.getDecoder().decode(basicauth.substring("Basic ".length()));
-        if (decoded == null) {
-            return false;
-        }
-        String[] credentials = new String(decoded, "UTF-8").split(":");
-        if (credentials == null || credentials.length != 2) {
-            return false;
-        }
-        return basicUsername.equals(credentials[0]) && basicPassword.equals(credentials[1]);
-
-    }
 }

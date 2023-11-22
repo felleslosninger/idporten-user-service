@@ -14,9 +14,6 @@ spring:
     database-platform: org.hibernate.dialect.H2Dialect
   security:
     api-key: mytoken
-    user:
-      name: user
-      password: password
     oauth2:
       resource:
         jwt:
