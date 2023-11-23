@@ -38,9 +38,7 @@ spring:
       idle-timeout: 1000 #maximum idle time for connection
       max-lifetime: 500 # maximum lifetime in milliseconds of a connection in the pool after it is closed.
   security:
-    user:
-      name: docker-user
-      password: docker-password
+    api-key: mytoken-docker
     oauth2:
       resource:
         jwt:

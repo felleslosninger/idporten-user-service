@@ -4,13 +4,17 @@
 [![Build image](https://github.com/felleslosninger/idporten-user-service/actions/workflows/call-buildimage.yml/badge.svg)](https://github.com/felleslosninger/idporten-user-service/actions/workflows/call-buildimage.yml)
 
 
-This application is a service for managing users in ID-porten.
+This application is a service for managing users in ID-porten with two APIs:
+1. /login - for logging in users only available for idporten-login application internally in the namespace
+  * in case of accidentially exposing this endpoint, it is secured by a simple api-key known to idporten-login only
+  * since no TLS inside of the namespace, it has very limited security inside the namespace
+2. /admin - for managing users, available externally for admin-applications secured by Maskinporten (oauth2 token)
 
 ## Requirements
 
 To build and run the application you need:
 
-* JDK 17
+* JDK 21
 * Maven
 
 ## Running the application locally
@@ -40,20 +44,13 @@ a [default configuration](src/main/resources/application.yaml) in the applicatio
 |----------------------------------------------------|---------------|-------------------------------------------------|
 
 
-## allure test report in local
-
-    mvn clean test
-    mv allure-results/ target/  
-    mvn io.qameta.allure:allure-maven:serve
-
 
 ### Required vault values and kubernetes config. Environment variables:
 * DATASOURCE_PASSWORD (password to idporten_user database for user user_service)
-* API_USER (basic-auth for /login access)
-* API_USER_PASSWORD (basic-auth for /login access)
+* API_KEY (api-key for /login access)
 
 ## Runtime dependencies
 * idporten-validators
-* idporten-access-log-spring-boot-starter
+* idporten-access-log-spring-boot-3-starter
 * idporten-log-audit
 
