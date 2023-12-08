@@ -20,6 +20,6 @@ import java.util.List;
 public class UpdateAttributesRequest {
 
     @JsonProperty("help_desk_references")
-    private List<@Pattern(regexp = "(\\d{1,10})", message = "Invalid help desk reference") String> helpDeskReferences;
+    private List<@Pattern(regexp = "([\\d\\s]{1,15})", message = "Invalid help desk reference, only digits and space allowed") String> helpDeskReferences;
 
 }

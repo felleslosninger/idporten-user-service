@@ -21,8 +21,9 @@ public class UpdateAttributesRequestTest {
 
     @BeforeEach
     void setup() {
-        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-        validator = factory.getValidator();
+        try (ValidatorFactory factory = Validation.buildDefaultValidatorFactory()) {
+            validator = factory.getValidator();
+        }
     }
 
     @Test
@@ -52,7 +53,7 @@ public class UpdateAttributesRequestTest {
     @DisplayName("then a list containing valid help desk reference (format e-journal 7 digits and new format TopDesk 1-10 digits) are accepted")
     void testValidReferenceInList() {
         UpdateAttributesRequest request = new UpdateAttributesRequest();
-        request.setHelpDeskReferences(List.of("9876543", "1234567", "1234567890", "1"));
+        request.setHelpDeskReferences(List.of("9876543", "1234567", "1234 567890", "1234 0890", "1"));
         Set<ConstraintViolation<UpdateAttributesRequest>> errors = validator.validate(request);
         assertAll(
                 () -> assertNotNull(errors),
@@ -69,7 +70,7 @@ public class UpdateAttributesRequestTest {
         assertAll(
                 () -> assertNotNull(errors),
                 () -> assertEquals(1, errors.size()),
-                () -> assertEquals("Invalid help desk reference", errors.iterator().next().getMessage())
+                () -> assertEquals("Invalid help desk reference, only digits and space allowed", errors.iterator().next().getMessage())
         );
     }
 
@@ -82,7 +83,7 @@ public class UpdateAttributesRequestTest {
         assertAll(
                 () -> assertNotNull(errors),
                 () -> assertEquals(1, errors.size()),
-                () -> assertEquals("Invalid help desk reference", errors.iterator().next().getMessage())
+                () -> assertEquals("Invalid help desk reference, only digits and space allowed", errors.iterator().next().getMessage())
         );
     }
 
