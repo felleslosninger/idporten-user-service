@@ -50,10 +50,10 @@ public class UpdateAttributesRequestTest {
     }
 
     @Test
-    @DisplayName("then a list containing valid help desk reference (format e-journal 7 digits and new format TopDesk 1-10 digits) are accepted")
+    @DisplayName("then a list containing valid help desk reference (format e-journal 7 digits and new format TopDesk 1-15 digits+space) are accepted")
     void testValidReferenceInList() {
         UpdateAttributesRequest request = new UpdateAttributesRequest();
-        request.setHelpDeskReferences(List.of("9876543", "1234567", "1234 567890", "1234 0890", "1"));
+        request.setHelpDeskReferences(List.of("9876543", "1234567", "1234 0890","2312 167809022", "1"));
         Set<ConstraintViolation<UpdateAttributesRequest>> errors = validator.validate(request);
         assertAll(
                 () -> assertNotNull(errors),
@@ -65,11 +65,11 @@ public class UpdateAttributesRequestTest {
     @DisplayName("then a list containing an invalid help desk reference is rejected")
     void testInvalidReferenceInList() {
         UpdateAttributesRequest request = new UpdateAttributesRequest();
-        request.setHelpDeskReferences(List.of("foo", "1234567"));
+        request.setHelpDeskReferences(List.of("foo", "1234567", "12345678901234567890")); //invalid foo (char) and 12345678901234567890 (too long)
         Set<ConstraintViolation<UpdateAttributesRequest>> errors = validator.validate(request);
         assertAll(
                 () -> assertNotNull(errors),
-                () -> assertEquals(1, errors.size()),
+                () -> assertEquals(2, errors.size()),
                 () -> assertEquals("Invalid help desk reference, only digits and space allowed", errors.iterator().next().getMessage())
         );
     }
