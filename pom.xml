@@ -25,7 +25,7 @@
         <nimbus.jose.jwt.version>9.23</nimbus.jose.jwt.version>
         <idporten-actuator-starter.version>1.1.0</idporten-actuator-starter.version>
         <open.telemetry.version>1.32.0</open.telemetry.version>
-        <mariadb-java-client.version>3.3.1</mariadb-java-client.version>
+        <mariadb-java-client.version>3.3.2</mariadb-java-client.version>
     </properties>
     <dependencies>
         <dependency>
