@@ -3,6 +3,7 @@ package no.idporten.userservice.api;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import no.idporten.userservice.api.admin.UpdateAttributesRequest;
+import no.idporten.userservice.api.admin.UpdatePidAttributesRequest;
 import no.idporten.userservice.api.admin.UpdatePidStatusRequest;
 import no.idporten.userservice.api.admin.UpdateStatusRequest;
 import no.idporten.userservice.api.login.CreateUserRequest;
@@ -19,10 +20,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.time.Clock;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -73,6 +71,29 @@ public class ApiUserService {
         }
         userService.updateUser(idPortenUser);
         return convert(idPortenUser);
+    }
+
+    @Transactional
+    public UserResource updateUserPidAttributes(UpdatePidAttributesRequest request) {
+        IDPortenUser user = userService.findFirstUser(request.getPersonIdentifier());
+        String closedCode = StringUtils.hasText(request.getClosedCode()) ? request.getClosedCode() : null;
+        List<String> helpDeskCaseReference = CollectionUtils.isEmpty(request.getHelpDeskReferences()) ? (new ArrayList<>()) : request.getHelpDeskReferences();
+
+        if (user == null) {
+            user = IDPortenUser.builder().pid(request.getPersonIdentifier()).helpDeskCaseReferences(helpDeskCaseReference).build();
+            user = userService.createStatusUser(user);
+        } else {
+            if (request.getHelpDeskReferences() != null) {
+                user.setHelpDeskCaseReferences(helpDeskCaseReference);
+            }
+        }
+
+        if (request.getClosedCode() != null) {
+            setStatus(user, closedCode);
+        }
+
+        user = userService.updateUser(user);
+        return convert(user);
     }
 
     @Transactional
