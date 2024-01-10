@@ -5,6 +5,7 @@ import jakarta.validation.constraints.Pattern;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import no.idporten.validators.identifier.PersonIdentifier;
 import org.hibernate.validator.constraints.Length;
 
 @Data
@@ -12,6 +13,7 @@ import org.hibernate.validator.constraints.Length;
 @ToString(callSuper = true)
 public class UpdatePidAttributesRequest extends UpdateAttributesRequest {
 
+    @PersonIdentifier(message = "Invalid person identifier")
     @JsonProperty("person_identifier")
     private String personIdentifier;
 

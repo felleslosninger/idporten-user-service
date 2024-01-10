@@ -124,11 +124,11 @@ public class AdminApiController {
 
     @Operation(
             summary = "Update attributes for user",
-            description = "Update user attributes based on external id. Note that if the user does not exist, it will be created.",
+            description = "Update user attributes based on pid. Note that if the user does not exist, it will be created.",
             tags = {"admin-api"},
             security = @SecurityRequirement(name = "access_token"),
             parameters = {
-                    @Parameter(in = ParameterIn.PATH, name = "pid", required = true, description = "User external id")
+                    @Parameter(in = ParameterIn.PATH, name = "pid", required = true, description = "User id")
             })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "User attributes updated"),
