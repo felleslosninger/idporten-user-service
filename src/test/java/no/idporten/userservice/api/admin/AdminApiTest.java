@@ -11,6 +11,7 @@ import no.idporten.userservice.api.UserResource;
 import no.idporten.userservice.api.login.CreateUserRequest;
 import no.idporten.userservice.data.IDPortenUser;
 import no.idporten.userservice.logging.audit.AuditID;
+import org.checkerframework.checker.units.qual.A;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -27,6 +28,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -404,7 +406,7 @@ public class AdminApiTest {
 
     }
 
-    @DisplayName("When using the users endpoint to post user attributes by person_identifier")
+    @DisplayName("When using the endpoint to post user attributes by person_identifier")
     @Nested
     class PostAttributesTest {
 
@@ -418,22 +420,13 @@ public class AdminApiTest {
             return new ObjectMapper().writeValueAsString(UpdatePidAttributesRequest.builder().personIdentifier(pid).closedCode(closedCode).build());
         }
 
-        private String fullRequest(String pid, String closedCode, List<String> helpDeskReference) {
-            String formattedPid = String.format("\"person_identifier\": \"%s\"", pid);
-            String formattedClosedCode = String.format("\"closed_code\": \"%s\"", closedCode);
-            String formattedHelpDeskReferences;
-
-            if (helpDeskReference.size() == 1 || helpDeskReference.getFirst().isEmpty()) {
-                formattedHelpDeskReferences = "\"help_desk_references\": []";
-            } else {
-                formattedHelpDeskReferences = String.format("\"help_desk_references\": [\"%s\", \"%s\"]", helpDeskReference.get(0), helpDeskReference.get(1));
-            }
-
-            return "{" + formattedPid + " , " + formattedClosedCode + " , " + formattedHelpDeskReferences + "}";
+        @SneakyThrows
+        private String fullRequest(String pid, String closedCode, List<String> helpDeskReferences) {
+            return new ObjectMapper().writeValueAsString(UpdatePidAttributesRequest.builder().personIdentifier(pid).closedCode(closedCode).helpDeskReferences(helpDeskReferences).build());
         }
 
         @SneakyThrows
-        @DisplayName("then an invalid request gives an error response")
+        @DisplayName("then a request with an empty person_identifier gives an error response")
         @Test
         void testInvalidRequest() {
             mockMvc.perform(
@@ -474,7 +467,7 @@ public class AdminApiTest {
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .accept(MediaType.APPLICATION_JSON)
                                     .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_idporteninternal:user.write")))
-                                    .content(fullRequest("17860298333", "dead", Arrays.asList("123", "456"))))
+                                    .content(fullRequest("17860298333", "dead", Arrays.asList("123", "456", "789"))))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.id").isNotEmpty())
                     .andExpect(jsonPath("$.person_identifier").value("17860298333"))
@@ -483,7 +476,8 @@ public class AdminApiTest {
                     .andExpect(jsonPath("$.help_desk_references").isArray())
                     .andExpect(jsonPath("$.help_desk_references").isNotEmpty())
                     .andExpect(jsonPath("$.help_desk_references[0]").value("123"))
-                    .andExpect(jsonPath("$.help_desk_references[1]").value("456"));
+                    .andExpect(jsonPath("$.help_desk_references[1]").value("456"))
+                    .andExpect(jsonPath("$.help_desk_references[2]").value("789"));
             verify(auditLogger, times(1)).log(auditEntryCaptor.capture());
         }
 
@@ -498,6 +492,7 @@ public class AdminApiTest {
                                     .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_idporteninternal:user.write")))
                                     .content(fullRequest("02904299343", "dead", Arrays.asList("123", "456"))))
                     .andExpect(status().isOk());
+
             mockMvc.perform(post("/admin/v1/users/attributes")
                             .contentType(MediaType.APPLICATION_JSON)
                             .accept(MediaType.APPLICATION_JSON)
@@ -516,9 +511,9 @@ public class AdminApiTest {
         }
 
         @SneakyThrows
-        @DisplayName("then entering empty closed code for existing user deletes it and sets user to active")
+        @DisplayName("then entering empty closed_code for existing user deletes it and sets user to active")
         @Test
-        void testRemoveAttributesFromUser() {
+        void testRemoveClosedCodeFromUser() {
             mockMvc.perform(
                             post("/admin/v1/users/attributes")
                                     .contentType(MediaType.APPLICATION_JSON)
@@ -526,6 +521,7 @@ public class AdminApiTest {
                                     .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_idporteninternal:user.write")))
                                     .content(closedCodeRequest("20910998618", "dead")))
                     .andExpect(status().isOk());
+
             mockMvc.perform(post("/admin/v1/users/attributes")
                             .contentType(MediaType.APPLICATION_JSON)
                             .accept(MediaType.APPLICATION_JSON)
@@ -536,6 +532,31 @@ public class AdminApiTest {
                     .andExpect(jsonPath("$.person_identifier").value("20910998618"))
                     .andExpect(jsonPath("$.active").value(true))
                     .andExpect(jsonPath("$.status").doesNotExist());
+            verify(auditLogger, times(2)).log(auditEntryCaptor.capture());
+        }
+
+        @SneakyThrows
+        @DisplayName("then entering empty attributes for existing user deletes them")
+        @Test
+        void testRemoveAttributesFromUser() {
+            mockMvc.perform(
+                            post("/admin/v1/users/attributes")
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .accept(MediaType.APPLICATION_JSON)
+                                    .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_idporteninternal:user.write")))
+                                    .content(fullRequest("20910998618", "dead", List.of("123", "456"))))
+                    .andExpect(status().isOk());
+
+            mockMvc.perform(post("/admin/v1/users/attributes")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .accept(MediaType.APPLICATION_JSON)
+                            .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_idporteninternal:user.write")))
+                            .content(fullRequest("20910998618", "", new ArrayList<>())))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.id").isNotEmpty())
+                    .andExpect(jsonPath("$.person_identifier").value("20910998618"))
+                    .andExpect(jsonPath("$.status").doesNotExist())
+                    .andExpect(jsonPath("$.help_desk_references").doesNotExist());
             verify(auditLogger, times(2)).log(auditEntryCaptor.capture());
         }
 
