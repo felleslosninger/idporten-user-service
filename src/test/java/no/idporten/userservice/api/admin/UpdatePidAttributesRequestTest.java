@@ -4,6 +4,7 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
+import no.idporten.validators.identifier.PersonIdentifierValidator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -21,16 +22,19 @@ public class UpdatePidAttributesRequestTest {
         try (ValidatorFactory factory = Validation.buildDefaultValidatorFactory()) {
             validator = factory.getValidator();
         }
+
+        PersonIdentifierValidator.setSyntheticPersonIdentifiersAllowed(true);
+        PersonIdentifierValidator.setRealPersonIdentifiersAllowed(false);
     }
 
     @Test
-    @DisplayName("then an empty request is accepted")
+    @DisplayName("then an empty request is not accepted")
     void testEmptyRequest() {
         UpdatePidAttributesRequest request = new UpdatePidAttributesRequest();
         Set<ConstraintViolation<UpdatePidAttributesRequest>> errors = validator.validate(request);
         assertAll(
                 () -> assertNotNull(errors),
-                () -> assertTrue(errors.isEmpty())
+                () -> assertFalse(errors.isEmpty())
         );
     }
 
@@ -38,8 +42,8 @@ public class UpdatePidAttributesRequestTest {
     @DisplayName("then a valid pid is accepted")
     void testValidPid() {
         UpdatePidAttributesRequest request = new UpdatePidAttributesRequest();
-        request.setPersonIdentifier("29916199102");
-        Set<ConstraintViolation<UpdateAttributesRequest>> errors = validator.validate(request);
+        request.setPersonIdentifier("04929074640");
+        Set<ConstraintViolation<UpdatePidAttributesRequest>> errors = validator.validate(request);
         assertAll(
                 () -> assertNotNull(errors),
                 () -> assertTrue(errors.isEmpty())
@@ -50,8 +54,9 @@ public class UpdatePidAttributesRequestTest {
     @DisplayName("then a valid closed code is accepted")
     void testValidClosedCode() {
         UpdatePidAttributesRequest request = new UpdatePidAttributesRequest();
+        request.setPersonIdentifier("04929074640");
         request.setClosedCode("dead");
-        Set<ConstraintViolation<UpdateAttributesRequest>> errors = validator.validate(request);
+        Set<ConstraintViolation<UpdatePidAttributesRequest>> errors = validator.validate(request);
         assertAll(
                 () -> assertNotNull(errors),
                 () -> assertTrue(errors.isEmpty())

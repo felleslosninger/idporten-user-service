@@ -408,8 +408,14 @@ public class AdminApiTest {
     @Nested
     class PostAttributesTest {
 
+        @SneakyThrows
         private String pidRequest(String pid) {
-            return "{\"person_identifier\": \"%s\"}".formatted(pid);
+            return new ObjectMapper().writeValueAsString(UpdatePidAttributesRequest.builder().personIdentifier(pid).build());
+        }
+
+        @SneakyThrows
+        private String closedCodeRequest(String pid, String closedCode) {
+            return new ObjectMapper().writeValueAsString(UpdatePidAttributesRequest.builder().personIdentifier(pid).closedCode(closedCode).build());
         }
 
         private String fullRequest(String pid, String closedCode, List<String> helpDeskReference) {
@@ -510,7 +516,7 @@ public class AdminApiTest {
         }
 
         @SneakyThrows
-        @DisplayName("then entering empty attributes for existing user deletes them")
+        @DisplayName("then entering empty closed code for existing user deletes it and sets user to active")
         @Test
         void testRemoveAttributesFromUser() {
             mockMvc.perform(
@@ -518,19 +524,18 @@ public class AdminApiTest {
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .accept(MediaType.APPLICATION_JSON)
                                     .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_idporteninternal:user.write")))
-                                    .content(fullRequest("20910998618", "dead", Arrays.asList("123", "456"))))
+                                    .content(closedCodeRequest("20910998618", "dead")))
                     .andExpect(status().isOk());
             mockMvc.perform(post("/admin/v1/users/attributes")
                             .contentType(MediaType.APPLICATION_JSON)
                             .accept(MediaType.APPLICATION_JSON)
                             .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_idporteninternal:user.write")))
-                            .content(fullRequest("20910998618", "", List.of(""))))
+                            .content(closedCodeRequest("20910998618", "")))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.id").isNotEmpty())
                     .andExpect(jsonPath("$.person_identifier").value("20910998618"))
                     .andExpect(jsonPath("$.active").value(true))
-                    .andExpect(jsonPath("$.status").doesNotExist())
-                    .andExpect(jsonPath("$.help_desk_references").doesNotExist());
+                    .andExpect(jsonPath("$.status").doesNotExist());
             verify(auditLogger, times(2)).log(auditEntryCaptor.capture());
         }
 

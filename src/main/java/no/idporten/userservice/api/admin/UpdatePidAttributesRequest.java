@@ -1,16 +1,20 @@
 package no.idporten.userservice.api.admin;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Pattern;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
 import no.idporten.validators.identifier.PersonIdentifier;
 import org.hibernate.validator.constraints.Length;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
+@NoArgsConstructor
+@AllArgsConstructor
+@SuperBuilder
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class UpdatePidAttributesRequest extends UpdateAttributesRequest {
 
     @PersonIdentifier(message = "Invalid person identifier")
