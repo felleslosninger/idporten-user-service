@@ -80,19 +80,22 @@ public class ApiUserService {
         List<String> helpDeskCaseReference = CollectionUtils.isEmpty(request.getHelpDeskReferences()) ? (new ArrayList<>()) : request.getHelpDeskReferences();
 
         if (user == null) {
-            user = IDPortenUser.builder().pid(request.getPersonIdentifier()).helpDeskCaseReferences(helpDeskCaseReference).build();
+            user = IDPortenUser.builder()
+                    .pid(request.getPersonIdentifier())
+                    .helpDeskCaseReferences(helpDeskCaseReference)
+                    .build();
+            setStatus(user, closedCode);
             user = userService.createStatusUser(user);
         } else {
             if (request.getHelpDeskReferences() != null) {
                 user.setHelpDeskCaseReferences(helpDeskCaseReference);
             }
+            if (request.getClosedCode() != null) {
+                setStatus(user, closedCode);
+            }
+            user = userService.updateUser(user);
         }
 
-        if (request.getClosedCode() != null) {
-            setStatus(user, closedCode);
-        }
-
-        user = userService.updateUser(user);
         return convert(user);
     }
 
