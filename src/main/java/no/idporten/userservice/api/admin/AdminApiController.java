@@ -132,13 +132,13 @@ public class AdminApiController {
             })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "User attributes updated"),
-            @ApiResponse(responseCode = "404", description = "User is not found")
+            @ApiResponse(responseCode = "201", description = "User created and attributes updated"),
     })
     @PreAuthorize("hasAuthority('SCOPE_idporteninternal:user.write')")
-    @AuditMessage(AuditID.ADMIN_USER_STATUS_UPDATED)
+    @AuditMessage(AuditID.ADMIN_USER_UPDATE)
     @PostMapping(path = "/admin/v1/users/attributes", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<UserResource> updateUserAttributes(@Valid @RequestBody UpdatePidAttributesRequest request) {
-        return ResponseEntity.ok(apiUserService.updateUserPidAttributes(request));
+        return apiUserService.updateUserPidAttributes(request);
     }
 
     @Operation(
