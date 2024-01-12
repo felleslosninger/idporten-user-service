@@ -3,6 +3,7 @@ package no.idporten.userservice.api;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import no.idporten.userservice.api.admin.UpdateAttributesRequest;
+import no.idporten.userservice.api.admin.UpdatePidAttributesRequest;
 import no.idporten.userservice.api.admin.UpdatePidStatusRequest;
 import no.idporten.userservice.api.admin.UpdateStatusRequest;
 import no.idporten.userservice.api.login.CreateUserRequest;
@@ -13,16 +14,14 @@ import no.idporten.userservice.data.UserService;
 import no.idporten.userservice.data.UserServiceException;
 import no.idporten.validators.identifier.PersonIdentifierValidator;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.time.Clock;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -76,11 +75,34 @@ public class ApiUserService {
     }
 
     @Transactional
+    public ResponseEntity<UserResource> updateUserPidAttributes(UpdatePidAttributesRequest request) {
+        IDPortenUser user = userService.findFirstUser(request.getPersonIdentifier());
+        String closedCode = StringUtils.hasText(request.getClosedCode()) ? request.getClosedCode() : null;
+        List<String> helpDeskCaseReference = CollectionUtils.isEmpty(request.getHelpDeskReferences()) ? (new ArrayList<>()) : request.getHelpDeskReferences();
+
+        if (user == null) {
+            user = IDPortenUser.builder().pid(request.getPersonIdentifier()).helpDeskCaseReferences(helpDeskCaseReference).build();
+            user.setStatus(closedCode);
+            user = userService.createStatusUser(user);
+            return new ResponseEntity<>(convert(user), HttpStatus.CREATED);
+        } else {
+            if (request.getHelpDeskReferences() != null) {
+                user.setHelpDeskCaseReferences(helpDeskCaseReference);
+            }
+            if (request.getClosedCode() != null) {
+                user.setClosedCode(closedCode);
+            }
+            user = userService.updateUser(user);
+            return new ResponseEntity<>(convert(user), HttpStatus.OK);
+        }
+    }
+
+    @Transactional
     public UserResource updateUserStatus(String userId, UpdateStatusRequest updateUserStatusRequest) {
         IDPortenUser idPortenUser = userService.findUser(UUID.fromString(userId));
         validateUserExists(idPortenUser);
         String closedCode = StringUtils.hasText(updateUserStatusRequest.getClosedCode()) ? updateUserStatusRequest.getClosedCode() : null;
-        idPortenUser = setStatus(idPortenUser, closedCode);
+        idPortenUser.setStatus(closedCode);
         return convert(userService.updateUser(idPortenUser));
     }
 
@@ -91,27 +113,14 @@ public class ApiUserService {
         if(idPortenUser == null){
             // create user
             IDPortenUser newUser = IDPortenUser.builder().pid(updateUserStatusRequest.getPersonIdentifier()).build();
-            newUser = setStatus(newUser, closedCode);
+            newUser.setStatus(closedCode);
             idPortenUser = userService.createStatusUser(newUser);
         }else{
             // update user
-            idPortenUser = setStatus(idPortenUser, closedCode);
+            idPortenUser.setStatus(closedCode);
             idPortenUser = userService.updateUser(idPortenUser);
         }
         return convert(idPortenUser);
-    }
-
-    private IDPortenUser setStatus(IDPortenUser idPortenUser,String closedCode) {
-        if (closedCode == null) {
-            idPortenUser.setActive(true);
-            idPortenUser.setClosedCode(null);
-            idPortenUser.setClosedCodeLastUpdated(null);
-        } else {
-            idPortenUser.setActive(false);
-            idPortenUser.setClosedCode(closedCode);
-            idPortenUser.setClosedCodeLastUpdated(Clock.systemUTC().instant());
-        }
-        return idPortenUser;
     }
 
     protected void validatePersonIdentifier(String personIdentifier) {

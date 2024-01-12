@@ -3,6 +3,7 @@ package no.idporten.userservice.data;
 import lombok.*;
 import org.springframework.util.StringUtils;
 
+import java.time.Clock;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
@@ -50,6 +51,18 @@ public class IDPortenUser {
         }
         // Can be null
         return latestLogin;
+    }
+
+    public void setStatus(String closedCode) {
+        if (closedCode == null) {
+            this.setActive(true);
+            this.setClosedCode(null);
+            this.setClosedCodeLastUpdated(null);
+        } else {
+            this.setActive(false);
+            this.setClosedCode(closedCode);
+            this.setClosedCodeLastUpdated(Clock.systemUTC().instant());
+        }
     }
 
     public IDPortenUser(UserEntity u) {
