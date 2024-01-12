@@ -451,11 +451,13 @@ public class AdminApiTest {
                             .accept(MediaType.APPLICATION_JSON)
                             .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_idporteninternal:user.write")))
                             .content(pidRequest("23928698769")))
-                    .andExpect(status().isOk())
+                    .andExpect(status().isCreated())
                     .andExpect(jsonPath("$.id").isNotEmpty())
                     .andExpect(jsonPath("$.person_identifier").value("23928698769"))
                     .andExpect(jsonPath("$.active").value(true));
             verify(auditLogger, times(1)).log(auditEntryCaptor.capture());
+            assertTrue(auditEntryCaptor.getValue().getAuditId().auditId().endsWith(AuditID.ADMIN_USER_UPDATE.getAuditName()));
+            assertTrue(auditEntryCaptor.getValue().getAttribute("request_body").toString().contains("23928698769"));
         }
 
         @SneakyThrows
@@ -468,7 +470,7 @@ public class AdminApiTest {
                                     .accept(MediaType.APPLICATION_JSON)
                                     .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_idporteninternal:user.write")))
                                     .content(fullRequest("17860298333", "dead", Arrays.asList("123", "456", "789"))))
-                    .andExpect(status().isOk())
+                    .andExpect(status().isCreated())
                     .andExpect(jsonPath("$.id").isNotEmpty())
                     .andExpect(jsonPath("$.person_identifier").value("17860298333"))
                     .andExpect(jsonPath("$.active").value(false))
@@ -479,6 +481,8 @@ public class AdminApiTest {
                     .andExpect(jsonPath("$.help_desk_references[1]").value("456"))
                     .andExpect(jsonPath("$.help_desk_references[2]").value("789"));
             verify(auditLogger, times(1)).log(auditEntryCaptor.capture());
+            assertTrue(auditEntryCaptor.getValue().getAuditId().auditId().endsWith(AuditID.ADMIN_USER_UPDATE.getAuditName()));
+            assertTrue(auditEntryCaptor.getValue().getAttribute("request_body").toString().contains("17860298333"));
         }
 
         @SneakyThrows
@@ -491,7 +495,7 @@ public class AdminApiTest {
                                     .accept(MediaType.APPLICATION_JSON)
                                     .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_idporteninternal:user.write")))
                                     .content(fullRequest("02904299343", "dead", Arrays.asList("123", "456"))))
-                    .andExpect(status().isOk());
+                    .andExpect(status().isCreated());
 
             mockMvc.perform(post("/admin/v1/users/attributes")
                             .contentType(MediaType.APPLICATION_JSON)
@@ -508,6 +512,7 @@ public class AdminApiTest {
                     .andExpect(jsonPath("$.help_desk_references[0]").value("789"))
                     .andExpect(jsonPath("$.help_desk_references[1]").value("012"));
             verify(auditLogger, times(2)).log(auditEntryCaptor.capture());
+            assertTrue(auditEntryCaptor.getValue().getAuditId().auditId().endsWith(AuditID.ADMIN_USER_UPDATE.getAuditName()));
         }
 
         @SneakyThrows
@@ -520,7 +525,7 @@ public class AdminApiTest {
                                     .accept(MediaType.APPLICATION_JSON)
                                     .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_idporteninternal:user.write")))
                                     .content(closedCodeRequest("20910998618", "dead")))
-                    .andExpect(status().isOk());
+                    .andExpect(status().isCreated());
 
             mockMvc.perform(post("/admin/v1/users/attributes")
                             .contentType(MediaType.APPLICATION_JSON)
@@ -533,6 +538,7 @@ public class AdminApiTest {
                     .andExpect(jsonPath("$.active").value(true))
                     .andExpect(jsonPath("$.status").doesNotExist());
             verify(auditLogger, times(2)).log(auditEntryCaptor.capture());
+            assertTrue(auditEntryCaptor.getValue().getAuditId().auditId().endsWith(AuditID.ADMIN_USER_UPDATE.getAuditName()));
         }
 
         @SneakyThrows
@@ -558,6 +564,7 @@ public class AdminApiTest {
                     .andExpect(jsonPath("$.status").doesNotExist())
                     .andExpect(jsonPath("$.help_desk_references").doesNotExist());
             verify(auditLogger, times(2)).log(auditEntryCaptor.capture());
+            assertTrue(auditEntryCaptor.getValue().getAuditId().auditId().endsWith(AuditID.ADMIN_USER_UPDATE.getAuditName()));
         }
 
     }
