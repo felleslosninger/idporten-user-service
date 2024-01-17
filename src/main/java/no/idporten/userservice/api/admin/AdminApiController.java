@@ -162,8 +162,8 @@ public class AdminApiController {
     }
 
     @Operation(
-            summary = "Update status for user",
-            description = "Update user status based on external id. Note that if the user does not exist, it will be created.",
+            summary = "(DEPRECATED) Update status for user",
+            description = "[DEPRECATED] Update user status based on external id. Note that if the user does not exist, it will be created.",
             tags = {"admin-api"},
             security = @SecurityRequirement(name = "access_token"),
             parameters = {
@@ -176,6 +176,7 @@ public class AdminApiController {
     @PreAuthorize("hasAuthority('SCOPE_idporteninternal:user.write')")
     @AuditMessage(AuditID.ADMIN_USER_STATUS_UPDATED)
     @PutMapping(path = "/admin/v1/users/status", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @Deprecated
     public ResponseEntity<UserResource> updateUserStatus(@Valid @RequestBody UpdatePidStatusRequest request) {
         return ResponseEntity.ok(apiUserService.updateUserPidStatus(request));
     }
