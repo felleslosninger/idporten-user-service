@@ -163,7 +163,7 @@ public class AdminApiController {
 
     @Operation(
             summary = "(DEPRECATED) Update status for user",
-            description = "[DEPRECATED] Update user status based on external id. Note that if the user does not exist, it will be created.",
+            description = "(DEPRECATED) Update user status based on external id. Note that if the user does not exist, it will be created.",
             tags = {"admin-api"},
             security = @SecurityRequirement(name = "access_token"),
             parameters = {
