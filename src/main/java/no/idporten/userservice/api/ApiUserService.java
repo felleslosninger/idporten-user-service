@@ -4,7 +4,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import no.idporten.userservice.api.admin.UpdateAttributesRequest;
 import no.idporten.userservice.api.admin.UpdatePidAttributesRequest;
-import no.idporten.userservice.api.admin.UpdatePidStatusRequest;
 import no.idporten.userservice.api.admin.UpdateStatusRequest;
 import no.idporten.userservice.api.login.CreateUserRequest;
 import no.idporten.userservice.api.login.UpdateUserLoginRequest;
@@ -104,23 +103,6 @@ public class ApiUserService {
         String closedCode = StringUtils.hasText(updateUserStatusRequest.getClosedCode()) ? updateUserStatusRequest.getClosedCode() : null;
         idPortenUser.setStatus(closedCode);
         return convert(userService.updateUser(idPortenUser));
-    }
-
-    @Transactional
-    public UserResource updateUserPidStatus(UpdatePidStatusRequest updateUserStatusRequest) {
-        String closedCode = StringUtils.hasText(updateUserStatusRequest.getClosedCode()) ? updateUserStatusRequest.getClosedCode() : null;
-        IDPortenUser idPortenUser = userService.findFirstUser(updateUserStatusRequest.getPersonIdentifier());
-        if(idPortenUser == null){
-            // create user
-            IDPortenUser newUser = IDPortenUser.builder().pid(updateUserStatusRequest.getPersonIdentifier()).build();
-            newUser.setStatus(closedCode);
-            idPortenUser = userService.createStatusUser(newUser);
-        }else{
-            // update user
-            idPortenUser.setStatus(closedCode);
-            idPortenUser = userService.updateUser(idPortenUser);
-        }
-        return convert(idPortenUser);
     }
 
     protected void validatePersonIdentifier(String personIdentifier) {
