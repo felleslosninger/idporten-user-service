@@ -1,7 +1,11 @@
 package no.idporten.userservice;
 
-import lombok.extern.slf4j.Slf4j;
+import io.micrometer.core.instrument.Counter;
+import jakarta.servlet.http.HttpServletResponse;
 import no.idporten.userservice.api.ErrorResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -10,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.oauth2.server.resource.authentication.AbstractOAuth2TokenAuthenticationToken;
+import org.springframework.transaction.*;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -17,7 +22,6 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
-import jakarta.servlet.http.HttpServletResponse;
 import java.security.Principal;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -28,11 +32,19 @@ import java.util.StringJoiner;
 /**
  * Top level exception handler for application.  Handles generic error situations.
  */
-@Slf4j
 @ControllerAdvice
 @Order(100)
 public class ApplicationExceptionHandler {
     protected final static String AUTHENTICATION_HEADER = "WWW-Authenticate";
+
+    private final Logger log = LoggerFactory.getLogger(ApplicationExceptionHandler.class);
+
+    @Qualifier("databaseExceptionCounter")
+    private final Counter databaseExceptionCounter;
+
+    public ApplicationExceptionHandler(Counter databaseExceptionCounter) {
+        this.databaseExceptionCounter = databaseExceptionCounter;
+    }
 
     public static String computeWWWAuthenticateHeaderValue(Map<String, String> parameters) {
         StringJoiner wwwAuthenticate = new StringJoiner(", ", "Bearer ", "");
@@ -114,6 +126,17 @@ public class ApplicationExceptionHandler {
     public ResponseEntity<ErrorResponse> handleResponseStatusException(ResponseStatusException e) {
         return errorResponseEntity(e.getStatusCode(), errorMessageForHttpStatus(e.getStatusCode()), e.getReason());
     }
+
+    // Database-exception
+    // Subclasses of TransactionException: CannotCreateTransactionException (if db is down), HeuristicCompletionException, TransactionSystemException, TransactionTimedOutException, TransactionUsageException, UnexpectedRollbackException
+    @ExceptionHandler({CannotCreateTransactionException.class, TransactionSystemException.class, TransactionTimedOutException.class, UnexpectedRollbackException.class})
+    public ResponseEntity<ErrorResponse> handleTransactionException(TransactionException e) {
+        log.error("TransactionException from database", e);
+        databaseExceptionCounter.increment();
+        return errorResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, errorMessageForHttpStatus(HttpStatus.INTERNAL_SERVER_ERROR), "Failed to process request. See server logs for details.");
+    }
+
+
 
     // Last resort
     @ExceptionHandler(Exception.class)
