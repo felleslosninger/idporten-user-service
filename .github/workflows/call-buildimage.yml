@@ -15,23 +15,16 @@ on:
 
 jobs:
   build-publish-image:
-    uses: felleslosninger/eid-github-workflows/.github/workflows/spring-boot-build-publish-image.yml@main
+    uses: felleslosninger/github-workflows/.github/workflows/ci-spring-boot-build-publish-image.yml@main
     with:
       image-name: idporten-user-service
       java-version: 21
-    secrets:
-      maven-user: ${{ secrets.MAVEN_USER }}
-      maven-password: ${{ secrets.MAVEN_PASSWORD }}
-      registry-url: ${{ secrets.REGISTRY_URL }}
-      registry-username: ${{ secrets.REGISTRY_USERNAME }}
-      registry-password: ${{ secrets.REGISTRY_PASSWORD }}
+    secrets: inherit
   update-image-version:
-    uses: felleslosninger/eid-github-workflows/.github/workflows/update-image-version.yml@main
+    uses: felleslosninger/github-workflows/.github/workflows/ci-update-image-version.yml@main
     needs: build-publish-image
     with:
       image-name: idporten-user-service
       image-version: ${{ needs.build-publish-image.outputs.image-version }}
       image-digest: ${{ needs.build-publish-image.outputs.image-digest }}
-    secrets:
-      eid-build-token: ${{ secrets.EID_BUILD_PAT }}
-      registry-url: ${{ secrets.REGISTRY_URL }}
+    secrets: inherit

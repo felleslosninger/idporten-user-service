@@ -1,3 +1,1 @@
 CVE-2022-45868    # h2
-CVE-2022-1471     # snake yaml, fixed in 2.0 (new spring boot version?) https://bitbucket.org/snakeyaml/snakeyaml/wiki/CVE-2022-1471
-CVE-2023-34053    # spring-webmvc-6.0.13.jar, fixed in 6.0.14. No micrometer here or observability added
