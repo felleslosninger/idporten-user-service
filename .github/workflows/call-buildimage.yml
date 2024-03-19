@@ -15,7 +15,7 @@ on:
 
 jobs:
   build-publish-image:
-    uses: felleslosninger/github-workflows/.github/workflows/ci-spring-boot-build-publish-image.yml@main
+    uses: felleslosninger/github-workflows/.github/workflows/ci-spring-boot-build-publish-image.yml@pf-1101-add-multi-module-support
     with:
       image-name: idporten-user-service
       java-version: 21
