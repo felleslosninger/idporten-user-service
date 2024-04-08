@@ -1,1 +1,2 @@
-CVE-2022-45868    # h2
+CVE-2024-22257 # Broken Access Control in Spring Security. fixed 6.2.2
+CVE-2024-22259 # spring-web. fixed 6.1.4. Brukar ikkje AuthenticatedVoter.
