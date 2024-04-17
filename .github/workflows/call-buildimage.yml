@@ -5,26 +5,31 @@ name: Build/publish Docker image
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
     paths-ignore:
-      - 'src/test/**'
-      - 'docker/**'
-      - 'docker-compose.yaml'
-      - '*.md'
-      - 'LICENSE'
+      - "src/test/**"
+      - "docker/**"
+      - "docker-compose.yaml"
+      - "*.md"
+      - "LICENSE"
 
 jobs:
   build-publish-image:
-    uses: felleslosninger/github-workflows/.github/workflows/ci-spring-boot-build-publish-image.yml@pf-1101-add-multi-module-support
+    uses: felleslosninger/github-workflows/.github/workflows/ci-spring-boot-build-publish-image.yml@main
     with:
       image-name: idporten-user-service
       java-version: 21
     secrets: inherit
-  update-image-version:
-    uses: felleslosninger/github-workflows/.github/workflows/ci-update-image-version.yml@main
+
+  call-update-image:
+    uses: felleslosninger/github-workflows/.github/workflows/ci-call-update-image.yml@main
     needs: build-publish-image
     with:
+      application-name: idporten-user-service
+      deployment-environment: systest
+      image-digest: ${{ needs.build-publish-image.outputs.image-digest }}
       image-name: idporten-user-service
       image-version: ${{ needs.build-publish-image.outputs.image-version }}
-      image-digest: ${{ needs.build-publish-image.outputs.image-digest }}
+      kubernetes-repo: idporten-cd
+      product-name: idporten
     secrets: inherit
