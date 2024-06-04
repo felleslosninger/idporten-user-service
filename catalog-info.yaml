@@ -15,4 +15,3 @@ spec:
   system: idporten
   dependsOn:
     - resource:default/id_idporten_user_prod
-  
