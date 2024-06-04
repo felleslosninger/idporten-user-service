@@ -12,7 +12,7 @@ on:
       - "docker-compose.yaml"
       - "*.md"
       - "LICENSE"
-
+      - "catalog-info.yaml"
 jobs:
   build-publish-image:
     uses: felleslosninger/github-workflows/.github/workflows/ci-spring-boot-build-publish-image.yml@main
