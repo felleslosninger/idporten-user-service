@@ -12,4 +12,7 @@ spec:
   type: application
   lifecycle: production
   owner: team-idporten
-  dependsOn: ["component:id_idporten_user_prod"]
+  system: idporten
+  dependsOn:
+    - resource:default/id_idporten_user_prod
+  
