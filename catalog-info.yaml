@@ -1,0 +1,17 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: idporten-user-service
+  description: idporten-user-service
+  annotations:
+    github.com/project-slug: felleslosninger/idporten-user-service
+  tags:
+    - spring-boot
+    - java
+spec:
+  type: application
+  lifecycle: production
+  owner: team-idporten
+  system: idporten
+  dependsOn:
+    - resource:default/id_idporten_user_prod
