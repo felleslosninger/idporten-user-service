@@ -1,3 +1,4 @@
 CVE-2024-22257 # Broken Access Control in Spring Security. fixed 6.2.2
 CVE-2024-22259 # spring-web. fixed 6.1.5. Brukar ikkje AuthenticatedVoter.
 CVE-2024-22262 # spring-web. fixed: 6.1.6. host validation fail for uricomponentbuilder, does not use it
+CVE-2024-34750 # tomcat - improper exception handling
