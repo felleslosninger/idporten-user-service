@@ -25,6 +25,7 @@
         <open.telemetry.version>2.6.0</open.telemetry.version>
         <mariadb-java-client.version>3.4.1</mariadb-java-client.version>
         <idporten-metric-constants.version>1.1.0</idporten-metric-constants.version>
+        <logback.version>1.5.6</logback.version>
     </properties>
     <dependencies>
         <dependency>
@@ -85,6 +86,7 @@
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
+            <version>${logback.version}</version>
         </dependency>
         <dependency>
             <groupId>io.opentelemetry.instrumentation</groupId>
