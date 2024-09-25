@@ -2,3 +2,5 @@ CVE-2024-22257 # Broken Access Control in Spring Security. fixed 6.2.2
 CVE-2024-22259 # spring-web. fixed 6.1.5. Brukar ikkje AuthenticatedVoter.
 CVE-2024-22262 # spring-web. fixed: 6.1.6. host validation fail for uricomponentbuilder, does not use it
 CVE-2024-34750 # tomcat - improper exception handling
+CVE-2024-34156 # encoding/gob: golang: Calling Decoder.Decode on a message which contains deeply nested structures...
+CVE-2024-38816 # spring-webmvc: Path Traversal Vulnerability in Spring Applications Using RouterFunctions and FileSystemResource
