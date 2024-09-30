@@ -1,4 +1,4 @@
-FROM maven:3-eclipse-temurin-22 as builder
+FROM maven:3-eclipse-temurin-23 as builder
 
 ARG GIT_PACKAGE_TOKEN
 ARG GIT_PACKAGE_USERNAME
