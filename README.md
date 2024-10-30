@@ -21,8 +21,11 @@ To build and run the application you need:
 
 The application has profiles located in the [resources](src/main/resources) directory.
 
-| Profile | Description                                    |
-|---------|------------------------------------------------|
+| Profile   | Description                                                      |
+|-----------|------------------------------------------------------------------|
+| local-h2  | Local development with embedded H2-database                      |
+| local-dev | Local development which requires a preinstalled MariaDB database |
+| docker    | User docker cluster locally, run by docker-compose file          |
 
 The application can be started with Maven:
 
@@ -49,8 +52,5 @@ a [default configuration](src/main/resources/application.yaml) in the applicatio
 * DATASOURCE_PASSWORD (password to idporten_user database for user user_service)
 * API_KEY (api-key for /login access)
 
-## Runtime dependencies
-* idporten-validators
-* idporten-access-log-spring-boot-3-starter
-* idporten-log-audit
+
 
