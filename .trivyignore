@@ -1,1 +1,1 @@
-CVE-2024-38821 # org.springframework.security:spring-security-web: Spring-WebFlux: Authorization Bypass of Static Resources. Fixed 6.2.7, 6.0.13, 6.1.11, 6.3.4
+# CVE-xxx # <package>: <vulnerability info>. Fixed <version>
