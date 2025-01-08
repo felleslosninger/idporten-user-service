@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.test.context.ActiveProfiles;
 
 import jakarta.annotation.Resource;
@@ -60,7 +61,7 @@ public class UserRepositoryTest {
                 userRepository.flush();
                 fail("Should have failed");
             } catch (Exception e) {
-                assertTrue(e instanceof DataIntegrityViolationException);
+                assertInstanceOf(DataIntegrityViolationException.class, e);
             }
 
         }
@@ -94,7 +95,7 @@ public class UserRepositoryTest {
         }
 
         @Test
-        @DisplayName("then uuid as input is ignored when user is not found in database")
+        @DisplayName("then uuid as input throws OptimisticLockingFailureException when user does not exist")
         void testUuidAsInputIsIgnoredOnSaveWhenUserDoesNotExit() {
             String personIdentifier = TestData.randomSynpid();
             UUID uuid = UUID.randomUUID();
@@ -103,12 +104,31 @@ public class UserRepositoryTest {
                     .personIdentifier(personIdentifier)
                     .active(Boolean.TRUE)
                     .build();
-            UserEntity saved = userRepository.save(testUser);
-            assertNotEquals(uuid.toString(), saved.getUuid().toString());
-            Optional<UserEntity> byWrongUuid = userRepository.findByUuid(uuid);
-            assertTrue(byWrongUuid.isEmpty());
-            Optional<UserEntity> byCreatedUuid = userRepository.findByUuid(saved.getUuid());
-            assertTrue(byCreatedUuid.isPresent());
+            assertThrows(OptimisticLockingFailureException.class, () -> userRepository.save(testUser));
+        }
+
+        @Test
+        @DisplayName("then uuid as input is ok when user does exist on uuid and personIdentifier")
+        void testUuidAsInputIsIgnoredOnSaveWhenUserDoesExit() {
+            String personIdentifier = TestData.randomSynpid();
+            UserEntity testUserCreated = UserEntity.builder()
+                    .personIdentifier(personIdentifier)
+                    .active(Boolean.TRUE)
+                    .build();
+            UserEntity saved = userRepository.save(testUserCreated);
+            assertNotNull(saved.getUuid());
+            UUID uuid = saved.getUuid();
+
+            UserEntity testUserUpdated = UserEntity.builder()
+                    .uuid(uuid)
+                    .personIdentifier(personIdentifier)
+                    .active(Boolean.TRUE)
+                    .build();
+
+            UserEntity updated = userRepository.save(testUserUpdated);
+            assertNotNull(updated.getUuid());
+            assertEquals(saved.getUuid(), updated.getUuid());
+            assertEquals(saved.getPersonIdentifier(), updated.getPersonIdentifier());
         }
 
 
@@ -158,10 +178,10 @@ public class UserRepositoryTest {
             assertNotNull(saved.getLogins());
             assertFalse(saved.getLogins().isEmpty());
             assertEquals(1, saved.getLogins().size());
-            assertNotNull(saved.getLogins().get(0));
-            assertEquals("MinID", saved.getLogins().get(0).getEidName());
-            assertTrue(saved.getLogins().get(0).getLastLoginAtEpochMs() > 0);
-            assertEquals(saved.getUuid().toString(), saved.getLogins().get(0).getUser().getUuid().toString());
+            assertNotNull(saved.getLogins().getFirst());
+            assertEquals("MinID", saved.getLogins().getFirst().getEidName());
+            assertTrue(saved.getLogins().getFirst().getLastLoginAtEpochMs() > 0);
+            assertEquals(saved.getUuid().toString(), saved.getLogins().getFirst().getUser().getUuid().toString());
         }
 
 
