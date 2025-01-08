@@ -1,1 +1,3 @@
 # CVE-xxx # <package>: <vulnerability info>. Fixed <version>
+CVE-2024-45338 # Non-linear parsing of case-insensitive content in golang.org/x/net/html, Fixed in 0.33.0
+CVE-2024-50379 # RCE in JSP. tomcat-embed-core, Fixed in 10.1.34
