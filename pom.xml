@@ -20,7 +20,7 @@
         <springdoc.version>2.8.1</springdoc.version>
         <logback.version>1.5.16</logback.version> <!-- Can be removed when spring boot has > 1.5.12 as the default version -->
         <idporten-access-log.version>2.6.1</idporten-access-log.version>
-        <idporten-audit-log.version>2.3.0</idporten-audit-log.version>
+        <idporten-audit-log.version>1.3.0</idporten-audit-log.version>
         <nimbus.jose.jwt.version>9.23</nimbus.jose.jwt.version>
         <idporten-actuator-starter.version>1.2.2</idporten-actuator-starter.version>
         <open.telemetry.version>2.11.0</open.telemetry.version>
