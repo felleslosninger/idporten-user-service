@@ -225,6 +225,12 @@ public class LoginApiTest {
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .accept(MediaType.APPLICATION_JSON)
                                     .content(createUserRequest(personIdentifier)))
+                    .andExpect(status().isOk());
+            mockMvc.perform(
+                            post("/login/v1/users/")
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .accept(MediaType.APPLICATION_JSON)
+                                    .content(createUserRequest(personIdentifier)))
                     .andExpect(status().isConflict())
                     .andExpect(jsonPath("$.error").value("invalid_request"))
                     .andExpect(jsonPath("$.error_description", Matchers.containsString("User already exists")));
