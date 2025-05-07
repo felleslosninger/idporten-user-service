@@ -5,7 +5,7 @@ networks:
     
 services:
   db-us:
-    image: "mariadb:10.8"
+    image: "mariadb:11"
     restart: on-failure
     environment:
           MYSQL_ROOT_PASSWORD: mdbRootPwd4us
@@ -17,7 +17,7 @@ services:
     networks:
       - idporten
     healthcheck:
-      test: mysqladmin -p$$MYSQL_ROOT_PASSWORD -uroot ping -h localhost
+      test: mariadb-admin -p$$MYSQL_ROOT_PASSWORD -uroot ping -h localhost
       interval: 5s
       start_period: 5s
       timeout: 5s
