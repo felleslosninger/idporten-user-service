@@ -17,10 +17,10 @@ import org.mockito.Captor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.util.StringUtils;
 
@@ -43,7 +43,7 @@ public class LoginApiTest {
     @Autowired
     private ApiUserService apiUserService;
 
-    @MockBean
+    @MockitoBean
     AuditLogger auditLogger;
 
     @Captor
@@ -220,7 +220,12 @@ public class LoginApiTest {
         @WithMockUser(roles = "USER")
         void testFailWhenAlreadyExists() {
             final String personIdentifier = TestData.randomSynpid();
-            UserResource user = apiUserService.createUser(CreateUserRequest.builder().personIdentifier(personIdentifier).build());
+            mockMvc.perform(
+                            post("/login/v1/users/")
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .accept(MediaType.APPLICATION_JSON)
+                                    .content(createUserRequest(personIdentifier)))
+                    .andExpect(status().isOk());
             mockMvc.perform(
                             post("/login/v1/users/")
                                     .contentType(MediaType.APPLICATION_JSON)
