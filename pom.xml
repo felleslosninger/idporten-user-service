@@ -17,14 +17,14 @@
         <java.version>21</java.version>
         <idporten-validators.version>1.4.2</idporten-validators.version>
         <idporten-fnr-generate.version>1.0.1</idporten-fnr-generate.version>
-        <springdoc.version>2.8.1</springdoc.version>
-        <idporten-access-log.version>2.7.0</idporten-access-log.version>
+        <springdoc.version>2.8.8</springdoc.version>
+        <idporten-access-log.version>2.8.0</idporten-access-log.version>
         <idporten-audit-log.version>2.4.0</idporten-audit-log.version>
         <nimbus.jose.jwt.version>9.23</nimbus.jose.jwt.version>
         <idporten-actuator-starter.version>1.2.2</idporten-actuator-starter.version>
         <open.telemetry.version>1.49.0</open.telemetry.version>
         <mariadb-java-client.version>3.5.3</mariadb-java-client.version>
-        <idporten-metric-constants.version>1.1.0</idporten-metric-constants.version>
+        <idporten-metric-constants.version>1.2.0</idporten-metric-constants.version>
     </properties>
     <dependencies>
         <dependency>
