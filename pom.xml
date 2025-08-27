@@ -19,7 +19,7 @@
         <idporten-fnr-generate.version>1.0.1</idporten-fnr-generate.version>
         <springdoc.version>2.8.9</springdoc.version>
         <idporten-access-log.version>2.8.0</idporten-access-log.version>
-        <idporten-audit-log.version>2.5.0</idporten-audit-log.version>
+        <idporten-audit-log.version>2.5.2</idporten-audit-log.version>
         <nimbus.jose.jwt.version>9.23</nimbus.jose.jwt.version>
         <idporten-actuator-starter.version>2.0.0</idporten-actuator-starter.version>
         <open.telemetry.version>1.52.0</open.telemetry.version>
