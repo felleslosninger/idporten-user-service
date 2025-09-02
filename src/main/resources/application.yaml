@@ -3,6 +3,10 @@ server:
   port: 8080
 
 spring:
+  cache:
+    type: redis
+#    host: localhost
+#    port: 6379
   thread-executor: virtual
   jpa:
     hibernate:

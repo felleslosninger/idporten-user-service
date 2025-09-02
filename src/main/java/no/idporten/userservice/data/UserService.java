@@ -1,10 +1,12 @@
 package no.idporten.userservice.data;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
+import javax.swing.text.html.Option;
 import java.time.Instant;
 import java.util.*;
 
@@ -14,6 +16,8 @@ import java.util.*;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final RedisTemplate<String, IDPortenUser> idportenUserCache;
+    private final RedisTemplate<String, String> uuidToUseridCache;
 
     public IDPortenUser findUser(UUID uuid) {
         Optional<UserEntity> user = userRepository.findByUuid(uuid);
@@ -23,20 +27,10 @@ public class UserService {
         return new IDPortenUser(user.get());
     }
 
-    public List<IDPortenUser> searchForUser(String personIdentifier) {
-        Optional<UserEntity> users = userRepository.findByPersonIdentifier(personIdentifier);
-        if (users.isEmpty()) {
-            return Collections.emptyList();
-        }
-        return users.stream().map(IDPortenUser::new).toList();
-    }
 
-    public IDPortenUser findFirstUser(String personIdentifier) {
-        Optional<UserEntity> user = userRepository.findByPersonIdentifier(personIdentifier);
-        if (user.isEmpty()) {
-            return null;
-        }
-        return new IDPortenUser(user.get());
+    public Optional<IDPortenUser> searchForUser(String personIdentifier) {
+        Optional<UserEntity> users = userRepository.findByPersonIdentifier(personIdentifier);
+        return users.map(IDPortenUser::new);
     }
 
     @Transactional
@@ -44,7 +38,7 @@ public class UserService {
         if (idPortenUser.getId() != null) {
             throw UserServiceException.invalidUserData("User id must be assigned by server.");
         }
-        if (findFirstUser(idPortenUser.getPid()) != null) {
+        if (searchForUser(idPortenUser.getPid()).isPresent()) {
             throw UserServiceException.duplicateUser();
         }
         idPortenUser.setActive(Boolean.TRUE);
@@ -63,7 +57,7 @@ public class UserService {
         return new IDPortenUser(userSaved);
     }
 
-    public UserEntity toEntity(IDPortenUser user) {
+    private UserEntity toEntity(IDPortenUser user) {
         UserEntity.UserEntityBuilder builder = UserEntity.builder();
         builder.personIdentifier(user.getPid()).uuid(user.getId()).active(user.isActive());
         if (user.getClosedCode() != null) {

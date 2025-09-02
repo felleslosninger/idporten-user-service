@@ -99,7 +99,7 @@ public class UserServiceTest {
             assertNotNull(userSaved);
             assertNotNull(userSaved.getId());
             assertEquals(personIdentifier, userSaved.getPid());
-            assertTrue(userSaved.getHelpDeskCaseReferences().size() == 2 );
+            assertEquals(2, userSaved.getHelpDeskCaseReferences().size());
             verify(userRepository).save(any(UserEntity.class));
         }
     }
@@ -129,23 +129,9 @@ public class UserServiceTest {
 
             UserEntity userEntity = UserEntity.builder().personIdentifier(personIdentifier).uuid(UUID.randomUUID()).build();
             when(userRepository.findByPersonIdentifier(personIdentifier)).thenReturn(Optional.of(userEntity));
-            List<IDPortenUser> usersFound = userService.searchForUser(personIdentifier);
+            Optional<IDPortenUser> usersFound = userService.searchForUser(personIdentifier);
             assertNotNull(usersFound);
-            assertEquals(1, usersFound.size());
-            verify(userRepository).findByPersonIdentifier(personIdentifier);
-
-        }
-
-        @Test
-        @DisplayName("by person-identifier then one user is returned")
-        public void testfindFirstUserByPid() {
-            String personIdentifier = "1263";
-
-            UserEntity userEntity = UserEntity.builder().personIdentifier(personIdentifier).uuid(UUID.randomUUID()).build();
-            when(userRepository.findByPersonIdentifier(personIdentifier)).thenReturn(Optional.of(userEntity));
-            IDPortenUser userFound = userService.findFirstUser(personIdentifier);
-            assertNotNull(userFound);
-            assertEquals(personIdentifier, userFound.getPid());
+            assertTrue(usersFound.isPresent());
             verify(userRepository).findByPersonIdentifier(personIdentifier);
 
         }

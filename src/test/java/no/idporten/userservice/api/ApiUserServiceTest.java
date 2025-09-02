@@ -27,6 +27,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -73,7 +74,7 @@ public class ApiUserServiceTest {
         @Test
         public void testSearchNoUsersFound() {
             String personIdentifier = TestData.randomSynpid();
-            when(userService.searchForUser(eq(personIdentifier))).thenReturn(Collections.emptyList());
+            when(userService.searchForUser(eq(personIdentifier))).thenReturn(Optional.empty());
             List<UserResource> searchResult = apiUserService.searchForUser(personIdentifier);
             assertTrue(searchResult.isEmpty());
         }
@@ -83,11 +84,11 @@ public class ApiUserServiceTest {
         public void testSearchUserFound() {
             IDPortenUser user = TestData.randomUser();
             String personIdentifier = user.getPid();
-            when(userService.searchForUser(eq(personIdentifier))).thenReturn(List.of(user));
+            when(userService.searchForUser(eq(personIdentifier))).thenReturn(Optional.of(user));
             List<UserResource> searchResult = apiUserService.searchForUser(personIdentifier);
             assertAll(
                     () -> assertEquals(1, searchResult.size()),
-                    () -> assertEquals(personIdentifier, searchResult.get(0).getPersonIdentifier())
+                    () -> assertEquals(personIdentifier, searchResult.getFirst().getPersonIdentifier())
             );
         }
 
