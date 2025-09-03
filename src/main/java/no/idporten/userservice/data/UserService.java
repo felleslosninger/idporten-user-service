@@ -36,14 +36,21 @@ public class UserService {
     }
 
     public Optional<IDPortenUser> searchForUser(String personIdentifier) {
-        Optional<UserEntity> user = userRepository.findByPersonIdentifier(personIdentifier);
+        IDPortenUser idPortenUser = idportenUserCache.opsForValue().get(personIdentifier);
 
-        if (user.isPresent()) {
-            idportenUserCache.opsForValue().set(user.get().getPersonIdentifier(), new IDPortenUser(user.get()));
-            uuidToUseridCache.opsForValue().set(user.get().getUuid().toString(), user.get().getPersonIdentifier());
+        if (idPortenUser == null) {
+            Optional<UserEntity> user = userRepository.findByPersonIdentifier(personIdentifier);
+
+            if (user.isPresent()) {
+                idPortenUser = new IDPortenUser(user.get());
+                idportenUserCache.opsForValue().set(user.get().getPersonIdentifier(), new IDPortenUser(user.get()));
+                uuidToUseridCache.opsForValue().set(user.get().getUuid().toString(), user.get().getPersonIdentifier());
+            } else {
+                return Optional.empty();
+            }
         }
 
-        return user.map(IDPortenUser::new);
+        return Optional.of(idPortenUser);
     }
 
     @Transactional
@@ -57,6 +64,10 @@ public class UserService {
         idPortenUser.setActive(Boolean.TRUE);
         UserEntity user = toEntity(idPortenUser);
         UserEntity userSaved = userRepository.save(user);
+
+        idportenUserCache.opsForValue().set(userSaved.getPersonIdentifier(), new IDPortenUser(userSaved));
+        uuidToUseridCache.opsForValue().set(userSaved.getUuid().toString(), userSaved.getPersonIdentifier());
+
         return new IDPortenUser(userSaved);
     }
 
@@ -66,7 +77,10 @@ public class UserService {
             throw UserServiceException.invalidUserData("User id must be assigned by server.");
         }
         UserEntity user = toEntity(idPortenUser);
+
         UserEntity userSaved = userRepository.save(user);
+        idportenUserCache.opsForValue().set(userSaved.getPersonIdentifier(), new IDPortenUser(userSaved));
+
         return new IDPortenUser(userSaved);
     }
 

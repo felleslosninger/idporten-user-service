@@ -1,5 +1,6 @@
 package no.idporten.userservice.data;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;
 import org.springframework.util.StringUtils;
 
@@ -14,6 +15,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@JsonIgnoreProperties(ignoreUnknown = true)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class IDPortenUser {
 
