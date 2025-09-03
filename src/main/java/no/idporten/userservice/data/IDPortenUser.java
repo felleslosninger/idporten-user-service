@@ -38,7 +38,9 @@ public class IDPortenUser {
     private List<String> helpDeskCaseReferences = Collections.emptyList();
 
     @Singular
-    private List<Login> logins;
+    private List<Login> logins =  Collections.emptyList();
+
+    private Boolean dirty = false;
 
     public Login getLastLogin() {
         long latest = 0L;

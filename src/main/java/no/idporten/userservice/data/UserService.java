@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
-import javax.swing.text.html.Option;
 import java.time.Instant;
 import java.util.*;
 
@@ -20,17 +19,31 @@ public class UserService {
     private final RedisTemplate<String, String> uuidToUseridCache;
 
     public IDPortenUser findUser(UUID uuid) {
+        String cachedUser = uuidToUseridCache.opsForValue().get(uuid.toString());
+
+        if (cachedUser != null) {
+            return searchForUser(cachedUser).get();
+        }
+
         Optional<UserEntity> user = userRepository.findByUuid(uuid);
         if (user.isEmpty()) {
             return null;
         }
+
+        idportenUserCache.opsForValue().set(user.get().getPersonIdentifier(), new IDPortenUser(user.get()));
+
         return new IDPortenUser(user.get());
     }
 
-
     public Optional<IDPortenUser> searchForUser(String personIdentifier) {
-        Optional<UserEntity> users = userRepository.findByPersonIdentifier(personIdentifier);
-        return users.map(IDPortenUser::new);
+        Optional<UserEntity> user = userRepository.findByPersonIdentifier(personIdentifier);
+
+        if (user.isPresent()) {
+            idportenUserCache.opsForValue().set(user.get().getPersonIdentifier(), new IDPortenUser(user.get()));
+            uuidToUseridCache.opsForValue().set(user.get().getUuid().toString(), user.get().getPersonIdentifier());
+        }
+
+        return user.map(IDPortenUser::new);
     }
 
     @Transactional
@@ -158,24 +171,6 @@ public class UserService {
         return new IDPortenUser(newUser);
     }
 
-    public List<IDPortenUser> findUserHistory(String pid) {
-        Optional<UserEntity> userExists = userRepository.findByPersonIdentifier(pid);
-        if (userExists.isEmpty()) {
-            return null;
-        }
-        List<IDPortenUser> previousUsers = new ArrayList<>();
-        UserEntity user = userExists.get();
-        previousUsers.add(new IDPortenUser(user));
-
-        UserEntity u = user;
-        while (u != null) {
-            u = findAllPreviousUsers(previousUsers, u);
-        }
-
-        return previousUsers;
-    }
-
-
     public List<IDPortenUser> findUserHistoryAndNewer(String pid) {
         Optional<UserEntity> userExists = userRepository.findByPersonIdentifier(pid);
         if (userExists.isEmpty()) {
@@ -220,6 +215,5 @@ public class UserService {
         }
         return null;
     }
-
 
 }

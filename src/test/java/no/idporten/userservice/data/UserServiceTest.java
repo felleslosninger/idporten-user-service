@@ -7,6 +7,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 
 import java.time.Instant;
 import java.util.*;
@@ -20,6 +22,15 @@ public class UserServiceTest {
 
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private RedisTemplate<String, IDPortenUser> idportenUserCache;
+
+    @Mock
+    private RedisTemplate<String, String> uuidToUseridCache;
+
+    @Mock
+    private ValueOperations<String, IDPortenUser> valueOperations;
 
     @InjectMocks
     private UserService userService;
@@ -115,6 +126,10 @@ public class UserServiceTest {
 
             UserEntity userEntity = UserEntity.builder().personIdentifier(personIdentifier).uuid(uuid).build();
             when(userRepository.findByUuid(uuid)).thenReturn(Optional.of(userEntity));
+
+            when(idportenUserCache.opsForValue()).thenReturn(valueOperations);
+            doNothing().when(valueOperations).set(anyString(), any());
+
             IDPortenUser userFound = userService.findUser(uuid);
             assertNotNull(userFound);
             assertEquals(personIdentifier, userFound.getPid());
@@ -126,9 +141,12 @@ public class UserServiceTest {
         @DisplayName("by person-identifier then one user is returned")
         public void testSearchUsersByPid() {
             String personIdentifier = "1263";
-
             UserEntity userEntity = UserEntity.builder().personIdentifier(personIdentifier).uuid(UUID.randomUUID()).build();
             when(userRepository.findByPersonIdentifier(personIdentifier)).thenReturn(Optional.of(userEntity));
+
+            when(idportenUserCache.opsForValue()).thenReturn(valueOperations);
+            doNothing().when(valueOperations).set(anyString(), any());
+
             Optional<IDPortenUser> usersFound = userService.searchForUser(personIdentifier);
             assertNotNull(usersFound);
             assertTrue(usersFound.isPresent());

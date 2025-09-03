@@ -1,13 +1,13 @@
 package no.idporten.userservice.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import no.idporten.userservice.data.IDPortenUser;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
-import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 @Configuration
@@ -17,7 +17,8 @@ public class RedisCache {
     public RedisTemplate<String, IDPortenUser> idportenUserCache(RedisConnectionFactory rcf) {
         RedisTemplate<String, IDPortenUser> template = new RedisTemplate<>();
         template.setConnectionFactory(rcf);
-        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectMapper objectMapper = new ObjectMapper()
+                .registerModule(new JavaTimeModule());
         Jackson2JsonRedisSerializer<IDPortenUser> jsonRedisSerializer = new Jackson2JsonRedisSerializer<>(objectMapper, IDPortenUser.class);
 
         template.setKeySerializer(new StringRedisSerializer());
