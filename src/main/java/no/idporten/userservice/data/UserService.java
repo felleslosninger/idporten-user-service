@@ -22,7 +22,7 @@ public class UserService {
         String cachedUser = uuidToUseridCache.opsForValue().get(uuid.toString());
 
         if (cachedUser != null) {
-            return searchForUser(cachedUser).get();
+            return searchForUser(cachedUser).orElse(null);
         }
 
         Optional<UserEntity> user = userRepository.findByUuid(uuid);
@@ -62,7 +62,7 @@ public class UserService {
             throw UserServiceException.duplicateUser();
         }
         idPortenUser.setActive(Boolean.TRUE);
-        UserEntity user = toEntity(idPortenUser);
+        UserEntity user = idPortenUser.toEntity();
         UserEntity userSaved = userRepository.save(user);
 
         idportenUserCache.opsForValue().set(userSaved.getPersonIdentifier(), new IDPortenUser(userSaved));
@@ -76,26 +76,12 @@ public class UserService {
         if (idPortenUser.getId() != null) {
             throw UserServiceException.invalidUserData("User id must be assigned by server.");
         }
-        UserEntity user = toEntity(idPortenUser);
+        UserEntity user = idPortenUser.toEntity();
 
         UserEntity userSaved = userRepository.save(user);
         idportenUserCache.opsForValue().set(userSaved.getPersonIdentifier(), new IDPortenUser(userSaved));
 
         return new IDPortenUser(userSaved);
-    }
-
-    private UserEntity toEntity(IDPortenUser user) {
-        UserEntity.UserEntityBuilder builder = UserEntity.builder();
-        builder.personIdentifier(user.getPid()).uuid(user.getId()).active(user.isActive());
-        if (user.getClosedCode() != null) {
-            builder.closedCode(user.getClosedCode());
-            builder.closedCodeUpdatedAtEpochMs(Instant.now().toEpochMilli());
-        }
-        if (!user.getHelpDeskCaseReferences().isEmpty()) {
-            builder.helpDeskCaseReferences(String.join(",", user.getHelpDeskCaseReferences()));
-        }
-
-        return builder.build();
     }
 
     @Transactional
@@ -112,7 +98,7 @@ public class UserService {
             existingUser.setClosedCode(null);
             existingUser.setClosedCodeUpdatedAtEpochMs(0);
             existingUser.setActive(true);
-        } else if (idPortenUser.getClosedCode() != null && !idPortenUser.getClosedCode().isEmpty() && !idPortenUser.getClosedCode().equals(existingUser.getClosedCode())) {
+        } else if (!idPortenUser.getClosedCode().isEmpty() && !idPortenUser.getClosedCode().equals(existingUser.getClosedCode())) {
             existingUser.setClosedCode(idPortenUser.getClosedCode());
             existingUser.setClosedCodeUpdatedAtEpochMs(Instant.now().toEpochMilli());
             existingUser.setActive(false);
@@ -124,6 +110,8 @@ public class UserService {
         }
 
         UserEntity savedUser = userRepository.save(existingUser);
+        idportenUserCache.opsForValue().set(savedUser.getPersonIdentifier(), new IDPortenUser(savedUser));
+
         return new IDPortenUser(savedUser);
     }
 
@@ -144,6 +132,8 @@ public class UserService {
             existingEIDs.add(updatedEid); //last-login and first-login set via annotations on entity on create
         }
         UserEntity savedUser = userRepository.save(existingUser);
+        idportenUserCache.opsForValue().set(savedUser.getPersonIdentifier(), new IDPortenUser(savedUser));
+
         return new IDPortenUser(savedUser);
     }
 
@@ -158,76 +148,38 @@ public class UserService {
 
     @Transactional
     public IDPortenUser deleteUser(UUID userUuid) {
+        IDPortenUser user = findUser(userUuid);
+
         Optional<UserEntity> userExists = userRepository.findByUuid(userUuid);
         if (userExists.isEmpty()) {
             return null;
         }
         userRepository.delete(UserEntity.builder().uuid(userUuid).build());
 
+        idportenUserCache.opsForValue().getAndDelete(user.getPid());
+        uuidToUseridCache.opsForValue().getAndDelete(userUuid.toString());
+
         return new IDPortenUser(userExists.get());
     }
 
     @Transactional
     public IDPortenUser changePid(String currentPid, String newPid) {
-        Optional<UserEntity> userExists = userRepository.findByPersonIdentifier(currentPid);
-        if (userExists.isEmpty()) {
-            throw UserServiceException.userNotFound("No user found for current person identifier.");
-        }
+        IDPortenUser userExists = searchForUser(currentPid).orElseThrow(() -> UserServiceException.userNotFound("No user found for current person identifier."));
+
         if (userRepository.findByPersonIdentifier(newPid).isPresent()) {
             throw UserServiceException.duplicateUser("User already exists for new person identifier.");
         }
-        UserEntity currentUser = userExists.get();
+        UserEntity currentUser = userExists.toEntity();
         UserEntity newUser = userRepository.save(UserEntity.builder().personIdentifier(newPid).active(true).previousUser(currentUser).build());
 
         currentUser.setActive(false);
         userRepository.save(currentUser);
 
+        idportenUserCache.opsForValue().getAndDelete(currentPid);
+        idportenUserCache.opsForValue().set(newUser.getPersonIdentifier(), new IDPortenUser(newUser));
+        uuidToUseridCache.opsForValue().set(newUser.getUuid().toString(), newUser.getPersonIdentifier());
+
+
         return new IDPortenUser(newUser);
     }
-
-    public List<IDPortenUser> findUserHistoryAndNewer(String pid) {
-        Optional<UserEntity> userExists = userRepository.findByPersonIdentifier(pid);
-        if (userExists.isEmpty()) {
-            return null;
-        }
-        List<IDPortenUser> allUsers = new ArrayList<>();
-        UserEntity currentUser = userExists.get();
-
-
-        UserEntity newUser = currentUser;
-        while (newUser != null) {
-            newUser = findAllNewerUsers(allUsers, newUser);
-        }
-        Collections.reverse(allUsers); // oldest users first in list
-
-        allUsers.add(new IDPortenUser(currentUser));
-
-        UserEntity oldUser = currentUser;
-        while (oldUser != null) {
-            oldUser = findAllPreviousUsers(allUsers, oldUser);
-        }
-
-
-        return allUsers;
-    }
-
-    private UserEntity findAllPreviousUsers(List<IDPortenUser> previousUsers, UserEntity user) {
-        if (user.getPreviousUser() != null) {
-            UserEntity previousUser = user.getPreviousUser();
-            previousUsers.add(new IDPortenUser(previousUser));
-            return previousUser;
-        }
-        return null;
-    }
-
-
-    private UserEntity findAllNewerUsers(List<IDPortenUser> nextUsers, UserEntity user) {
-        if (user.getNextUser() != null) {
-            UserEntity nextUser = user.getNextUser();
-            nextUsers.add(new IDPortenUser(nextUser));
-            return nextUser;
-        }
-        return null;
-    }
-
 }

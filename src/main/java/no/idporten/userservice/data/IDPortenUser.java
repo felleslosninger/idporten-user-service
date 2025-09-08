@@ -91,5 +91,27 @@ public class IDPortenUser {
         }
     }
 
+    public UserEntity toEntity() {
+        UserEntity.UserEntityBuilder builder = UserEntity.builder();
+        builder
+                .personIdentifier(getPid())
+                .uuid(getId())
+                .active(isActive());
+
+        if (getClosedCode() != null) {
+            builder.closedCode(getClosedCode());
+            builder.closedCodeUpdatedAtEpochMs(Instant.now().toEpochMilli());
+        }
+        if (!getHelpDeskCaseReferences().isEmpty()) {
+            builder.helpDeskCaseReferences(String.join(",", getHelpDeskCaseReferences()));
+        }
+
+        if (getPreviousUser() != null) {
+            builder.previousUser(getPreviousUser().toEntity());
+        }
+
+        return builder.build();
+    }
+
 
 }

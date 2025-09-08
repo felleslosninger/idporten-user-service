@@ -129,6 +129,12 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>com.github.fppt</groupId>
+            <artifactId>jedis-mock</artifactId>
+            <version>1.1.11</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>com.github.codemonstur</groupId>
             <artifactId>embedded-redis</artifactId>
             <version>${redis.version}</version>
