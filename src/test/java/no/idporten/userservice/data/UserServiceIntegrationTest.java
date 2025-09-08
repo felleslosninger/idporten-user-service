@@ -19,7 +19,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
-@SpringBootTest(classes = TestRedisConfig.class)
+@SpringBootTest(classes = TestRedisConfig.class, properties = {"spring.data.redis.port=7546"})
 @AutoConfigureMockMvc
 @DisplayName("When using the userservice")
 @ActiveProfiles("test")
