@@ -1,6 +1,11 @@
 package no.idporten.userservice.data;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.connection.stream.StreamRecords;
+import org.springframework.data.redis.connection.stream.StringRecord;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -9,6 +14,7 @@ import org.springframework.util.CollectionUtils;
 import java.time.Instant;
 import java.util.*;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 @Transactional(readOnly = true)
@@ -63,6 +69,14 @@ public class UserService {
         }
         idPortenUser.setActive(Boolean.TRUE);
         UserEntity user = idPortenUser.toEntity();
+
+//        try {
+//            StringRecord record = StreamRecords.string(Map.of("user", new ObjectMapper().writeValueAsString(user))).withStreamKey("save-user");
+//            idportenUserCache.opsForStream().add(record);
+//        } catch (JsonProcessingException e) {
+//            log.error("Error serializing user record", e);
+//        }
+
         UserEntity userSaved = userRepository.save(user);
 
         idportenUserCache.opsForValue().set(userSaved.getPersonIdentifier(), new IDPortenUser(userSaved));
