@@ -1,5 +1,6 @@
 package no.idporten.userservice.data;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;
 import org.springframework.util.StringUtils;
@@ -15,7 +16,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@JsonIgnoreProperties(ignoreUnknown = true)
+// @JsonIgnoreProperties(ignoreUnknown = true)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class IDPortenUser {
 
@@ -42,8 +43,7 @@ public class IDPortenUser {
     @Singular
     private List<Login> logins =  Collections.emptyList();
 
-    private Boolean dirty = false;
-
+    @JsonIgnore
     public Login getLastLogin() {
         long latest = 0L;
         Login latestLogin = null;

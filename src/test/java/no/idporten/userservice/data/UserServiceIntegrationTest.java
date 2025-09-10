@@ -247,6 +247,6 @@ public class UserServiceIntegrationTest {
     }
 
     private IDPortenUser createUser(String pid, boolean active) {
-        return new IDPortenUser(null, pid, Instant.now(), Instant.now(), active, null, Instant.now(), null, emptyList(), null, false);
+        return new IDPortenUser(null, pid, Instant.now(), Instant.now(), active, null, Instant.now(), null, emptyList(), null);
     }
 }
