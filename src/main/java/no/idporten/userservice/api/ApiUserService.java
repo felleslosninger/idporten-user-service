@@ -9,7 +9,7 @@ import no.idporten.userservice.api.login.CreateUserRequest;
 import no.idporten.userservice.api.login.UpdateUserLoginRequest;
 import no.idporten.userservice.data.IDPortenUser;
 import no.idporten.userservice.data.Login;
-import no.idporten.userservice.data.UserService;
+import no.idporten.userservice.data.CachedUserService;
 import no.idporten.userservice.data.UserServiceException;
 import no.idporten.validators.identifier.PersonIdentifierValidator;
 import org.springframework.http.HttpStatus;
@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true) 
 public class ApiUserService {
 
-    private final UserService userService;
+    private final CachedUserService userService;
 
     public UserResource lookup(String userId) {
         IDPortenUser idPortenUser = userService.findUser(UUID.fromString(userId));

@@ -23,13 +23,13 @@ import static org.mockito.Mockito.*;
 @AutoConfigureMockMvc
 @DisplayName("When using the userservice")
 @ActiveProfiles("test")
-public class UserServiceIntegrationTest {
+public class CachedUserServiceIntegrationTest {
 
     @MockitoSpyBean
     private UserRepository userRepository;
 
     @Autowired
-    private UserService userService;
+    private CachedUserService userService;
 
     @Test
     public void testSearchForUserExistingUsingCache() {

@@ -6,7 +6,7 @@ import no.idporten.userservice.api.login.CreateUserRequest;
 import no.idporten.userservice.api.login.UpdateUserLoginRequest;
 import no.idporten.userservice.data.IDPortenUser;
 import no.idporten.userservice.data.Login;
-import no.idporten.userservice.data.UserService;
+import no.idporten.userservice.data.CachedUserService;
 import no.idporten.userservice.data.UserServiceException;
 import no.idporten.validators.identifier.PersonIdentifierValidator;
 import org.junit.jupiter.api.BeforeAll;
@@ -33,7 +33,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class ApiUserServiceTest {
+public class ApiCachedUserServiceTest {
 
     @BeforeAll
     public static void setUp() {
@@ -42,7 +42,7 @@ public class ApiUserServiceTest {
     }
 
     @Mock
-    private UserService userService;
+    private CachedUserService userService;
 
     @InjectMocks
     private ApiUserService apiUserService;
