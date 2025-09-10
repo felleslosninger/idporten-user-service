@@ -5,6 +5,10 @@ server:
 spring:
   cache:
     type: redis
+  data:
+    redis:
+      connect-timeout: 3s
+      timeout: 3s
   thread-executor: virtual
   jpa:
     hibernate:
