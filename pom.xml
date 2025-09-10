@@ -138,6 +138,7 @@
             <groupId>com.github.codemonstur</groupId>
             <artifactId>embedded-redis</artifactId>
             <version>${redis.version}</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>no.idporten.test.generate</groupId>

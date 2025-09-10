@@ -11,7 +11,7 @@ import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 @Configuration
-public class RedisCache {
+public class UserCacheConfig {
 
     @Bean("idportenUserCache")
     public RedisTemplate<String, IDPortenUser> idportenUserCache(RedisConnectionFactory rcf) {
