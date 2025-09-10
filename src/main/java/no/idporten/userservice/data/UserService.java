@@ -1,18 +1,16 @@
 package no.idporten.userservice.data;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.redis.connection.stream.StreamRecords;
-import org.springframework.data.redis.connection.stream.StringRecord;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.time.Instant;
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -131,11 +129,11 @@ public class UserService {
 
     @Transactional
     public IDPortenUser updateUserWithEid(UUID userUuid, Login eid) {
-        Optional<UserEntity> byUuid = userRepository.findByUuid(userUuid);
-        if (byUuid.isEmpty()) {
+        IDPortenUser user = findUser(userUuid);
+        if (user == null) {
             throw UserServiceException.userNotFound();
         }
-        UserEntity existingUser = byUuid.get();
+        UserEntity existingUser = user.toEntity();
         List<LoginEntity> existingEIDs = existingUser.getLogins();
         LoginEntity eidToUpdate = findExistingEid(eid, existingEIDs);
 
@@ -164,16 +162,16 @@ public class UserService {
     public IDPortenUser deleteUser(UUID userUuid) {
         IDPortenUser user = findUser(userUuid);
 
-        Optional<UserEntity> userExists = userRepository.findByUuid(userUuid);
-        if (userExists.isEmpty()) {
+        if (user == null) {
             return null;
         }
+
         userRepository.delete(UserEntity.builder().uuid(userUuid).build());
 
         idportenUserCache.opsForValue().getAndDelete(user.getPid());
         uuidToUseridCache.opsForValue().getAndDelete(userUuid.toString());
 
-        return new IDPortenUser(userExists.get());
+        return user;
     }
 
     @Transactional

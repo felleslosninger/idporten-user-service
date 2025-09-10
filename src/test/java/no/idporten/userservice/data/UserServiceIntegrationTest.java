@@ -221,7 +221,6 @@ public class UserServiceIntegrationTest {
             assertEquals(personIdentifier, userSaved.getPid());
             assertEquals(minid.getEidName(), userSaved.getLastLogin().getEidName());
             assertTrue(userSaved.getLastLogin().getLastLogin().toEpochMilli() > 0);
-            verify(userRepository).findByUuid(any(UUID.class));
             verify(userRepository, times(2)).save(any(UserEntity.class));
         }
 
@@ -243,12 +242,9 @@ public class UserServiceIntegrationTest {
             assertEquals(personIdentifier, userSaved.getPid());
             assertEquals(minid.getEidName(), userSaved.getLastLogin().getEidName());
             assertTrue(userSaved.getLastLogin().getLastLogin().toEpochMilli() > 0);
-            verify(userRepository).findByUuid(any(UUID.class));
             verify(userRepository, times(2)).save(any(UserEntity.class));
         }
     }
-
-
 
     private IDPortenUser createUser(String pid, boolean active) {
         return new IDPortenUser(null, pid, Instant.now(), Instant.now(), active, null, Instant.now(), null, emptyList(), null, false);

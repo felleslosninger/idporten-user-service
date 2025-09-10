@@ -24,16 +24,6 @@ spring:
           jwk-set-uri: https://maskinporten.dev/.well-known/jwks.json
   application:
     environment: systest
-  data:
-    redis:
-      password: ${REDIS_PASSWORD}
-      sentinel:
-        master: mymaster
-        password: ${REDIS_PASSWORD}
-        nodes:
-          - maskinporten-redis-sentinel-node-0.maskinporten-redis-sentinel-headless:26379
-          - maskinporten-redis-sentinel-node-1.maskinporten-redis-sentinel-headless:26379
-          - maskinporten-redis-sentinel-node-2.maskinporten-redis-sentinel-headless:26379
 
 # App-specific config
 idporten-user-service:
