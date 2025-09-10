@@ -24,5 +24,4 @@ public class Login {
         this.firstLogin = Instant.ofEpochMilli(loginEntity.getFirstLoginAtEpochMs());
         this.lastLogin = Instant.ofEpochMilli(loginEntity.getLastLoginAtEpochMs());
     }
-
 }

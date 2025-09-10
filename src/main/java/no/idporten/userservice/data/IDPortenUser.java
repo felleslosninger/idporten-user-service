@@ -1,10 +1,11 @@
 package no.idporten.userservice.data;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;
 import org.springframework.util.StringUtils;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Arrays;
@@ -18,7 +19,10 @@ import java.util.UUID;
 @Builder
 // @JsonIgnoreProperties(ignoreUnknown = true)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class IDPortenUser {
+public class IDPortenUser implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 2179287390603831814L;
 
     private UUID id;
 
