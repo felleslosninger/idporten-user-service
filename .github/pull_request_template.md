@@ -10,8 +10,8 @@ Eigar:
   
 Kodeles:  
 - [ ] Lesbar kode, nødvendige kommentarer
-- [ ] Løyser issue
+- [ ] Sak er godt nok forklart/dokumentert
+- [ ] Løyser sake
 - [ ] Risikovurdering ok
 - [ ] Nødvendige unit-tester er på plass
 - [ ] Nødvendige regresjonstester er oppdatert/oppretta/planlagt
-- [ ] Saken er godt nok forklart/dokumentert
