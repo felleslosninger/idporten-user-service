@@ -33,18 +33,18 @@ public class CachedUserServiceIntegrationTest {
 
     @Test
     public void testSearchForUserExistingUsingCache() {
-        userService.createUser(createUser("12345678910", true));
+        userService.createUser(createUser("12345678910"));
         Optional<IDPortenUser> idPortenUser = userService.searchForUser("12345678910");
         assertTrue(idPortenUser.isPresent());
         verify(userRepository, times(1)).findByPersonIdentifier(anyString());
 
-        idPortenUser = userService.searchForUser("12345678910");
+        userService.searchForUser("12345678910");
         verify(userRepository, times(1)).findByPersonIdentifier(anyString());
     }
 
     @Test
     public void testSearchForNonExistingUserUsingCache() {
-        userService.createUser(createUser("12345678911", true));
+        userService.createUser(createUser("12345678911"));
         Optional<IDPortenUser> idPortenUser = userService.searchForUser("12345678915");
         assertFalse(idPortenUser.isPresent());
         verify(userRepository, times(2)).findByPersonIdentifier(anyString());
@@ -60,7 +60,7 @@ public class CachedUserServiceIntegrationTest {
             String personIdentifier = "126311";
             String newPersonIdentifier = "55551";
 
-            IDPortenUser existingUser = createUser(personIdentifier, true);
+            IDPortenUser existingUser = createUser(personIdentifier);
             existingUser = userService.createUser(existingUser);
 
             IDPortenUser newIdPortenUser = userService.changePid(personIdentifier, newPersonIdentifier);
@@ -208,11 +208,13 @@ public class CachedUserServiceIntegrationTest {
         public void testCreateUser() {
             String personIdentifier = "12631";
             Login minid = Login.builder().eidName("MinID").build();
-            long now = Instant.now().toEpochMilli();
-            LoginEntity loginEntity = LoginEntity.builder().eidName("MinID").id(1L).lastLoginAtEpochMs(now).firstLoginAtEpochMs(now).build();
-            UserEntity userEntity = UserEntity.builder().personIdentifier(personIdentifier).logins(Collections.singletonList(loginEntity)).build();
+            Instant now = Instant.now();
+            Login login = Login.builder().eidName("MinID").lastLogin(Instant.now()).firstLogin(now).build();
+            UserEntity userEntity = UserEntity.builder().personIdentifier(personIdentifier).build();
 
             IDPortenUser createdUser = userService.createUser(new IDPortenUser(userEntity));
+            createdUser.setLogins(List.of(login));
+            userService.updateUser(createdUser);
 
             IDPortenUser userSaved = userService.updateUserWithEid(createdUser.getId(), minid);
 
@@ -221,7 +223,7 @@ public class CachedUserServiceIntegrationTest {
             assertEquals(personIdentifier, userSaved.getPid());
             assertEquals(minid.getEidName(), userSaved.getLastLogin().getEidName());
             assertTrue(userSaved.getLastLogin().getLastLogin().toEpochMilli() > 0);
-            verify(userRepository, times(2)).save(any(UserEntity.class));
+            verify(userRepository, times(3)).save(any(UserEntity.class));
         }
 
         @Test
@@ -229,11 +231,13 @@ public class CachedUserServiceIntegrationTest {
         public void testUpdateUser() {
             String personIdentifier = "12639";
             Login minid = Login.builder().eidName("MinID").build();
-            long now = Instant.now().toEpochMilli();
-            LoginEntity loginEntity = LoginEntity.builder().eidName("MinID").id(1L).lastLoginAtEpochMs(now).firstLoginAtEpochMs(now).build();
+            Instant now = Instant.now();
+            Login login = Login.builder().eidName("MinID").lastLogin(Instant.now()).firstLogin(now).build();
 
-            UserEntity userEntity = UserEntity.builder().personIdentifier(personIdentifier).logins(Collections.singletonList(loginEntity)).build();
+            UserEntity userEntity = UserEntity.builder().personIdentifier(personIdentifier).build();
             IDPortenUser createdUser = userService.createUser(new IDPortenUser(userEntity));
+            createdUser.setLogins(Collections.singletonList(login));
+            userService.updateUser(createdUser);
 
             IDPortenUser userSaved = userService.updateUserWithEid(createdUser.getId(), minid);
 
@@ -242,11 +246,11 @@ public class CachedUserServiceIntegrationTest {
             assertEquals(personIdentifier, userSaved.getPid());
             assertEquals(minid.getEidName(), userSaved.getLastLogin().getEidName());
             assertTrue(userSaved.getLastLogin().getLastLogin().toEpochMilli() > 0);
-            verify(userRepository, times(2)).save(any(UserEntity.class));
+            verify(userRepository, times(3)).save(any(UserEntity.class));
         }
     }
 
-    private IDPortenUser createUser(String pid, boolean active) {
-        return new IDPortenUser(null, pid, Instant.now(), Instant.now(), active, null, Instant.now(), null, emptyList(), null);
+    private IDPortenUser createUser(String pid) {
+        return new IDPortenUser(null, pid, Instant.now(), Instant.now(), true, null, Instant.now(), null, emptyList(), null);
     }
 }

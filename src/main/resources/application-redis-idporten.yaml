@@ -6,6 +6,6 @@ spring:
         master: mymaster
         password: ${REDIS_PASSWORD}
         nodes:
-          - maskinporten-redis-sentinel-node-0.idporten-redis-sentinel-headless:26379
-          - maskinporten-redis-sentinel-node-1.idporten-redis-sentinel-headless:26379
-          - maskinporten-redis-sentinel-node-2.idporten-redis-sentinel-headless:26379
+          - idporten-redis-sentinel-node-0.idporten-redis-sentinel-headless:26379
+          - idporten-redis-sentinel-node-1.idporten-redis-sentinel-headless:26379
+          - idporten-redis-sentinel-node-2.idporten-redis-sentinel-headless:26379

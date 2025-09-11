@@ -24,4 +24,13 @@ public class Login {
         this.firstLogin = Instant.ofEpochMilli(loginEntity.getFirstLoginAtEpochMs());
         this.lastLogin = Instant.ofEpochMilli(loginEntity.getLastLoginAtEpochMs());
     }
+
+    public LoginEntity toEntity(UserEntity user) {
+        LoginEntity loginEntity = new LoginEntity();
+        loginEntity.setEidName(eidName);
+        loginEntity.setFirstLoginAtEpochMs(firstLogin.toEpochMilli());
+        loginEntity.setLastLoginAtEpochMs(lastLogin.toEpochMilli());
+        loginEntity.setUser(user);
+        return loginEntity;
+    }
 }

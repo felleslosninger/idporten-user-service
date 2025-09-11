@@ -114,8 +114,11 @@ public class IDPortenUser implements Serializable {
             builder.previousUser(getPreviousUser().toEntity());
         }
 
+        if (getLogins() != null && !getLogins().isEmpty()) {
+            builder.logins(getLogins().stream().map(l -> l.toEntity(builder.build())).toList());
+        }
+
         return builder.build();
     }
-
 
 }

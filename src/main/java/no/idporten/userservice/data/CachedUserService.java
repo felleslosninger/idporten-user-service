@@ -41,6 +41,7 @@ public class CachedUserService implements UserService {
         IDPortenUser idPortenUser = idportenUserCache.opsForValue().get(personIdentifier);
 
         if (idPortenUser == null) {
+            log.info("Cached user not found: {}", personIdentifier);
             Optional<IDPortenUser> user = userService.searchForUser(personIdentifier);
 
             if (user.isPresent()) {
@@ -58,13 +59,6 @@ public class CachedUserService implements UserService {
     @Transactional
     public IDPortenUser createUser(IDPortenUser idPortenUser) {
         IDPortenUser savedUser = userService.createUser(idPortenUser);
-
-//        try {
-//            StringRecord record = StreamRecords.string(Map.of("user", new ObjectMapper().writeValueAsString(user))).withStreamKey("save-user");
-//            idportenUserCache.opsForStream().add(record);
-//        } catch (JsonProcessingException e) {
-//            log.error("Error serializing user record", e);
-//        }
 
         idportenUserCache.opsForValue().set(savedUser.getPid(), savedUser);
         uuidToUseridCache.opsForValue().set(savedUser.getId().toString(), savedUser.getPid());
