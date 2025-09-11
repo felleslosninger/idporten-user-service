@@ -19,4 +19,7 @@ spring:
         jwt:
           jwk-set-uri: http://my.maskinporten/.well-known/jwks.json
 
+digdir:
+  caching:
+    enabled: true
 

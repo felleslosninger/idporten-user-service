@@ -131,11 +131,10 @@ public class DirectUserService implements UserService {
             throw UserServiceException.duplicateUser("User already exists for new person identifier.");
         }
         UserEntity currentUser = userExists.toEntity();
-        UserEntity newUser = userRepository.save(UserEntity.builder().personIdentifier(newPid).active(true).previousUser(currentUser).build());
-
         currentUser.setActive(false);
         userRepository.save(currentUser);
 
+        UserEntity newUser = userRepository.save(UserEntity.builder().personIdentifier(newPid).active(true).previousUser(currentUser).build());
         return new IDPortenUser(newUser);
     }
 }

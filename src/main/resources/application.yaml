@@ -80,6 +80,8 @@ idporten-user-service:
         - /error
 
 digdir:
+  caching:
+    enabled: true
   audit:
     application-name: ${spring.application.name}
     application-environment: ${spring.application.environment}

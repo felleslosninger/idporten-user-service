@@ -7,10 +7,7 @@ import no.idporten.userservice.api.admin.UpdatePidAttributesRequest;
 import no.idporten.userservice.api.admin.UpdateStatusRequest;
 import no.idporten.userservice.api.login.CreateUserRequest;
 import no.idporten.userservice.api.login.UpdateUserLoginRequest;
-import no.idporten.userservice.data.IDPortenUser;
-import no.idporten.userservice.data.Login;
-import no.idporten.userservice.data.CachedUserService;
-import no.idporten.userservice.data.UserServiceException;
+import no.idporten.userservice.data.*;
 import no.idporten.validators.identifier.PersonIdentifierValidator;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,7 +27,7 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true) 
 public class ApiUserService {
 
-    private final CachedUserService userService;
+    private final UserService userService;
 
     public UserResource lookup(String userId) {
         IDPortenUser idPortenUser = userService.findUser(UUID.fromString(userId));
