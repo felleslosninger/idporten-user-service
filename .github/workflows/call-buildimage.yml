@@ -13,6 +13,7 @@ on:
       - "*.md"
       - "LICENSE"
       - "catalog-info.yaml"
+      - ".github/pull_request_template.md"
 
 jobs:
   build-publish-image:
