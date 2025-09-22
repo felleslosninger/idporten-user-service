@@ -84,7 +84,12 @@ public class CachedUserService implements UserService {
 
     @Transactional
     public IDPortenUser updateUserWithEid(UUID userUuid, Login eid) {
-        IDPortenUser updatedUser = userService.updateUserWithEid(userUuid, eid);
+        IDPortenUser user = findUser(userUuid);
+        if (user == null) {
+            throw UserServiceException.userNotFound();
+        }
+
+        IDPortenUser updatedUser = userService.updateUserWithEid(user.getId(), eid);
         idportenUserCache.opsForValue().set(updatedUser.getPid(), updatedUser);
 
         return updatedUser;
