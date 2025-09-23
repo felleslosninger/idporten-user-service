@@ -63,7 +63,7 @@ public class CachedUserService implements UserService {
             throw UserServiceException.userNotFound();
         }
 
-        return userService.updateUserWithEid(user.getId(), eid);
+        return userService.updateUserWithEid(user, eid);
     }
 
     @Transactional

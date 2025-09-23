@@ -108,19 +108,32 @@ public class DirectUserService implements UserService, ApplicationEventPublisher
             throw UserServiceException.userNotFound();
         }
         List<LoginEntity> existingEIDs = existingUser.get().getLogins();
+        return updateUserWithEid(eid, existingEIDs, existingUser.get());
+    }
+
+    @Transactional
+    public IDPortenUser updateUserWithEid(IDPortenUser idPortenUser, Login eid) {
+        UserEntity existingUser = idPortenUser.toEntity();
+
+        List<LoginEntity> existingEIDs = existingUser.getLogins();
+        return updateUserWithEid(eid, existingEIDs, existingUser);
+    }
+
+    private IDPortenUser updateUserWithEid(Login eid, List<LoginEntity> existingEIDs, UserEntity existingUser) {
         LoginEntity eidToUpdate = findExistingEid(eid, existingEIDs);
 
         if (eidToUpdate != null) {
             eidToUpdate.setLastLoginAtEpochMs(Instant.now().toEpochMilli());
         } else {
-            LoginEntity updatedEid = LoginEntity.builder().eidName(eid.getEidName()).user(existingUser.get()).build();
+            LoginEntity updatedEid = LoginEntity.builder().eidName(eid.getEidName()).user(existingUser).build();
             existingEIDs.add(updatedEid); //last-login and first-login set via annotations on entity on create
         }
-        UserEntity savedUser = userRepository.save(existingUser.get());
+        UserEntity savedUser = userRepository.save(existingUser);
         eventPublisher.publishEvent(new UserUpdatedEvent(this, new IDPortenUser(savedUser)));
 
         return new IDPortenUser(savedUser);
     }
+
 
     private LoginEntity findExistingEid(Login eid, List<LoginEntity> existingeIDs) {
         for (LoginEntity e : existingeIDs) {
