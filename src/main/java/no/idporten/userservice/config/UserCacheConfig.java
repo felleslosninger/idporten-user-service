@@ -12,10 +12,10 @@ import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 @Configuration
+@ConditionalOnProperty(name = "digdir.caching.enabled", havingValue = "true")
 public class UserCacheConfig {
 
     @Bean("idportenUserCache")
-    @ConditionalOnProperty(name = "digdir.caching.enabled", havingValue = "true")
     public RedisTemplate<String, IDPortenUser> idportenUserCache(RedisConnectionFactory rcf) {
         RedisTemplate<String, IDPortenUser> template = new RedisTemplate<>();
         template.setConnectionFactory(rcf);
@@ -32,7 +32,6 @@ public class UserCacheConfig {
     }
 
     @Bean("uuidToUseridCache")
-    @ConditionalOnProperty(name = "digdir.caching.enabled", havingValue = "true")
     public RedisTemplate<String, String> uuidToUseridCache(RedisConnectionFactory rcf) {
         RedisTemplate<String, String> template = new RedisTemplate<>();
         template.setConnectionFactory(rcf);

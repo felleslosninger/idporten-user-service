@@ -2,6 +2,7 @@ package no.idporten.userservice.data;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,6 +14,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Service
 @Transactional(readOnly = true)
+@ConditionalOnProperty(name = "digdir.caching.enabled", havingValue = "true")
 public class CachedUserService implements UserService {
 
     private final RedisTemplate<String, IDPortenUser> idportenUserCache;
@@ -36,6 +38,8 @@ public class CachedUserService implements UserService {
         if (idPortenUser == null) {
             log.info("Cached user not found: {}", personIdentifier);
             return userService.searchForUser(personIdentifier);
+        } else {
+            log.info("Cached user found: {}", personIdentifier);
         }
 
         return Optional.of(idPortenUser);
