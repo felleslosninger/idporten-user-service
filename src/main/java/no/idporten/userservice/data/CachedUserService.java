@@ -27,14 +27,7 @@ public class CachedUserService implements UserService {
             return searchForUser(cachedUser).orElse(null);
         }
 
-        IDPortenUser user = userService.findUser(uuid);
-        if (user == null) {
-            return null;
-        }
-
-        idportenUserCache.opsForValue().set(user.getPid(), user);
-
-        return user;
+        return userService.findUser(uuid);
     }
 
     public Optional<IDPortenUser> searchForUser(String personIdentifier) {
@@ -42,15 +35,7 @@ public class CachedUserService implements UserService {
 
         if (idPortenUser == null) {
             log.info("Cached user not found: {}", personIdentifier);
-            Optional<IDPortenUser> user = userService.searchForUser(personIdentifier);
-
-            if (user.isPresent()) {
-                idPortenUser = user.get();
-                idportenUserCache.opsForValue().set(idPortenUser.getPid(), idPortenUser);
-                uuidToUseridCache.opsForValue().set(idPortenUser.getId().toString(), idPortenUser.getPid());
-            } else {
-                return Optional.empty();
-            }
+            return userService.searchForUser(personIdentifier);
         }
 
         return Optional.of(idPortenUser);
@@ -58,28 +43,17 @@ public class CachedUserService implements UserService {
 
     @Transactional
     public IDPortenUser createUser(IDPortenUser idPortenUser) {
-        IDPortenUser savedUser = userService.createUser(idPortenUser);
-
-        idportenUserCache.opsForValue().set(savedUser.getPid(), savedUser);
-        uuidToUseridCache.opsForValue().set(savedUser.getId().toString(), savedUser.getPid());
-
-        return savedUser;
+        return userService.createUser(idPortenUser);
     }
 
     @Transactional
     public IDPortenUser createStatusUser(IDPortenUser idPortenUser) {
-        IDPortenUser savedUser = userService.createStatusUser(idPortenUser);
-        idportenUserCache.opsForValue().set(savedUser.getPid(), savedUser);
-
-        return savedUser;
+        return userService.createStatusUser(idPortenUser);
     }
 
     @Transactional
     public IDPortenUser updateUser(IDPortenUser idPortenUser) {
-        IDPortenUser updatedUser = userService.updateUser(idPortenUser);
-        idportenUserCache.opsForValue().set(updatedUser.getPid(), updatedUser);
-
-        return updatedUser;
+        return userService.updateUser(idPortenUser);
     }
 
     @Transactional
@@ -89,35 +63,16 @@ public class CachedUserService implements UserService {
             throw UserServiceException.userNotFound();
         }
 
-        IDPortenUser updatedUser = userService.updateUserWithEid(user.getId(), eid);
-        idportenUserCache.opsForValue().set(updatedUser.getPid(), updatedUser);
-
-        return updatedUser;
+        return userService.updateUserWithEid(user.getId(), eid);
     }
 
     @Transactional
     public IDPortenUser deleteUser(UUID userUuid) {
-        IDPortenUser user = userService.findUser(userUuid);
-        if (user == null) {
-            return null;
-        }
-
-        IDPortenUser deletedUser = userService.deleteUser(userUuid);
-
-        idportenUserCache.opsForValue().getAndDelete(user.getPid());
-        uuidToUseridCache.opsForValue().getAndDelete(userUuid.toString());
-
-        return deletedUser;
+        return userService.deleteUser(userUuid);
     }
 
     @Transactional
     public IDPortenUser changePid(String currentPid, String newPid) {
-        IDPortenUser idPortenUser = userService.changePid(currentPid, newPid);
-
-        idportenUserCache.opsForValue().getAndDelete(currentPid);
-        idportenUserCache.opsForValue().set(idPortenUser.getPid(), idPortenUser);
-        uuidToUseridCache.opsForValue().set(idPortenUser.getId().toString(), idPortenUser.getPid());
-
-        return idPortenUser;
+        return userService.changePid(currentPid, newPid);
     }
 }

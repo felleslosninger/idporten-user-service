@@ -1,5 +1,6 @@
 package no.idporten.userservice.data;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -7,6 +8,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 
 import java.time.Instant;
 import java.util.*;
@@ -23,6 +25,14 @@ public class DirectUserServiceTest {
 
     @InjectMocks
     private DirectUserService userService;
+
+    @Mock
+    private ApplicationEventPublisher eventPublisher;
+
+    @BeforeEach
+    void before() {
+        userService.setApplicationEventPublisher(eventPublisher);
+    }
 
     @Nested
     @DisplayName("When create a user")

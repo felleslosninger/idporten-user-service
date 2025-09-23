@@ -179,24 +179,25 @@ public class CachedUserServiceIntegrationTest {
             verify(userRepository).findByPersonIdentifier(personIdentifier);
         }
 
-        @Nested
-        @DisplayName("When delete a user")
-        public class DeleteUserTest {
-            @Test
-            @DisplayName("by person-identifier then user to be deleted is returned")
-            public void testDeleteUser() {
-                String personIdentifier = "12638";
-                UUID uuid = UUID.randomUUID();
+    }
 
-                IDPortenUser user = userService.createUser(new IDPortenUser(UserEntity.builder().personIdentifier(personIdentifier).build()));
-                IDPortenUser usersToBeDeleted = userService.deleteUser(user.getId());
+    @Nested
+    @DisplayName("When delete a user")
+    public class DeleteUserTest {
+        @Test
+        @DisplayName("by person-identifier then user to be deleted is returned")
+        public void testDeleteUser() {
+            String personIdentifier = "12638";
+            UUID uuid = UUID.randomUUID();
 
-                assertNotNull(usersToBeDeleted);
-                verify(userRepository).delete(any(UserEntity.class));
+            IDPortenUser user = userService.createUser(new IDPortenUser(UserEntity.builder().personIdentifier(personIdentifier).build()));
+            IDPortenUser usersToBeDeleted = userService.deleteUser(user.getId());
 
-                Optional<IDPortenUser> foundUser = userService.searchForUser(personIdentifier);
-                assertFalse(foundUser.isPresent());
-            }
+            assertNotNull(usersToBeDeleted);
+            verify(userRepository).delete(any(UserEntity.class));
+
+            Optional<IDPortenUser> foundUser = userService.searchForUser(personIdentifier);
+            assertFalse(foundUser.isPresent());
         }
     }
 

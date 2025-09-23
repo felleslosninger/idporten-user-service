@@ -2,6 +2,11 @@ package no.idporten.userservice.data;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import no.idporten.userservice.data.event.UserDeletedEvent;
+import no.idporten.userservice.data.event.UserUpdatedEvent;
+import no.idporten.userservice.data.event.UserReadEvent;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -15,17 +20,27 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Service
 @Transactional(readOnly = true)
-public class DirectUserService implements UserService {
+public class DirectUserService implements UserService, ApplicationEventPublisherAware {
 
     private final UserRepository userRepository;
 
+    private ApplicationEventPublisher eventPublisher;
+
     public IDPortenUser findUser(UUID uuid) {
         Optional<UserEntity> user = userRepository.findByUuid(uuid);
+
+        user.ifPresent(userEntity ->
+                eventPublisher.publishEvent(new UserReadEvent(this, new IDPortenUser(userEntity))));
+
         return user.map(IDPortenUser::new).orElse(null);
     }
 
     public Optional<IDPortenUser> searchForUser(String personIdentifier) {
         Optional<UserEntity> user = userRepository.findByPersonIdentifier(personIdentifier);
+
+        user.ifPresent(userEntity ->
+                eventPublisher.publishEvent(new UserReadEvent(this, new IDPortenUser(userEntity))));
+
         return user.map(IDPortenUser::new);
     }
 
@@ -39,6 +54,9 @@ public class DirectUserService implements UserService {
         }
         idPortenUser.setActive(Boolean.TRUE);
         UserEntity userSaved = userRepository.save(idPortenUser.toEntity());
+
+        eventPublisher.publishEvent(new UserUpdatedEvent(this, new IDPortenUser(userSaved)));
+
         return new IDPortenUser(userSaved);
     }
 
@@ -78,6 +96,7 @@ public class DirectUserService implements UserService {
         }
 
         UserEntity savedUser = userRepository.save(existingUser);
+        eventPublisher.publishEvent(new UserUpdatedEvent(this, new IDPortenUser(savedUser)));
 
         return new IDPortenUser(savedUser);
     }
@@ -98,6 +117,7 @@ public class DirectUserService implements UserService {
             existingEIDs.add(updatedEid); //last-login and first-login set via annotations on entity on create
         }
         UserEntity savedUser = userRepository.save(existingUser.get());
+        eventPublisher.publishEvent(new UserUpdatedEvent(this, new IDPortenUser(savedUser)));
 
         return new IDPortenUser(savedUser);
     }
@@ -114,12 +134,14 @@ public class DirectUserService implements UserService {
     @Transactional
     public IDPortenUser deleteUser(UUID userUuid) {
         Optional<UserEntity> user = userRepository.findByUuid(userUuid);
-
         if (user.isEmpty()) {
             return null;
         }
+        String personIdentifier = user.get().getPersonIdentifier();
 
         userRepository.delete(UserEntity.builder().uuid(userUuid).build());
+        eventPublisher.publishEvent(new UserDeletedEvent(this, userUuid, personIdentifier));
+
         return new IDPortenUser(user.get());
     }
 
@@ -136,5 +158,10 @@ public class DirectUserService implements UserService {
 
         UserEntity newUser = userRepository.save(UserEntity.builder().personIdentifier(newPid).active(true).previousUser(currentUser).build());
         return new IDPortenUser(newUser);
+    }
+
+    @Override
+    public void setApplicationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
+        this.eventPublisher = applicationEventPublisher;
     }
 }
