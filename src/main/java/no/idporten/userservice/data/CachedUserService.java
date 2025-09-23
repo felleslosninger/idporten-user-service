@@ -51,12 +51,10 @@ public class CachedUserService implements UserService {
         return userService.createStatusUser(idPortenUser);
     }
 
-    @Transactional
     public IDPortenUser updateUser(IDPortenUser idPortenUser) {
         return userService.updateUser(idPortenUser);
     }
 
-    @Transactional
     public IDPortenUser updateUserWithEid(UUID userUuid, Login eid) {
         IDPortenUser user = findUser(userUuid);
         if (user == null) {
@@ -71,7 +69,6 @@ public class CachedUserService implements UserService {
         return userService.deleteUser(userUuid);
     }
 
-    @Transactional
     public IDPortenUser changePid(String currentPid, String newPid) {
         return userService.changePid(currentPid, newPid);
     }

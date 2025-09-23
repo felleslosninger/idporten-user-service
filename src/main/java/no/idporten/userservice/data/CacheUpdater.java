@@ -41,6 +41,7 @@ public class CacheUpdater {
     }
 
     @EventListener
+    @Async
     public void handleUserPidUpdatedEvent(UserPidUpdatedEvent userDeletedEvent) {
         idportenUserCache.opsForValue().getAndDelete(userDeletedEvent.oldPid);
         idportenUserCache.opsForValue().set(userDeletedEvent.idPortenUser.getPid(), userDeletedEvent.idPortenUser);

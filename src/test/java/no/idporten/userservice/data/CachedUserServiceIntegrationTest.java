@@ -14,6 +14,8 @@ import java.time.Instant;
 import java.util.*;
 
 import static java.util.Collections.emptyList;
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -188,7 +190,6 @@ public class CachedUserServiceIntegrationTest {
         @DisplayName("by person-identifier then user to be deleted is returned")
         public void testDeleteUser() {
             String personIdentifier = "12638";
-            UUID uuid = UUID.randomUUID();
 
             IDPortenUser user = userService.createUser(new IDPortenUser(UserEntity.builder().personIdentifier(personIdentifier).build()));
             IDPortenUser usersToBeDeleted = userService.deleteUser(user.getId());
@@ -196,7 +197,10 @@ public class CachedUserServiceIntegrationTest {
             assertNotNull(usersToBeDeleted);
             verify(userRepository).delete(any(UserEntity.class));
 
+            await().atMost(5, SECONDS).until(() -> userService.searchForUser(personIdentifier).isEmpty());
+
             Optional<IDPortenUser> foundUser = userService.searchForUser(personIdentifier);
+
             assertFalse(foundUser.isPresent());
         }
     }
