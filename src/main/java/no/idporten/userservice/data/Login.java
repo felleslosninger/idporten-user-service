@@ -12,6 +12,7 @@ import java.time.Instant;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Login {
+    private Long id;
 
     private String eidName;
 
@@ -20,6 +21,7 @@ public class Login {
     private Instant firstLogin;
 
     public Login(LoginEntity loginEntity) {
+        this.id = loginEntity.getId();
         this.eidName = loginEntity.getEidName();
         this.firstLogin = Instant.ofEpochMilli(loginEntity.getFirstLoginAtEpochMs());
         this.lastLogin = Instant.ofEpochMilli(loginEntity.getLastLoginAtEpochMs());
@@ -27,6 +29,7 @@ public class Login {
 
     public LoginEntity toEntity(UserEntity user) {
         LoginEntity loginEntity = new LoginEntity();
+        loginEntity.setId(id);
         loginEntity.setEidName(eidName);
         loginEntity.setFirstLoginAtEpochMs(firstLogin.toEpochMilli());
         loginEntity.setLastLoginAtEpochMs(lastLogin.toEpochMilli());

@@ -223,8 +223,6 @@ public class CachedUserServiceIntegrationTest {
 
             IDPortenUser userSaved = userService.updateUserWithEid(createdUser.getId(), minid);
 
-//             userService.updateUserWithEid(createdUser.getId(), minid);
-
             assertNotNull(userSaved);
             assertNotNull(userSaved.getId());
             assertEquals(personIdentifier, userSaved.getPid());
