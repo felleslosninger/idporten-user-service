@@ -3,6 +3,7 @@ package no.idporten.userservice.data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import no.idporten.userservice.data.event.*;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.event.EventListener;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.Async;
@@ -14,6 +15,7 @@ import static org.springframework.transaction.event.TransactionPhase.AFTER_COMMI
 @Slf4j
 @RequiredArgsConstructor
 @Component
+@ConditionalOnProperty(name = "digdir.caching.enabled", havingValue = "true")
 public class CacheUpdater {
 
     private final RedisTemplate<String, IDPortenUser> idportenUserCache;
