@@ -68,6 +68,8 @@ public class DirectUserService implements UserService, ApplicationEventPublisher
         }
         UserEntity user = idPortenUser.toEntity();
         UserEntity userSaved = userRepository.save(user);
+        eventPublisher.publishEvent(new UserCreatedEvent(this, new IDPortenUser(userSaved)));
+
         return new IDPortenUser(userSaved);
     }
 
