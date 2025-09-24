@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.5.3</version>
+        <version>3.5.6</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>no.idporten</groupId>
@@ -17,23 +17,29 @@
         <java.version>21</java.version>
         <idporten-validators.version>1.6.0</idporten-validators.version>
         <idporten-fnr-generate.version>1.0.1</idporten-fnr-generate.version>
-        <springdoc.version>2.8.9</springdoc.version>
+        <springdoc.version>2.8.13</springdoc.version>
         <idporten-access-log.version>2.8.0</idporten-access-log.version>
-        <idporten-audit-log.version>2.5.0</idporten-audit-log.version>
+        <idporten-audit-log.version>2.5.2</idporten-audit-log.version>
+        <idporten-metric-constants.version>1.4.4</idporten-metric-constants.version>
         <nimbus.jose.jwt.version>9.23</nimbus.jose.jwt.version>
         <idporten-actuator-starter.version>2.0.0</idporten-actuator-starter.version>
-        <open.telemetry.version>1.52.0</open.telemetry.version>
-        <mariadb-java-client.version>3.5.4</mariadb-java-client.version>
-        <idporten-metric-constants.version>1.4.4</idporten-metric-constants.version>
+        <mariadb-java-client.version>3.5.6</mariadb-java-client.version>
+        <open.telemetry.version>1.54.1</open.telemetry.version>
+        <redis.version>1.4.3</redis.version>
     </properties>
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
         </dependency>
         <dependency>
             <groupId>no.idporten.actuator</groupId>
@@ -120,6 +126,18 @@
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.fppt</groupId>
+            <artifactId>jedis-mock</artifactId>
+            <version>1.1.11</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.codemonstur</groupId>
+            <artifactId>embedded-redis</artifactId>
+            <version>${redis.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>

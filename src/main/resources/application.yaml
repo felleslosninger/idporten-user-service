@@ -3,6 +3,12 @@ server:
   port: 8080
 
 spring:
+  cache:
+    type: redis
+  data:
+    redis:
+      connect-timeout: 3s
+      timeout: 3s
   thread-executor: virtual
   jpa:
     hibernate:
@@ -74,6 +80,8 @@ idporten-user-service:
         - /error
 
 digdir:
+  caching:
+    enabled: true
   audit:
     application-name: ${spring.application.name}
     application-environment: ${spring.application.environment}

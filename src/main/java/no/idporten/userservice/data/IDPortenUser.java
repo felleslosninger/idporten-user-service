@@ -1,8 +1,11 @@
 package no.idporten.userservice.data;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.springframework.util.StringUtils;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Arrays;
@@ -14,8 +17,12 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+// @JsonIgnoreProperties(ignoreUnknown = true)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class IDPortenUser {
+public class IDPortenUser implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 2179287390603831814L;
 
     private UUID id;
 
@@ -38,8 +45,9 @@ public class IDPortenUser {
     private List<String> helpDeskCaseReferences = Collections.emptyList();
 
     @Singular
-    private List<Login> logins;
+    private List<Login> logins =  Collections.emptyList();
 
+    @JsonIgnore
     public Login getLastLogin() {
         long latest = 0L;
         Login latestLogin = null;
@@ -87,5 +95,30 @@ public class IDPortenUser {
         }
     }
 
+    public UserEntity toEntity() {
+        UserEntity.UserEntityBuilder builder = UserEntity.builder();
+        builder
+                .personIdentifier(getPid())
+                .uuid(getId())
+                .active(isActive());
+
+        if (getClosedCode() != null) {
+            builder.closedCode(getClosedCode());
+            builder.closedCodeUpdatedAtEpochMs(Instant.now().toEpochMilli());
+        }
+        if (!getHelpDeskCaseReferences().isEmpty()) {
+            builder.helpDeskCaseReferences(String.join(",", getHelpDeskCaseReferences()));
+        }
+
+        if (getPreviousUser() != null) {
+            builder.previousUser(getPreviousUser().toEntity());
+        }
+
+        if (getLogins() != null && !getLogins().isEmpty()) {
+            builder.logins(getLogins().stream().map(l -> l.toEntity(builder.build())).toList());
+        }
+
+        return builder.build();
+    }
 
 }

@@ -4,9 +4,9 @@ import no.idporten.userservice.TestData;
 import no.idporten.userservice.api.admin.UpdateAttributesRequest;
 import no.idporten.userservice.api.login.CreateUserRequest;
 import no.idporten.userservice.api.login.UpdateUserLoginRequest;
-import no.idporten.userservice.data.Login;
 import no.idporten.userservice.data.IDPortenUser;
-import no.idporten.userservice.data.UserService;
+import no.idporten.userservice.data.Login;
+import no.idporten.userservice.data.CachedUserService;
 import no.idporten.userservice.data.UserServiceException;
 import no.idporten.validators.identifier.PersonIdentifierValidator;
 import org.junit.jupiter.api.BeforeAll;
@@ -23,10 +23,8 @@ import org.mockito.stubbing.Answer;
 import org.springframework.http.HttpStatus;
 
 import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -35,7 +33,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class ApiUserServiceTest {
+public class ApiCachedUserServiceTest {
 
     @BeforeAll
     public static void setUp() {
@@ -44,7 +42,7 @@ public class ApiUserServiceTest {
     }
 
     @Mock
-    private UserService userService;
+    private CachedUserService userService;
 
     @InjectMocks
     private ApiUserService apiUserService;
@@ -73,7 +71,7 @@ public class ApiUserServiceTest {
         @Test
         public void testSearchNoUsersFound() {
             String personIdentifier = TestData.randomSynpid();
-            when(userService.searchForUser(eq(personIdentifier))).thenReturn(Collections.emptyList());
+            when(userService.searchForUser(eq(personIdentifier))).thenReturn(Optional.empty());
             List<UserResource> searchResult = apiUserService.searchForUser(personIdentifier);
             assertTrue(searchResult.isEmpty());
         }
@@ -83,11 +81,11 @@ public class ApiUserServiceTest {
         public void testSearchUserFound() {
             IDPortenUser user = TestData.randomUser();
             String personIdentifier = user.getPid();
-            when(userService.searchForUser(eq(personIdentifier))).thenReturn(List.of(user));
+            when(userService.searchForUser(eq(personIdentifier))).thenReturn(Optional.of(user));
             List<UserResource> searchResult = apiUserService.searchForUser(personIdentifier);
             assertAll(
                     () -> assertEquals(1, searchResult.size()),
-                    () -> assertEquals(personIdentifier, searchResult.get(0).getPersonIdentifier())
+                    () -> assertEquals(personIdentifier, searchResult.getFirst().getPersonIdentifier())
             );
         }
 

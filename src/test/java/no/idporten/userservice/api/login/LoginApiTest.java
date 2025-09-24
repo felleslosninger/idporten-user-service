@@ -7,6 +7,7 @@ import no.idporten.logging.audit.AuditLogger;
 import no.idporten.userservice.TestData;
 import no.idporten.userservice.api.ApiUserService;
 import no.idporten.userservice.api.UserResource;
+import no.idporten.userservice.config.TestRedisConfig;
 import no.idporten.userservice.logging.audit.AuditID;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.DisplayName;
@@ -31,7 +32,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@SpringBootTest
+@SpringBootTest(classes = TestRedisConfig.class)
 @AutoConfigureMockMvc
 @DisplayName("When using the login API")
 @ActiveProfiles("test")
@@ -162,9 +163,7 @@ public class LoginApiTest {
                     .andExpect(jsonPath("$.[0].active").value(true));
             verify(auditLogger, times(1)).log(auditEntryCaptor.capture());
             assertTrue(auditEntryCaptor.getValue().getAuditId().auditId().endsWith(AuditID.LOGIN_USER_SEARCHED.getAuditName()));
-
         }
-
     }
 
     @DisplayName("When using the users endpoint to create users")

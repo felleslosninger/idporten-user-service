@@ -258,7 +258,7 @@ public class UserRepositoryTest {
         @Test
         @DisplayName("then when a new user is created as active and the old user is set to inactive and the new user has a relation to the old user (previousUser)")
         void testFirstChange() {
-            String personIdentifier = "123456";
+            String personIdentifier = "12345601";
             UserEntity testUser = UserEntity.builder()
                     .personIdentifier(personIdentifier)
                     .active(Boolean.TRUE)
@@ -280,6 +280,35 @@ public class UserRepositoryTest {
             assertTrue(savedNewUser.isActive());
             assertNotNull(savedNewUser.getPreviousUser());
             assertNull(savedNewUser.getNextUser());
+            oldUser.setActive(false);
+            assertFalse(userRepository.save(oldUser).isActive());
+        }
+
+        @Test
+        @DisplayName("then when a new user is created as active and the old user is set to inactive and the new user has a relation to the old user (previousUser)")
+        void testNextUser() {
+            String personIdentifier = "12345602";
+            UserEntity testUser = UserEntity.builder()
+                    .personIdentifier(personIdentifier)
+                    .active(Boolean.TRUE)
+                    .build();
+
+            userRepository.save(testUser);
+            Optional<UserEntity> byUuid = userRepository.findByPersonIdentifier(personIdentifier);
+            assertTrue(byUuid.isPresent());
+            UserEntity oldUser = byUuid.get();
+
+            String newPid = "25";
+            UserEntity newPidUser = UserEntity.builder()
+                    .personIdentifier(newPid)
+                    .active(Boolean.TRUE)
+                    .nextUser(oldUser)
+                    .build();
+            UserEntity savedNewUser = userRepository.save(newPidUser);
+            assertNotNull(savedNewUser);
+            assertTrue(savedNewUser.isActive());
+            assertNull(savedNewUser.getPreviousUser());
+            assertNotNull(savedNewUser.getNextUser());
             oldUser.setActive(false);
             assertFalse(userRepository.save(oldUser).isActive());
         }

@@ -3,6 +3,10 @@ server:
   port: 7070
 
 spring:
+  data:
+    redis:
+      host: localhost
+      port: 6370
   application:
     name: user-service
     environment: test

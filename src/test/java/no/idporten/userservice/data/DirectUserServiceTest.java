@@ -1,5 +1,6 @@
 package no.idporten.userservice.data;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -7,6 +8,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 
 import java.time.Instant;
 import java.util.*;
@@ -16,13 +18,21 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class UserServiceTest {
+public class DirectUserServiceTest {
 
     @Mock
     private UserRepository userRepository;
 
     @InjectMocks
-    private UserService userService;
+    private DirectUserService userService;
+
+    @Mock
+    private ApplicationEventPublisher eventPublisher;
+
+    @BeforeEach
+    void before() {
+        userService.setApplicationEventPublisher(eventPublisher);
+    }
 
     @Nested
     @DisplayName("When create a user")
@@ -99,7 +109,7 @@ public class UserServiceTest {
             assertNotNull(userSaved);
             assertNotNull(userSaved.getId());
             assertEquals(personIdentifier, userSaved.getPid());
-            assertTrue(userSaved.getHelpDeskCaseReferences().size() == 2 );
+            assertEquals(2, userSaved.getHelpDeskCaseReferences().size());
             verify(userRepository).save(any(UserEntity.class));
         }
     }
@@ -129,23 +139,8 @@ public class UserServiceTest {
 
             UserEntity userEntity = UserEntity.builder().personIdentifier(personIdentifier).uuid(UUID.randomUUID()).build();
             when(userRepository.findByPersonIdentifier(personIdentifier)).thenReturn(Optional.of(userEntity));
-            List<IDPortenUser> usersFound = userService.searchForUser(personIdentifier);
-            assertNotNull(usersFound);
-            assertEquals(1, usersFound.size());
-            verify(userRepository).findByPersonIdentifier(personIdentifier);
-
-        }
-
-        @Test
-        @DisplayName("by person-identifier then one user is returned")
-        public void testfindFirstUserByPid() {
-            String personIdentifier = "1263";
-
-            UserEntity userEntity = UserEntity.builder().personIdentifier(personIdentifier).uuid(UUID.randomUUID()).build();
-            when(userRepository.findByPersonIdentifier(personIdentifier)).thenReturn(Optional.of(userEntity));
-            IDPortenUser userFound = userService.findFirstUser(personIdentifier);
-            assertNotNull(userFound);
-            assertEquals(personIdentifier, userFound.getPid());
+            Optional<IDPortenUser> usersFound = userService.searchForUser(personIdentifier);
+            assertTrue(usersFound.isPresent());
             verify(userRepository).findByPersonIdentifier(personIdentifier);
 
         }
@@ -233,77 +228,21 @@ public class UserServiceTest {
             Optional<UserEntity> existingUser = Optional.of(userEntity);
             when(userRepository.findByPersonIdentifier(personIdentifier)).thenReturn(existingUser);
             when(userRepository.findByPersonIdentifier(newPersonIdentifier)).thenReturn(Optional.empty());
-            UserEntity newUserEntity = UserEntity.builder().personIdentifier(newPersonIdentifier).active(true).uuid(UUID.randomUUID()).previousUser(userEntity).build();
-            when(userRepository.save(any(UserEntity.class))).thenReturn(newUserEntity); //wrong second return, but do not care since not used
+
+            UserEntity previousEntity = UserEntity.builder().personIdentifier(personIdentifier).active(false).uuid(UUID.randomUUID()).build();
+            UserEntity newUserEntity = UserEntity.builder().personIdentifier(newPersonIdentifier).active(true).uuid(UUID.randomUUID()).previousUser(previousEntity).build();
+            when(userRepository.save(any(UserEntity.class))).thenReturn(newUserEntity);
 
             IDPortenUser newIdPortenUser = userService.changePid(personIdentifier, newPersonIdentifier);
 
             assertTrue(newIdPortenUser.isActive());
             assertEquals(newPersonIdentifier, newIdPortenUser.getPid());
             assertNotNull(newIdPortenUser.getPreviousUser());
-            assertEquals(userEntity.getUuid(), newIdPortenUser.getPreviousUser().getId());
+            assertEquals(previousEntity.getUuid(), newIdPortenUser.getPreviousUser().getId());
             assertFalse(newIdPortenUser.getPreviousUser().isActive());
             verify(userRepository).findByPersonIdentifier(personIdentifier);
             verify(userRepository).findByPersonIdentifier(newPersonIdentifier);
             verify(userRepository, times(2)).save(any(UserEntity.class));
-        }
-
-        @Test
-        @DisplayName("has historic users return all related users in order")
-        public void findHistoryForUserTest() {
-            String currentPid = "333";
-            String oldPid = "222";
-            String oldestPid = "111";
-
-            UserEntity userEntity1 = UserEntity.builder().personIdentifier(oldestPid).active(false).uuid(UUID.randomUUID()).build();
-            UserEntity userEntity2 = UserEntity.builder().personIdentifier(oldPid).active(false).uuid(UUID.randomUUID()).previousUser(userEntity1).build();
-            UserEntity userEntity3 = UserEntity.builder().personIdentifier(currentPid).active(true).uuid(UUID.randomUUID()).previousUser(userEntity2).build();
-
-            Optional<UserEntity> currentUser = Optional.of(userEntity3);
-            when(userRepository.findByPersonIdentifier(currentPid)).thenReturn(currentUser);
-
-            List<IDPortenUser> users = userService.findUserHistoryAndNewer(currentPid);
-            assertNotNull(users);
-            assertEquals(3, users.size());
-            assertEquals(currentPid, users.get(0).getPid());
-            assertEquals(oldPid, users.get(1).getPid());
-            assertEquals(oldestPid, users.get(2).getPid());
-
-            verify(userRepository).findByPersonIdentifier(currentPid);
-
-        }
-
-
-        @Test
-        @DisplayName("has historic users and newer users return all related users in order")
-        public void findHistoryAndNewerForUserTest() {
-            String newerPid = "444";
-            String searchPid = "333";
-            String oldPid = "222";
-            String oldestPid = "111";
-
-            UserEntity userEntity1 = UserEntity.builder().personIdentifier(oldestPid).active(false).uuid(UUID.randomUUID()).build();
-            UserEntity userEntity2 = UserEntity.builder().personIdentifier(oldPid).active(false).uuid(UUID.randomUUID()).previousUser(userEntity1).build();
-            UserEntity userEntity3 = UserEntity.builder().personIdentifier(searchPid).active(false).uuid(UUID.randomUUID()).previousUser(userEntity2).build();
-            UserEntity userEntity4 = UserEntity.builder().personIdentifier(newerPid).active(true).uuid(UUID.randomUUID()).previousUser(userEntity3).build();
-
-            userEntity1.setNextUser(userEntity2);
-            userEntity2.setNextUser(userEntity3);
-            userEntity3.setNextUser(userEntity4);
-
-            Optional<UserEntity> searchUser = Optional.of(userEntity3);
-            when(userRepository.findByPersonIdentifier(searchPid)).thenReturn(searchUser);
-
-            List<IDPortenUser> users = userService.findUserHistoryAndNewer(searchPid);
-            assertNotNull(users);
-            assertEquals(4, users.size());
-            assertEquals(newerPid, users.get(0).getPid());
-            assertEquals(searchPid, users.get(1).getPid());
-            assertEquals(oldPid, users.get(2).getPid());
-            assertEquals(oldestPid, users.get(3).getPid());
-
-            verify(userRepository).findByPersonIdentifier(searchPid);
-
         }
     }
 }
