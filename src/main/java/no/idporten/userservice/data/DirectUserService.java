@@ -114,14 +114,6 @@ public class DirectUserService implements UserService, ApplicationEventPublisher
         return updateUserWithEid(eid, existingEIDs, existingUser.get());
     }
 
-    @Transactional
-    public IDPortenUser updateUserWithEid(IDPortenUser idPortenUser, Login eid) {
-        UserEntity existingUser = idPortenUser.toEntity();
-
-        List<LoginEntity> existingEIDs = existingUser.getLogins();
-        return updateUserWithEid(eid, existingEIDs, existingUser);
-    }
-
     private IDPortenUser updateUserWithEid(Login eid, List<LoginEntity> existingEIDs, UserEntity existingUser) {
         LoginEntity eidToUpdate = findExistingEid(eid, existingEIDs);
 
