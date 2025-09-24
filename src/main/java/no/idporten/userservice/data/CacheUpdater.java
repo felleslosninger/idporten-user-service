@@ -49,10 +49,10 @@ public class CacheUpdater {
 
     @EventListener
     @Async
-    public void handleUserPidUpdatedEvent(UserPidUpdatedEvent uuserPidUpdated) {
-        idportenUserCache.opsForValue().getAndDelete(uuserPidUpdated.oldPid);
-        idportenUserCache.opsForValue().set(uuserPidUpdated.idPortenUser.getPid(), uuserPidUpdated.idPortenUser);
-        uuidToUseridCache.opsForValue().set(uuserPidUpdated.idPortenUser.getId().toString(), uuserPidUpdated.idPortenUser.getPid());
+    public void handleUserPidUpdatedEvent(UserPidUpdatedEvent userPidUpdated) {
+        idportenUserCache.opsForValue().getAndDelete(userPidUpdated.oldPid);
+        idportenUserCache.opsForValue().set(userPidUpdated.idPortenUser.getPid(), userPidUpdated.idPortenUser);
+        uuidToUseridCache.opsForValue().set(userPidUpdated.idPortenUser.getId().toString(), userPidUpdated.idPortenUser.getPid());
     }
 
 }
