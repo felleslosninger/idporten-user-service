@@ -7,6 +7,7 @@ on:
       - 'src/test/**'
       - '*.md'
       - 'LICENSE'
+      - ".github/pull_request_template.md"
 
 jobs:
   build-publish-image:
