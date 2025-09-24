@@ -2,6 +2,7 @@ package no.idporten.userservice.data;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import no.idporten.userservice.data.event.UserCreatedEvent;
 import no.idporten.userservice.data.event.UserDeletedEvent;
 import no.idporten.userservice.data.event.UserUpdatedEvent;
 import no.idporten.userservice.data.event.UserReadEvent;
@@ -55,7 +56,7 @@ public class DirectUserService implements UserService, ApplicationEventPublisher
         idPortenUser.setActive(Boolean.TRUE);
         UserEntity userSaved = userRepository.save(idPortenUser.toEntity());
 
-        eventPublisher.publishEvent(new UserUpdatedEvent(this, new IDPortenUser(userSaved)));
+        eventPublisher.publishEvent(new UserCreatedEvent(this, new IDPortenUser(userSaved)));
 
         return new IDPortenUser(userSaved);
     }
