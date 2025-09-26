@@ -19,6 +19,8 @@ import org.springframework.data.redis.stream.Subscription;
 
 import java.time.Duration;
 
+import static no.idporten.userservice.config.StreamNames.UPDATE_EID_STREAM;
+
 @Configuration
 @ConditionalOnProperty(name = "digdir.caching.enabled", havingValue = "true")
 public class UserCacheConfig {
@@ -39,7 +41,7 @@ public class UserCacheConfig {
                 .create(connectionFactory, options);
 
         subscription = container.receive(
-                StreamOffset.fromStart("update-eid"),
+                StreamOffset.fromStart(UPDATE_EID_STREAM),
                 streamListener
         );
 

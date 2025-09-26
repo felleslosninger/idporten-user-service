@@ -17,7 +17,7 @@ public class AsyncUserService implements StreamListener<String, ObjectRecord<Str
     @Override
     public void onMessage(ObjectRecord<String, UpdateEidEvent> updateEidEvent) {
         UpdateEidEvent event = updateEidEvent.getValue();
-        userService.updateUserWithEid(event.getUserId(), Login.builder().eidName(event.getEidName()).lastLogin(event.getLoginTime()).build());
+        userService.updateUserWithEid(event.userId(), Login.builder().eidName(event.eidName()).lastLogin(event.loginTime()).build());
 
         updateEidCache.opsForStream().delete(updateEidEvent);
     }

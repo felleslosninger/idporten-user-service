@@ -15,6 +15,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import static no.idporten.userservice.config.StreamNames.UPDATE_EID_STREAM;
+
 @Slf4j
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -75,7 +77,7 @@ public class CachedUserService implements UserService {
 
         ObjectRecord<String, UpdateEidEvent> eventRecord = StreamRecords.newRecord()
                 .ofObject(updateEidEvent)
-                .withStreamKey("update-eid");
+                .withStreamKey(UPDATE_EID_STREAM);
 
         updateEidCache.opsForStream().add(eventRecord);
 
