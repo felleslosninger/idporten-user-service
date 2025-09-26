@@ -25,7 +25,6 @@ import java.util.stream.Collectors;
  */
 @RequiredArgsConstructor
 @Service
-@Transactional(readOnly = true) 
 public class ApiUserService {
 
     private final UserService userService;
@@ -52,7 +51,6 @@ public class ApiUserService {
         return convert(userService.createUser(idPortenUser));
     }
 
-    @Transactional
     public UserResource updateUserLogins(String id, UpdateUserLoginRequest updateUserLoginRequest) {
         return convert(userService.updateUserWithEid(UUID.fromString(id), Login.builder().eidName(updateUserLoginRequest.getEidName()).lastLogin(Instant.now()).build()));
     }

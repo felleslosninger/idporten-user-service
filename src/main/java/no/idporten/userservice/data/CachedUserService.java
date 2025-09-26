@@ -19,7 +19,6 @@ import static no.idporten.userservice.config.StreamNames.UPDATE_EID_STREAM;
 
 @Slf4j
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 @Service
 @ConditionalOnProperty(name = "digdir.caching.enabled", havingValue = "true")
 public class CachedUserService implements UserService {
