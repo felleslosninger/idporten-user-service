@@ -1,9 +1,7 @@
 package no.idporten.userservice.config;
 
 import no.idporten.userservice.data.*;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -11,13 +9,13 @@ import org.springframework.data.redis.core.RedisTemplate;
 @Configuration
 public class UserServiceConfig {
 
-    @Value("${digdir.caching.enabled}")
-    private String cachingEnabled;
-
     @Bean(name="userService")
     @ConditionalOnProperty(name = "digdir.caching.enabled", havingValue = "true")
-    public UserService cachedUserService(RedisTemplate<String, IDPortenUser> idportenUserCache, RedisTemplate<String, String> uuidToUseridCache, DirectUserService userService) {
-        return new CachedUserService(idportenUserCache, uuidToUseridCache, userService);
+    public UserService cachedUserService(RedisTemplate<String,
+            IDPortenUser> idportenUserCache, RedisTemplate<String,
+            String> uuidToUseridCache, RedisTemplate<String, String> updateEidCache,
+            DirectUserService userService) {
+        return new CachedUserService(idportenUserCache, uuidToUseridCache, updateEidCache, userService);
     }
 
     @Bean(name="userService")

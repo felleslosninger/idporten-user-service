@@ -197,7 +197,7 @@ public class DirectUserServiceTest {
             String personIdentifier = "1263";
             UUID uuid = UUID.randomUUID();
 
-            Login minid = Login.builder().eidName("MinID").build();
+            Login minid = Login.builder().eidName("MinID").lastLogin(Instant.now()).build();
             long now = Instant.now().toEpochMilli();
             LoginEntity loginEntity = LoginEntity.builder().eidName("MinID").id(1L).lastLoginAtEpochMs(now).firstLoginAtEpochMs(now).build();
             UserEntity userEntity = UserEntity.builder().personIdentifier(personIdentifier).uuid(uuid).logins(Collections.singletonList(loginEntity)).build();

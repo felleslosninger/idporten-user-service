@@ -118,7 +118,7 @@ public class DirectUserService implements UserService, ApplicationEventPublisher
         LoginEntity eidToUpdate = findExistingEid(eid, existingEIDs);
 
         if (eidToUpdate != null) {
-            eidToUpdate.setLastLoginAtEpochMs(Instant.now().toEpochMilli());
+            eidToUpdate.setLastLoginAtEpochMs(eid.getLastLogin().toEpochMilli());
         } else {
             LoginEntity updatedEid = LoginEntity.builder().eidName(eid.getEidName()).user(existingUser).build();
             existingEIDs.add(updatedEid); //last-login and first-login set via annotations on entity on create
