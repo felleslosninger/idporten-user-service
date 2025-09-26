@@ -2,23 +2,29 @@ package no.idporten.userservice.data;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import no.idporten.userservice.data.dbevents.UpdateEidEvent;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.data.redis.connection.stream.ObjectRecord;
+import org.springframework.data.redis.connection.stream.StreamRecords;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 @Slf4j
 @RequiredArgsConstructor
-@Service
 @Transactional(readOnly = true)
+@Service
 @ConditionalOnProperty(name = "digdir.caching.enabled", havingValue = "true")
 public class CachedUserService implements UserService {
 
     private final RedisTemplate<String, IDPortenUser> idportenUserCache;
     private final RedisTemplate<String, String> uuidToUseridCache;
+    private final RedisTemplate<String, String> updateEidCache;
 
     private final DirectUserService userService;
 
@@ -65,7 +71,21 @@ public class CachedUserService implements UserService {
             throw UserServiceException.userNotFound();
         }
 
-        return userService.updateUserWithEid(userUuid, eid);
+        UpdateEidEvent updateEidEvent = new UpdateEidEvent(userUuid, Instant.now(), eid.getEidName());
+
+        ObjectRecord<String, UpdateEidEvent> eventRecord = StreamRecords.newRecord()
+                .ofObject(updateEidEvent)
+                .withStreamKey("update-eid");
+
+        updateEidCache.opsForStream().add(eventRecord);
+
+        return IDPortenUser.builder()
+                .pid(user.getPid())
+                .id(user.getId())
+                .closedCode(user.getClosedCode())
+                .login(buildIDPortenUser(eid, user))
+                .active(user.isActive())
+                .build();
     }
 
     @Transactional
@@ -76,4 +96,28 @@ public class CachedUserService implements UserService {
     public IDPortenUser changePid(String currentPid, String newPid) {
         return userService.changePid(currentPid, newPid);
     }
+
+    private Optional<Login> findExistingEid(Login eid, List<Login> existingeIDs) {
+        return existingeIDs.stream()
+                .filter(e -> e.getEidName().equalsIgnoreCase(eid.getEidName()))
+                .findFirst();
+    }
+
+    private Login buildIDPortenUser(Login eid, IDPortenUser user) {
+        Optional<Login> existingEid = findExistingEid(eid, user.getLogins());
+        Login newLogin;
+
+        if (existingEid.isPresent()) {
+            newLogin = existingEid.get();
+            newLogin.setLastLogin(Instant.now());
+        } else {
+            newLogin = Login.builder()
+                    .eidName(eid.getEidName())
+                    .lastLogin(Instant.now())
+                    .firstLogin(Instant.now())
+                    .build();
+        }
+        return newLogin;
+    }
+
 }
