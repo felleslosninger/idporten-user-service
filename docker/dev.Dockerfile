@@ -13,7 +13,7 @@ COPY src /home/app/src
 RUN --mount=type=cache,target=/root/.m2/repository mvn -f /home/app/pom.xml clean package -Dmaven.test.skip=true -Dmaven.gitcommitid.skip=true
 
 
-FROM eclipse-temurin:22-jre-jammy
+FROM eclipse-temurin:25-jre-jammy
 
 ARG APPLICATION=idporten-user-service
 RUN mkdir /var/log/${APPLICATION}
