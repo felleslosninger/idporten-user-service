@@ -2,7 +2,7 @@ package no.idporten.userservice.data;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import no.idporten.userservice.data.dbevents.UpdateEidEvent;
+import no.idporten.userservice.data.message.UpdateEidMessage;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.data.redis.connection.stream.ObjectRecord;
 import org.springframework.data.redis.connection.stream.StreamRecords;
@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static no.idporten.userservice.config.StreamNames.UPDATE_EID_STREAM;
+import static no.idporten.userservice.config.RedisStreamConstants.UPDATE_EID_STREAM;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -72,9 +72,9 @@ public class CachedUserService implements UserService {
             throw UserServiceException.userNotFound();
         }
 
-        UpdateEidEvent updateEidEvent = new UpdateEidEvent(userUuid, Instant.now(), eid.getEidName());
+        UpdateEidMessage updateEidEvent = new UpdateEidMessage(userUuid, Instant.now(), eid.getEidName());
 
-        ObjectRecord<String, UpdateEidEvent> eventRecord = StreamRecords.newRecord()
+        ObjectRecord<String, UpdateEidMessage> eventRecord = StreamRecords.newRecord()
                 .ofObject(updateEidEvent)
                 .withStreamKey(UPDATE_EID_STREAM);
 

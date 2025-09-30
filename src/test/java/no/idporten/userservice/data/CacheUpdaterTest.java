@@ -1,9 +1,8 @@
 package no.idporten.userservice.data;
 
-import no.idporten.userservice.config.TestRedisConfig;
+import no.idporten.userservice.config.EmbeddedRedisLifecycleConfig;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -16,7 +15,7 @@ import static java.util.Collections.emptyList;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 
-@SpringBootTest(classes = TestRedisConfig.class, properties = {"spring.data.redis.port=6371"})
+@SpringBootTest(classes = EmbeddedRedisLifecycleConfig.class, properties = {"spring.data.redis.port=6371"})
 @AutoConfigureMockMvc
 @DisplayName("When using the userservice")
 @ActiveProfiles("test")

@@ -9,7 +9,7 @@ import no.idporten.userservice.TestData;
 import no.idporten.userservice.api.ApiUserService;
 import no.idporten.userservice.api.UserResource;
 import no.idporten.userservice.api.login.CreateUserRequest;
-import no.idporten.userservice.config.TestRedisConfig;
+import no.idporten.userservice.config.EmbeddedRedisLifecycleConfig;
 import no.idporten.userservice.logging.audit.AuditID;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.DisplayName;
@@ -39,7 +39,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@SpringBootTest(classes = TestRedisConfig.class)
+@SpringBootTest(classes = EmbeddedRedisLifecycleConfig.class)
 @AutoConfigureMockMvc
 @DisplayName("When using the admin API")
 @ActiveProfiles("test")

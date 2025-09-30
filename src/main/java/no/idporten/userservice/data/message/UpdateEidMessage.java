@@ -1,9 +1,9 @@
-package no.idporten.userservice.data.dbevents;
+package no.idporten.userservice.data.message;
 
 import java.time.Instant;
 import java.util.UUID;
 
-public record UpdateEidEvent(
+public record UpdateEidMessage(
     UUID userId,
     Instant loginTime,
     String eidName
