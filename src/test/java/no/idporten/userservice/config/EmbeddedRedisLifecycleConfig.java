@@ -50,7 +50,7 @@ public class EmbeddedRedisLifecycleConfig implements SmartLifecycle {
 
     @Override
     public int getPhase() {
-        return 0; // Define the order of startup/shutdown
+        return 0;
     }
 
     @Override
@@ -58,7 +58,6 @@ public class EmbeddedRedisLifecycleConfig implements SmartLifecycle {
         return true;
     }
 
-    // Optional: Implement stop(Runnable callback) for asynchronous shutdown
     @Override
     public void stop(Runnable callback) {
         stop();

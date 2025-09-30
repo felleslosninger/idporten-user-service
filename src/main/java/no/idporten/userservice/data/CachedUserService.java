@@ -72,7 +72,7 @@ public class CachedUserService implements UserService {
             throw UserServiceException.userNotFound();
         }
 
-        UpdateEidMessage updateEidEvent = new UpdateEidMessage(userUuid, Instant.now(), eid.getEidName());
+        UpdateEidMessage updateEidEvent = new UpdateEidMessage(userUuid, Instant.now().toEpochMilli(), eid.getEidName());
 
         ObjectRecord<String, UpdateEidMessage> eventRecord = StreamRecords.newRecord()
                 .ofObject(updateEidEvent)

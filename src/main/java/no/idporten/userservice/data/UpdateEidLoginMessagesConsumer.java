@@ -8,6 +8,8 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.stream.StreamListener;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
+
 import static no.idporten.userservice.config.RedisStreamConstants.EID_GROUP;
 
 
@@ -24,7 +26,7 @@ public class UpdateEidLoginMessagesConsumer implements StreamListener<String, Ob
         UpdateEidMessage event = updateEidEvent.getValue();
 
         log.info("Attempting to update user {}", event.userId());
-        userService.updateUserWithEid(event.userId(), Login.builder().eidName(event.eidName()).lastLogin(event.loginTime()).build());
+        userService.updateUserWithEid(event.userId(), Login.builder().eidName(event.eidName()).lastLogin(Instant.ofEpochMilli(event.loginTimeInEpochMillis())).build());
         updateEidCache.opsForStream().acknowledge(EID_GROUP, updateEidEvent);
         log.info("User {} has been updated", event.userId());
 

@@ -2,18 +2,20 @@ package no.idporten.userservice.data;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Range;
 import org.springframework.data.redis.connection.stream.*;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
-import java.time.temporal.ChronoUnit;
+import java.time.Instant;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import static no.idporten.userservice.config.RedisStreamConstants.*;
-
 
 @Component
 @AllArgsConstructor
@@ -25,19 +27,62 @@ public class PendingMessagesRetryConsumer {
 
     @Scheduled(fixedRate = 60, timeUnit = TimeUnit.SECONDS)
     public void handlePendingMessages() {
-        PendingMessages pendingMessages = updateEidCache.opsForStream().pending(UPDATE_EID_STREAM, Consumer.from(EID_GROUP, UPDATE_EID_STREAM));
+        var streamOperations = updateEidCache.opsForStream();
+        PendingMessagesSummary pendingSummary = streamOperations.pending(UPDATE_EID_STREAM, EID_GROUP);
+        log.info("Pending messages summary: {}", pendingSummary != null ? pendingSummary.getTotalPendingMessages() : 0);
 
-        List<RecordId> messageIdToProcess = pendingMessages.stream()
-                .map(PendingMessage::getId)
-                .toList();
+        if (pendingSummary != null && pendingSummary.getTotalPendingMessages() > 0) {
+            if (pingDb()) {
+                PendingMessages pendingMessages = streamOperations.pending(
+                        UPDATE_EID_STREAM,
+                        Consumer.from(EID_GROUP, EID_UPDATER),
+                        Range.unbounded(),
+                        pendingSummary.getTotalPendingMessages()
+                );
 
-        log.info("Number of pending messages to process: {}", messageIdToProcess.size());
+                for (PendingMessage pendingMessage : pendingMessages) {
+                    log.info("Attempting to claim or reprocess pending message: {}", pendingMessage.getIdAsString());
 
-        List<MapRecord<String, Object, Object>> messagesToProcess =
-                updateEidCache.opsForStream().claim(UPDATE_EID_STREAM, EID_GROUP, EID_RETRY_UPDATER, Duration.of(10, ChronoUnit.SECONDS), messageIdToProcess.toArray(new RecordId[0]));
+                    List<MapRecord<String, Object, Object>> claimedMessages = streamOperations.claim(
+                            UPDATE_EID_STREAM,
+                            EID_GROUP,
+                            EID_UPDATER,
+                            Duration.ofMinutes(1),
+                            pendingMessage.getId()
+                    );
 
-        for (MapRecord<String, Object, Object> message : messagesToProcess) {
-            log.info("Pending message: {}", message.getValue());
+                    if (!claimedMessages.isEmpty()) {
+                        log.info("Message claimed: {}", pendingMessage.getIdAsString());
+                        // Process the claimed message
+                        for (MapRecord<String, Object, Object> claimedMessage : claimedMessages) {
+                            log.info("Processing claimed message: {}", claimedMessage.getValue());
+                            handleMessage(claimedMessage.getValue());
+                            streamOperations.acknowledge(UPDATE_EID_STREAM, EID_GROUP, claimedMessage.getId());
+                            log.info("Message acknowledged: {}", claimedMessage.getId());
+                        }
+                    } else {
+                        log.info("Failed to claim message: {}", pendingMessage.getIdAsString());
+                    }
+                }
+            } else {
+                log.info("Database is down. Retrying pending messages in a minute");
+            }
+        }
+    }
+
+    private void handleMessage(Map<Object, Object> updateEidMessage) {
+        userService.updateUserWithEid(
+                UUID.fromString((String) updateEidMessage.get("userId")),
+                Login.builder().eidName((String) updateEidMessage.get("eidName")).lastLogin(Instant.ofEpochMilli(Long.parseLong((String)updateEidMessage.get("loginTimeInEpochMillis")))).build()
+        );
+    }
+
+    private boolean pingDb() {
+        try {
+            userService.findUser(UUID.randomUUID());
+            return true;
+        } catch (Exception e) {
+            return false;
         }
     }
 

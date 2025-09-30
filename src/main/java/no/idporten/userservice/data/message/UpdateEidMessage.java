@@ -5,7 +5,7 @@ import java.util.UUID;
 
 public record UpdateEidMessage(
     UUID userId,
-    Instant loginTime,
+    long loginTimeInEpochMillis,
     String eidName
 ) {}
 
