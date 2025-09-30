@@ -53,7 +53,6 @@ public class PendingMessagesRetryConsumer {
 
                     if (!claimedMessages.isEmpty()) {
                         log.info("Message claimed: {}", pendingMessage.getIdAsString());
-                        // Process the claimed message
                         for (MapRecord<String, Object, Object> claimedMessage : claimedMessages) {
                             log.info("Processing claimed message: {}", claimedMessage.getValue());
                             handleMessage(claimedMessage.getValue());
