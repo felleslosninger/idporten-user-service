@@ -30,14 +30,14 @@ public class PendingMessagesRetryConsumer {
     @Scheduled(fixedRate = 60, timeUnit = TimeUnit.SECONDS)
     public void handlePendingMessages() {
         var streamOperations = updateEidCache.opsForStream();
-        PendingMessagesSummary pendingSummary = streamOperations.pending(UPDATE_EID_STREAM, EID_GROUP);
+        PendingMessagesSummary pendingSummary = streamOperations.pending(UPDATE_EID_LOGIN_STREAM, UPDATE_EID_LOGIN_GROUP);
         log.info("Pending messages summary: {}", pendingSummary != null ? pendingSummary.getTotalPendingMessages() : 0);
 
         if (pendingSummary != null && pendingSummary.getTotalPendingMessages() > 0) {
             if (pingDb()) {
                 PendingMessages pendingMessages = streamOperations.pending(
-                        UPDATE_EID_STREAM,
-                        Consumer.from(EID_GROUP, EID_UPDATER),
+                        UPDATE_EID_LOGIN_STREAM,
+                        Consumer.from(UPDATE_EID_LOGIN_GROUP, EID_LOGIN_UPDATER),
                         Range.unbounded(),
                         pendingSummary.getTotalPendingMessages()
                 );
@@ -46,10 +46,10 @@ public class PendingMessagesRetryConsumer {
                     log.info("Attempting to claim or reprocess pending message: {}", pendingMessage.getIdAsString());
 
                     List<MapRecord<String, Object, Object>> claimedMessages = streamOperations.claim(
-                            UPDATE_EID_STREAM,
-                            EID_GROUP,
-                            EID_UPDATER,
-                            Duration.ofMinutes(1),
+                            UPDATE_EID_LOGIN_STREAM,
+                            UPDATE_EID_LOGIN_GROUP,
+                            EID_LOGIN_UPDATER,
+                            Duration.ofSeconds(10L),
                             pendingMessage.getId()
                     );
 
@@ -58,7 +58,7 @@ public class PendingMessagesRetryConsumer {
                         for (MapRecord<String, Object, Object> claimedMessage : claimedMessages) {
                             log.info("Processing claimed message: {}", claimedMessage.getValue());
                             handleMessage(claimedMessage.getValue());
-                            streamOperations.acknowledge(UPDATE_EID_STREAM, EID_GROUP, claimedMessage.getId());
+                            streamOperations.acknowledge(UPDATE_EID_LOGIN_STREAM, UPDATE_EID_LOGIN_GROUP, claimedMessage.getId());
                             log.info("Message acknowledged: {}", claimedMessage.getId());
                         }
                     } else {

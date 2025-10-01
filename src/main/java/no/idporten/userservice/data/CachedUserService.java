@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static no.idporten.userservice.config.RedisStreamConstants.UPDATE_EID_STREAM;
+import static no.idporten.userservice.config.RedisStreamConstants.UPDATE_EID_LOGIN_STREAM;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -76,7 +76,7 @@ public class CachedUserService implements UserService {
 
         ObjectRecord<String, UpdateEidMessage> eventRecord = StreamRecords.newRecord()
                 .ofObject(updateEidEvent)
-                .withStreamKey(UPDATE_EID_STREAM);
+                .withStreamKey(UPDATE_EID_LOGIN_STREAM);
 
         updateEidCache.opsForStream().add(eventRecord);
 
