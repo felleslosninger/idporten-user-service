@@ -10,6 +10,5 @@ public class RedisStreamConstants {
 
     // Consumernames
     public final static String EID_UPDATER = "update-eid";
-    public final static String EID_RETRY_UPDATER = "-retry-update-eid";
 
 }

@@ -2,6 +2,7 @@ package no.idporten.userservice.data;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.data.domain.Range;
 import org.springframework.data.redis.connection.stream.*;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -20,6 +21,7 @@ import static no.idporten.userservice.config.RedisStreamConstants.*;
 @Component
 @AllArgsConstructor
 @Slf4j
+@ConditionalOnProperty(name = "digdir.caching.enabled", havingValue = "true")
 public class PendingMessagesRetryConsumer {
 
     private final RedisTemplate<String, String> updateEidCache;
