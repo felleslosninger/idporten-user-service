@@ -57,3 +57,5 @@ The application uses redis to cache users. The cache is updated on different eve
 It also uses Redis streams to achieve async updating of logins in the database. This means that the user service is able
 to work even if the database goes down. As long as the user is already cached, a login attempt will be successful.
 
+This functionality is toggled by the digdir.caching.enabled property.
+
