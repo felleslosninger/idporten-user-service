@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 
-import static no.idporten.userservice.config.RedisStreamConstants.UPDATE_EID_LOGIN_GROUP;
+import static no.idporten.userservice.config.RedisStreamConstants.UPDATE_LAST_LOGIN_GROUP;
 
 
 @Service
@@ -27,7 +27,7 @@ public class UpdateEidLoginMessagesConsumer implements StreamListener<String, Ob
 
         log.info("Attempting to update user {}", event.userId());
         userService.updateUserWithEid(event.userId(), Login.builder().eidName(event.eidName()).lastLogin(Instant.ofEpochMilli(event.loginTimeInEpochMillis())).build());
-        updateEidCache.opsForStream().acknowledge(UPDATE_EID_LOGIN_GROUP, updateEidEvent);
+        updateEidCache.opsForStream().acknowledge(UPDATE_LAST_LOGIN_GROUP, updateEidEvent);
         log.info("User {} has been updated", event.userId());
 
         updateEidCache.opsForStream().delete(updateEidEvent);

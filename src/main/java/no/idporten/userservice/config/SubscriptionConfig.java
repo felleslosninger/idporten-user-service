@@ -18,9 +18,9 @@ import org.springframework.data.redis.stream.Subscription;
 
 import java.time.Duration;
 
-import static no.idporten.userservice.config.RedisStreamConstants.EID_LOGIN_UPDATER;
-import static no.idporten.userservice.config.RedisStreamConstants.UPDATE_EID_LOGIN_STREAM;
-import static no.idporten.userservice.config.RedisStreamConstants.UPDATE_EID_LOGIN_GROUP;
+import static no.idporten.userservice.config.RedisStreamConstants.LAST_LOGIN_UPDATER;
+import static no.idporten.userservice.config.RedisStreamConstants.UPDATE_LAST_LOGIN_STREAM;
+import static no.idporten.userservice.config.RedisStreamConstants.UPDATE_LAST_LOGIN_GROUP;
 
 @Slf4j
 @Configuration
@@ -33,13 +33,13 @@ public class SubscriptionConfig {
     public Subscription subscription(RedisConnectionFactory connectionFactory, StreamListener<String, ObjectRecord<String, UpdateEidMessage>> streamListener, RedisTemplate<String, String> updateEidCache) {
         try {
             updateEidCache.afterPropertiesSet();
-            updateEidCache.opsForStream().createGroup(UPDATE_EID_LOGIN_STREAM, UPDATE_EID_LOGIN_GROUP);
+            updateEidCache.opsForStream().createGroup(UPDATE_LAST_LOGIN_STREAM, UPDATE_LAST_LOGIN_GROUP);
         } catch (RedisSystemException e) {
             log.info("STREAM - Redis group already exists, skipping Redis group creation: {}", "EID-GROUP");
         }
 
         var streamOffset = StreamOffset.create(
-                UPDATE_EID_LOGIN_STREAM, ReadOffset.lastConsumed()
+                UPDATE_LAST_LOGIN_STREAM, ReadOffset.lastConsumed()
         );
 
         var options = StreamMessageListenerContainer.StreamMessageListenerContainerOptions.builder()
@@ -53,7 +53,7 @@ public class SubscriptionConfig {
 
         var streamReadRequest = StreamMessageListenerContainer.StreamReadRequest
                 .builder(streamOffset)
-                .consumer(Consumer.from(UPDATE_EID_LOGIN_GROUP, EID_LOGIN_UPDATER))
+                .consumer(Consumer.from(UPDATE_LAST_LOGIN_GROUP, LAST_LOGIN_UPDATER))
                 .cancelOnError(t -> false) // skip errors
                 .autoAcknowledge(false)
                 .build();
