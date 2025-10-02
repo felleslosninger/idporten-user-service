@@ -13,7 +13,6 @@ import java.time.Instant;
 
 import static java.util.Collections.emptyList;
 import static java.util.concurrent.TimeUnit.SECONDS;
-import static no.idporten.userservice.TestData.randomUser;
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
