@@ -1,6 +1,6 @@
 package no.idporten.userservice.data;
 
-import no.idporten.userservice.config.TestRedisConfig;
+import no.idporten.userservice.config.EmbeddedRedisLifecycleConfig;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -21,7 +21,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
-@SpringBootTest(classes = TestRedisConfig.class, properties = {"spring.data.redis.port=7546"})
+@SpringBootTest(classes = EmbeddedRedisLifecycleConfig.class, properties = {"spring.data.redis.port=7546"})
 @AutoConfigureMockMvc
 @DisplayName("When using the userservice")
 @ActiveProfiles("test")
@@ -251,7 +251,7 @@ public class CachedUserServiceIntegrationTest {
             assertEquals(personIdentifier, userSaved.getPid());
             assertEquals(minid.getEidName(), userSaved.getLastLogin().getEidName());
             assertTrue(userSaved.getLastLogin().getLastLogin().toEpochMilli() > 0);
-            verify(userRepository, times(3)).save(any(UserEntity.class));
+            verify(userRepository, times(2)).save(any(UserEntity.class));
         }
     }
 

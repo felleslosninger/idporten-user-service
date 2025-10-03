@@ -40,12 +40,11 @@ application (https://docs.spring.io/spring-boot/docs/current/reference/html/appe
 a [default configuration](src/main/resources/application.yaml) in the application archive.
 
 
-
 ### Application features
 
 | Key                                                | Default value | Description                                     |
+| digdir.caching.enabled                             | true          | Turns redis caching and streams on/off          |
 |----------------------------------------------------|---------------|-------------------------------------------------|
-
 
 
 ### Required vault values and kubernetes config. Environment variables:
@@ -53,4 +52,10 @@ a [default configuration](src/main/resources/application.yaml) in the applicatio
 * API_KEY (api-key for /login access)
 
 
+## Usage of Redis Streams and caching
+The application uses redis to cache users. The cache is updated on different events defined in /userservice/data/event. 
+It also uses Redis streams to achieve async updating of logins in the database. This means that the user service is able
+to work even if the database goes down. As long as the user is already cached, a login attempt will be successful.
+
+This functionality is toggled by the digdir.caching.enabled property.
 

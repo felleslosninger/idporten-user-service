@@ -1,6 +1,7 @@
 package no.idporten.userservice.data;
 
 import no.idporten.userservice.TestData;
+import no.idporten.userservice.config.EmbeddedRedisLifecycleConfig;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -15,7 +16,7 @@ import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest
+@SpringBootTest(classes = EmbeddedRedisLifecycleConfig.class)
 @ActiveProfiles("test")
 public class UserRepositoryTest {
     @Resource
