@@ -7,10 +7,21 @@ management:
 spring:
   datasource:
     url: "jdbc:mariadb://localhost:3306/idporten_user"
+    driver-class-name: org.mariadb.jdbc.Driver
     username: user_service
     password: password
+    hikari:
+      connection-timeout: 3000 #maximum number of milliseconds that a client will wait for a connection
+      minimum-idle: 1 #minimum number of idle connections maintained by HikariCP in a connection pool
+      maximum-pool-size: 1 #maximum pool size
+      idle-timeout: 1000 #maximum idle time for connection
+      max-lifetime: 500 # maximum lifetime in milliseconds of a connection in the pool after it is closed.
   security:
     api-key: mytoken
+    oauth2:
+      resource:
+        jwt:
+          jwk-set-uri: https://maskinporten.dev/.well-known/jwks.json
   application:
     environment: local-dev
 
