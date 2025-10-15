@@ -14,10 +14,6 @@ spring:
     database-platform: org.hibernate.dialect.H2Dialect
   security:
     api-key: mytoken
-    oauth2:
-      resource:
-        jwt:
-          jwk-set-uri: https://maskinporten.dev/.well-known/jwks.json
   application:
     environment: local-h2
 

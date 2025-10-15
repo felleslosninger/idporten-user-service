@@ -39,8 +39,6 @@ services:
     depends_on:
       db-us:
         condition: service_healthy
-      redis:
-        condition: service_healthy
     entrypoint: "/bin/bash -c"
     command:
       - |
