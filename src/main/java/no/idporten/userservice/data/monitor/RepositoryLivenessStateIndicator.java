@@ -8,6 +8,8 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.availability.ApplicationAvailability;
 import org.springframework.stereotype.Component;
 
+import java.util.UUID;
+
 @Component("repositoryLiveness")
 @Slf4j
 @ConditionalOnProperty(prefix = "management.health.repositoryLiveness", name = "enabled", matchIfMissing = true)
@@ -23,6 +25,7 @@ public class RepositoryLivenessStateIndicator extends LivenessStateHealthIndicat
     @Override
     public Health getHealth(boolean includeDetails) {
         try {
+            userRepository.findByUuid(UUID.randomUUID());
             // TODO: Temp. disabled, see JIRA-issue ID-2800
             //userRepository.count();
             return Health.up().build();
