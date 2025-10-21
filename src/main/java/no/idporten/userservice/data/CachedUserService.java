@@ -43,10 +43,7 @@ public class CachedUserService implements UserService {
         IDPortenUser idPortenUser = idportenUserCache.opsForValue().get(personIdentifier);
 
         if (idPortenUser == null) {
-            log.info("Cached user not found: {}", personIdentifier);
             return userService.searchForUser(personIdentifier);
-        } else {
-            log.info("Cached user found: {}", personIdentifier);
         }
 
         return Optional.of(idPortenUser);
