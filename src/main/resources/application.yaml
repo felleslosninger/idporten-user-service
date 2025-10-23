@@ -82,6 +82,7 @@ idporten-user-service:
 digdir:
   caching:
     enabled: true
+    time_to_live_in_days: 365
   audit:
     application-name: ${spring.application.name}
     application-environment: ${spring.application.environment}
