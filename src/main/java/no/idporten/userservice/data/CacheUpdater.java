@@ -25,28 +25,28 @@ public class CacheUpdater {
     private final RedisTemplate<String, IDPortenUser> idportenUserCache;
     private final RedisTemplate<String, String> uuidToUseridCache;
 
-    @Value("digdir.caching.time_to_live_in_days")
-    private long ttl;
+    @Value("${digdir.caching.time_to_live_in_days}")
+    private String ttl;
 
     @TransactionalEventListener(phase = AFTER_COMMIT)
     @Async
     public void handleUserCreatedEvent(UserCreatedEvent userCreatedEvent) {
-        idportenUserCache.opsForValue().set(userCreatedEvent.idPortenUser.getPid(), userCreatedEvent.idPortenUser, ttl, TimeUnit.DAYS);
-        uuidToUseridCache.opsForValue().set(userCreatedEvent.idPortenUser.getId().toString(), userCreatedEvent.idPortenUser.getPid(), ttl, TimeUnit.DAYS);
+        idportenUserCache.opsForValue().set(userCreatedEvent.idPortenUser.getPid(), userCreatedEvent.idPortenUser, Long.parseLong(ttl), TimeUnit.DAYS);
+        uuidToUseridCache.opsForValue().set(userCreatedEvent.idPortenUser.getId().toString(), userCreatedEvent.idPortenUser.getPid(), Long.parseLong(ttl), TimeUnit.DAYS);
     }
 
     @EventListener
     @Async
     public void handleUserUpdatedEvent(UserUpdatedEvent userUpdatedEvent) {
-        idportenUserCache.opsForValue().set(userUpdatedEvent.idPortenUser.getPid(), userUpdatedEvent.idPortenUser, ttl, TimeUnit.DAYS);
-        uuidToUseridCache.opsForValue().set(userUpdatedEvent.idPortenUser.getId().toString(), userUpdatedEvent.idPortenUser.getPid(), ttl, TimeUnit.DAYS);
+        idportenUserCache.opsForValue().set(userUpdatedEvent.idPortenUser.getPid(), userUpdatedEvent.idPortenUser, Long.parseLong(ttl), TimeUnit.DAYS);
+        uuidToUseridCache.opsForValue().set(userUpdatedEvent.idPortenUser.getId().toString(), userUpdatedEvent.idPortenUser.getPid(), Long.parseLong(ttl), TimeUnit.DAYS);
     }
 
     @EventListener
     @Async
     public void handleUserReadEvent(UserReadEvent userReadEvent) {
-        idportenUserCache.opsForValue().set(userReadEvent.idPortenUser.getPid(), userReadEvent.idPortenUser, ttl, TimeUnit.DAYS);
-        uuidToUseridCache.opsForValue().set(userReadEvent.idPortenUser.getId().toString(), userReadEvent.idPortenUser.getPid(), ttl, TimeUnit.DAYS);
+        idportenUserCache.opsForValue().set(userReadEvent.idPortenUser.getPid(), userReadEvent.idPortenUser, Long.parseLong(ttl), TimeUnit.DAYS);
+        uuidToUseridCache.opsForValue().set(userReadEvent.idPortenUser.getId().toString(), userReadEvent.idPortenUser.getPid(), Long.parseLong(ttl), TimeUnit.DAYS);
     }
 
     @EventListener
@@ -60,8 +60,8 @@ public class CacheUpdater {
     @Async
     public void handleUserPidUpdatedEvent(UserPidUpdatedEvent userPidUpdated) {
         idportenUserCache.opsForValue().getAndDelete(userPidUpdated.oldPid);
-        idportenUserCache.opsForValue().set(userPidUpdated.idPortenUser.getPid(), userPidUpdated.idPortenUser, ttl, TimeUnit.DAYS);
-        uuidToUseridCache.opsForValue().set(userPidUpdated.idPortenUser.getId().toString(), userPidUpdated.idPortenUser.getPid(), ttl, TimeUnit.DAYS);
+        idportenUserCache.opsForValue().set(userPidUpdated.idPortenUser.getPid(), userPidUpdated.idPortenUser, Long.parseLong(ttl), TimeUnit.DAYS);
+        uuidToUseridCache.opsForValue().set(userPidUpdated.idPortenUser.getId().toString(), userPidUpdated.idPortenUser.getPid(), Long.parseLong(ttl), TimeUnit.DAYS);
     }
 
 }
