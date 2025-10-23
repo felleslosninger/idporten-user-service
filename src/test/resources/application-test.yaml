@@ -22,4 +22,5 @@ spring:
 digdir:
   caching:
     enabled: true
+    time_to_live_in_days: 365
 
