@@ -42,10 +42,11 @@ a [default configuration](src/main/resources/application.yaml) in the applicatio
 
 ### Application features
 
-| Key                                                | Default value | Description                                     |
-| digdir.caching.enabled                             | true          | Turns redis caching and streams on/off          |
-| digdir.caching.time_to_live_in_days                |               | Sets time to live on redis keys                 |
-|----------------------------------------------------|---------------|-------------------------------------------------|
+| Key                                                | Default value | Description                                      |
+| digdir.caching.enabled                             | true          | Turns redis caching and streams on/off           |
+| digdir.caching.time_to_live_in_days                |               | Sets time to live on redis keys. The property is |
+|                                                    |               | required when caching is enabled                 |
+|----------------------------------------------------|---------------|--------------------------------------------------|
 
 
 ### Required vault values and kubernetes config. Environment variables:
