@@ -25,6 +25,9 @@ spring:
 
 # Spring Boot Actuator
 management:
+  health:
+    db:
+      enabled: false
   server:
     port: 8090
   endpoints:
@@ -35,12 +38,12 @@ management:
   endpoint:
     health:
       group:
-        readiness:
-          include: db
         liveness:
-          include: livenessState
+          include: livenessState,repositoryLiveness
       probes:
         enabled: true
+      status:
+        order: down,degraded,up
   metrics:
     tags:
       application: ${spring.application.name}
