@@ -26,15 +26,16 @@ public class RepositoryLivenessStateIndicator extends LivenessStateHealthIndicat
     public Health getHealth(boolean includeDetails) {
         try {
             userRepository.findByUuid(UUID.randomUUID());
-            // TODO: Temp. disabled, see JIRA-issue ID-2800
-            //userRepository.count();
             return Health.up().build();
         } catch (Exception e) {
-            log.error("Health check to repository failed with exception " + e.getMessage(), e);
+            log.error("Health check to repository failed with exception {}", e.getMessage(), e);
             if (includeDetails) {
-                return Health.up().withException(e).build();
+                return Health.status("DEGRADED")
+                        .withDetail("DB", "Database is down")
+                        .withException(e)
+                        .build();
             } else {
-                return Health.up().build();
+                return Health.status("DEGRADED").build();
             }
         }
     }
