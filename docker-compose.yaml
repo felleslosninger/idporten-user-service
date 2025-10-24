@@ -51,11 +51,11 @@ services:
       timeout: 5s
       retries: 20
 
-#  redis:
-#    image: redis:alpine
-#    restart: always
-#    ports:
-#      - "6378:6379"
-#    networks:
-#      - idporten
-#    command: redis-server --maxmemory-policy allkeys-lru
+  redis:
+    image: redis:alpine
+    restart: always
+    ports:
+      - "6378:6379"
+    networks:
+      - idporten
+    command: redis-server --maxmemory-policy allkeys-lru
