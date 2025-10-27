@@ -41,18 +41,15 @@ a [default configuration](src/main/resources/application.yaml) in the applicatio
 
 
 ### Application features
-
-| Key                                                | Default value | Description                                      |
-| digdir.caching.enabled                             | true          | Turns redis caching and streams on/off           |
-| digdir.caching.time_to_live_in_days                |               | Sets time to live on redis keys. The property is |
-|                                                    |               | required when caching is enabled                 |
-|----------------------------------------------------|---------------|--------------------------------------------------|
-
+| Key                                 | Default value | Description                                                                       |
+|-------------------------------------|---------------|-----------------------------------------------------------------------------------|
+| digdir.caching.enabled              | true          | Turns redis caching and streams on/off                                            |
+| digdir.caching.time_to_live_in_days | true          | Sets time to live on redis keys. The property is required when caching is enabled |
 
 ### Required vault values and kubernetes config. Environment variables:
 * DATASOURCE_PASSWORD (password to idporten_user database for user user_service)
 * API_KEY (api-key for /login access)
-
+* REDIS_PASSWORD (password for Redis)
 
 ## Usage of Redis Streams and caching
 The application uses redis to cache users. The cache is updated on different events defined in /userservice/data/event. 
