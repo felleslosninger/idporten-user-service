@@ -26,18 +26,19 @@ public class PendingMessagesRetryConsumer {
 
     private final RedisTemplate<String, String> updateEidCache;
     private final DirectUserService userService;
+    private final String consumerName = ConsumerNameProvider.getConsumerName();
 
     @Scheduled(fixedRate = 60, timeUnit = TimeUnit.SECONDS)
     public void handlePendingMessages() {
         var streamOperations = updateEidCache.opsForStream();
-        PendingMessagesSummary pendingSummary = streamOperations.pending(UPDATE_LAST_LOGIN_STREAM, UPDATE_LAST_LOGIN_GROUP);
+        PendingMessagesSummary pendingSummary = streamOperations.pending(UPDATE_LAST_LOGIN_STREAM, ConsumerNameProvider.getConsumerName());
         log.info("Pending messages summary: {}", pendingSummary != null ? pendingSummary.getTotalPendingMessages() : 0);
 
         if (pendingSummary != null && pendingSummary.getTotalPendingMessages() > 0) {
             if (pingDb()) {
                 PendingMessages pendingMessages = streamOperations.pending(
                         UPDATE_LAST_LOGIN_STREAM,
-                        Consumer.from(UPDATE_LAST_LOGIN_GROUP, LAST_LOGIN_UPDATER),
+                        Consumer.from(UPDATE_LAST_LOGIN_GROUP, consumerName),
                         Range.unbounded(),
                         pendingSummary.getTotalPendingMessages()
                 );
@@ -48,7 +49,7 @@ public class PendingMessagesRetryConsumer {
                     List<MapRecord<String, Object, Object>> claimedMessages = streamOperations.claim(
                             UPDATE_LAST_LOGIN_STREAM,
                             UPDATE_LAST_LOGIN_GROUP,
-                            LAST_LOGIN_UPDATER,
+                            consumerName,
                             Duration.ofSeconds(10L),
                             pendingMessage.getId()
                     );

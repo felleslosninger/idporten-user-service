@@ -1,6 +1,7 @@
 package no.idporten.userservice.config;
 
 import lombok.extern.slf4j.Slf4j;
+import no.idporten.userservice.data.ConsumerNameProvider;
 import no.idporten.userservice.data.message.UpdateEidMessage;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
@@ -18,9 +19,8 @@ import org.springframework.data.redis.stream.Subscription;
 
 import java.time.Duration;
 
-import static no.idporten.userservice.config.RedisStreamConstants.LAST_LOGIN_UPDATER;
-import static no.idporten.userservice.config.RedisStreamConstants.UPDATE_LAST_LOGIN_STREAM;
 import static no.idporten.userservice.config.RedisStreamConstants.UPDATE_LAST_LOGIN_GROUP;
+import static no.idporten.userservice.config.RedisStreamConstants.UPDATE_LAST_LOGIN_STREAM;
 
 @Slf4j
 @Configuration
@@ -53,7 +53,7 @@ public class SubscriptionConfig {
 
         var streamReadRequest = StreamMessageListenerContainer.StreamReadRequest
                 .builder(streamOffset)
-                .consumer(Consumer.from(UPDATE_LAST_LOGIN_GROUP, LAST_LOGIN_UPDATER))
+                .consumer(Consumer.from(UPDATE_LAST_LOGIN_GROUP, ConsumerNameProvider.getConsumerName()))
                 .cancelOnError(t -> false) // skip errors
                 .autoAcknowledge(false)
                 .build();
