@@ -14,7 +14,7 @@ This application is a service for managing users in ID-porten with two APIs:
 
 To build and run the application you need:
 
-* JDK 21
+* JDK 25
 * Maven
 
 ## Running the application locally
