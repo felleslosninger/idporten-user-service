@@ -1,2 +1,11 @@
 # CVE-xxx # <package>: <vulnerability info>. Fixed <version>
-
+CVE-2025-47912 # gobinary
+CVE-2025-58183 # gobinary
+CVE-2025-58185 # gobinary
+CVE-2025-58186 # gobinary
+CVE-2025-58187 # gobinary
+CVE-2025-58188 # gobinary
+CVE-2025-58189 # gobinary
+CVE-2025-61723 # gobinary
+CVE-2025-61724 # gobinary
+CVE-2025-61725 # gobinary

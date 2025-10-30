@@ -95,7 +95,6 @@ digdir:
   event:
     logging:
       environment-name: ${spring.application.environment}
-
 ---
 spring:
   config:
