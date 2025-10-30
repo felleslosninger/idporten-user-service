@@ -26,12 +26,20 @@ jobs:
   call-update-image:
     uses: felleslosninger/github-workflows/.github/workflows/ci-call-update-image.yml@main
     needs: build-publish-image
+    strategy:
+      matrix:
+        application-name: [ idporten-user-service, ansattporten-user-service ]
+        include:
+          - application-name: idporten-user-service
+            product-name: idporten
+          - application-name: ansattporten-user-service
+            product-name: ansattporten
     with:
-      application-name: idporten-user-service
+      application-name: ${{ matrix.application-name }}
       deployment-environment: systest
       image-digest: ${{ needs.build-publish-image.outputs.image-digest }}
       image-name: idporten-user-service
       image-version: ${{ needs.build-publish-image.outputs.image-version }}
       kubernetes-repo: idporten-cd
-      product-name: idporten
+      product-name: ${{ matrix.product-name }}
     secrets: inherit
