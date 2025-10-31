@@ -8,7 +8,4 @@ public class RedisStreamConstants {
     // Streamnames
     public final static String UPDATE_LAST_LOGIN_STREAM = "update-last-login";
 
-    // Consumernames
-    public final static String LAST_LOGIN_UPDATER = "update-last-login";
-
 }

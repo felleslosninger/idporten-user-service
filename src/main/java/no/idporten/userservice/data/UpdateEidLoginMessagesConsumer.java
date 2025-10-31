@@ -1,5 +1,6 @@
 package no.idporten.userservice.data;
 
+import jakarta.annotation.PreDestroy;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import no.idporten.userservice.data.message.UpdateEidMessage;
@@ -30,5 +31,10 @@ public class UpdateEidLoginMessagesConsumer implements StreamListener<String, Ob
         log.info("User {} has been updated", event.userId());
 
         updateEidCache.opsForStream().delete(updateEidEvent);
+    }
+
+    @PreDestroy
+    public void destroy() {
+        // updateEidCache.opsForStream().deleteConsumer(UPDATE_LAST_LOGIN_STREAM, Consumer.from(UPDATE_LAST_LOGIN_GROUP, ConsumerNameProvider.getConsumerName()));
     }
 }
