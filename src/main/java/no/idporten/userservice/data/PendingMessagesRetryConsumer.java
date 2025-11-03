@@ -62,8 +62,9 @@ public class PendingMessagesRetryConsumer {
         }
     }
 
-    @Scheduled(fixedRate = 5, timeUnit = TimeUnit.MINUTES)
+    @Scheduled(fixedRate = 1, timeUnit = TimeUnit.MINUTES)
     public void handleOrphanedPendingMessages() {
+        log.info("Checking for orphaned pending messages");
         if (pingDb()) {
             var streamOperations = updateEidCache.opsForStream();
             PendingMessages pendingMessages = streamOperations.pending(UPDATE_LAST_LOGIN_STREAM, UPDATE_LAST_LOGIN_GROUP, Range.unbounded(), 500);
@@ -74,6 +75,8 @@ public class PendingMessagesRetryConsumer {
                     .collect(Collectors.toSet());
 
             List<RecordId> orphanedMessages = filterOrphanedMessages(pendingMessages, liveConsumerNames);
+
+            log.info("A total of {} orphaned messages found", orphanedMessages.size());
 
             if (!orphanedMessages.isEmpty()) {
                 List<MapRecord<String, Object, Object>> claimedMessages =

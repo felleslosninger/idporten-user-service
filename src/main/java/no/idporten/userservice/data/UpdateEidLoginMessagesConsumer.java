@@ -32,9 +32,4 @@ public class UpdateEidLoginMessagesConsumer implements StreamListener<String, Ob
 
         updateEidCache.opsForStream().delete(updateEidEvent);
     }
-
-    @PreDestroy
-    public void destroy() {
-        // updateEidCache.opsForStream().deleteConsumer(UPDATE_LAST_LOGIN_STREAM, Consumer.from(UPDATE_LAST_LOGIN_GROUP, ConsumerNameProvider.getConsumerName()));
-    }
 }
