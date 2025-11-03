@@ -106,7 +106,6 @@ public class DirectUserService implements UserService, ApplicationEventPublisher
 
     @Transactional
     public IDPortenUser updateUserWithEid(UUID userUuid, Login eid) {
-        log.info("User {} has been updated", userUuid);
         Optional<UserEntity> existingUser = userRepository.findByUuid(userUuid);
         if (existingUser.isEmpty()) {
             throw UserServiceException.userNotFound();
