@@ -62,7 +62,7 @@ public class PendingMessagesRetryConsumer {
         }
     }
 
-    @Scheduled(fixedRate = 1, timeUnit = TimeUnit.MINUTES)
+    @Scheduled(fixedRate = 5, timeUnit = TimeUnit.MINUTES)
     public void handleOrphanedPendingMessages() {
         log.info("Checking for orphaned pending messages");
         if (pingDb()) {
