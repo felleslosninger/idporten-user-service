@@ -45,15 +45,10 @@ class PendingMessagesRetryConsumerTest {
 
     @Test
     void testHandlePendingMessages_claimAndAcknowledge() {
-        // Mock summary
         PendingMessagesSummary pendingMessagesSummary = mock(PendingMessagesSummary.class);
         when(pendingMessagesSummary.getTotalPendingMessages()).thenReturn(1L);
         when(streamOps.pending(UPDATE_LAST_LOGIN_STREAM, UPDATE_LAST_LOGIN_GROUP)).thenReturn(pendingMessagesSummary);
 
-        // Mock DB ping
-        when(directUserService.findUser(any(UUID.class))).thenReturn(null);
-
-        // Mock pending message
         PendingMessage pendingMessage = mock(PendingMessage.class);
         when(pendingMessage.getId()).thenReturn(RecordId.of("1-0"));
         when(pendingMessage.getIdAsString()).thenReturn("1-0");
@@ -83,10 +78,8 @@ class PendingMessagesRetryConsumerTest {
                 eq(RecordId.of("1-0"))
         )).thenReturn(Collections.singletonList(claimedRecord));
 
-        // Run
         consumer.handlePendingMessages();
 
-        // Verify
         verify(streamOps).acknowledge(UPDATE_LAST_LOGIN_STREAM, UPDATE_LAST_LOGIN_GROUP, RecordId.of("1-0"));
         verify(directUserService).updateUserWithEid(any(UUID.class), any());
     }
