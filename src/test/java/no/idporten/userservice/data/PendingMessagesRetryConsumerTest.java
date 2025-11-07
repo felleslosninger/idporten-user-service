@@ -1,6 +1,7 @@
 package no.idporten.userservice.data;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -44,7 +45,8 @@ class PendingMessagesRetryConsumerTest {
     }
 
     @Test
-    void testHandlePendingMessages_claimAndAcknowledge() {
+    @DisplayName("When checking for pending messages, then they are claimed and processed")
+    void testHandlePendingMessages() {
         PendingMessagesSummary pendingMessagesSummary = mock(PendingMessagesSummary.class);
         when(pendingMessagesSummary.getTotalPendingMessages()).thenReturn(1L);
         when(streamOps.pending(UPDATE_LAST_LOGIN_STREAM, UPDATE_LAST_LOGIN_GROUP)).thenReturn(pendingMessagesSummary);

@@ -1,6 +1,7 @@
 package no.idporten.userservice.data;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -44,6 +45,7 @@ class OrphanedMessagesRetryConsumerTest {
     }
 
     @Test
+    @DisplayName("When checking for orphaned pending messages, then they are claimed and processed")
     void handleOrphanedPendingMessages() {
         PendingMessage orphan = new PendingMessage(RecordId.of("1-0"), Consumer.from(UPDATE_LAST_LOGIN_GROUP, "deadconsumersociety"), Duration.ofSeconds(100), 1L);
         List<PendingMessage> pendingMessageList = List.of(orphan);
