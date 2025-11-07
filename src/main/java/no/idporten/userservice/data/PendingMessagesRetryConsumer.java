@@ -28,18 +28,11 @@ public class PendingMessagesRetryConsumer extends RetryConsumer {
     @Scheduled(fixedRate = 60, timeUnit = TimeUnit.SECONDS)
     public void handlePendingMessages() {
         var streamOperations = updateEidCache.opsForStream();
-        PendingMessagesSummary pendingSummary = streamOperations.pending(UPDATE_LAST_LOGIN_STREAM, UPDATE_LAST_LOGIN_GROUP);
-        log.info("{}: Pending messages summary: {}", consumerName, pendingSummary != null ? pendingSummary.getTotalPendingMessages() : 0);
+        PendingMessages pendingMessages = streamOperations.pending(UPDATE_LAST_LOGIN_STREAM, Consumer.from(UPDATE_LAST_LOGIN_GROUP, consumerName));
+        log.info("{}: Pending messages summary: {}", consumerName, pendingMessages.size());
 
-        if (pendingSummary != null && pendingSummary.getTotalPendingMessages() > 0) {
+        if (!pendingMessages.isEmpty()) {
             if (pingDb()) {
-                PendingMessages pendingMessages = streamOperations.pending(
-                        UPDATE_LAST_LOGIN_STREAM,
-                        Consumer.from(UPDATE_LAST_LOGIN_GROUP, consumerName),
-                        Range.unbounded(),
-                        pendingSummary.getTotalPendingMessages()
-                );
-
                 for (PendingMessage pendingMessage : pendingMessages) {
                     log.info("Attempting to claim or reprocess pending message: {}", pendingMessage.getIdAsString());
                     List<MapRecord<String, Object, Object>> claimedMessages = getClaimedMessages(pendingMessage, streamOperations);
@@ -49,7 +42,7 @@ public class PendingMessagesRetryConsumer extends RetryConsumer {
                             handleMessageAndAcknowledge(claimedMessage);
                         }
                     } else {
-                        log.info("Failed to claim message: {}", pendingMessage.getIdAsString());
+                        log.info("Message not available for claim: {}", pendingMessage.getIdAsString());
                     }
                 }
             } else {

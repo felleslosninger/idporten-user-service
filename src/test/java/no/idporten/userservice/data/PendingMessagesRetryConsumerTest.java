@@ -47,10 +47,7 @@ class PendingMessagesRetryConsumerTest {
     @Test
     @DisplayName("When checking for pending messages, then they are claimed and processed")
     void testHandlePendingMessages() {
-        PendingMessagesSummary pendingMessagesSummary = mock(PendingMessagesSummary.class);
-        when(pendingMessagesSummary.getTotalPendingMessages()).thenReturn(1L);
-        when(streamOps.pending(UPDATE_LAST_LOGIN_STREAM, UPDATE_LAST_LOGIN_GROUP)).thenReturn(pendingMessagesSummary);
-
+        // Mock pending messages
         PendingMessage pendingMessage = mock(PendingMessage.class);
         when(pendingMessage.getId()).thenReturn(RecordId.of("1-0"));
         when(pendingMessage.getIdAsString()).thenReturn("1-0");
@@ -58,9 +55,7 @@ class PendingMessagesRetryConsumerTest {
         when(pendingMessages.iterator()).thenReturn(Collections.singletonList(pendingMessage).iterator());
         when(streamOps.pending(
                 eq(UPDATE_LAST_LOGIN_STREAM),
-                any(Consumer.class),
-                eq(Range.unbounded()),
-                eq(1L)
+                any(Consumer.class)
         )).thenReturn(pendingMessages);
 
         // Mock claimed message

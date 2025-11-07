@@ -27,7 +27,7 @@ public class UpdateEidLoginMessagesConsumer implements StreamListener<String, Ob
 
         userService.updateUserWithEid(event.userId(), Login.builder().eidName(event.eidName()).lastLogin(Instant.ofEpochMilli(event.loginTimeInEpochMillis())).build());
         updateEidCache.opsForStream().acknowledge(UPDATE_LAST_LOGIN_GROUP, updateEidEvent);
-        log.info("User {} has been updated", event.userId());
+        log.info("User {} has been updated by message {}", event.userId(), updateEidEvent.getId());
 
         updateEidCache.opsForStream().delete(updateEidEvent);
     }

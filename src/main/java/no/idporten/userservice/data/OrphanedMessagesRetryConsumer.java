@@ -29,31 +29,32 @@ public class OrphanedMessagesRetryConsumer extends RetryConsumer{
 
     @Scheduled(fixedRate = 5, timeUnit = TimeUnit.MINUTES)
     public void handleOrphanedPendingMessages() {
-        log.info("Checking for orphaned pending messages");
         if (pingDb()) {
             var streamOperations = updateEidCache.opsForStream();
             PendingMessages pendingMessages = streamOperations.pending(UPDATE_LAST_LOGIN_STREAM, UPDATE_LAST_LOGIN_GROUP, Range.unbounded(), 500);
-            if (pendingMessages.isEmpty()) return;
+            log.info("A total of {} pending messages found", pendingMessages.size());
 
-            Set<String> liveConsumerNames = streamOperations.consumers(UPDATE_LAST_LOGIN_STREAM, UPDATE_LAST_LOGIN_GROUP).stream()
-                    .map(StreamInfo.XInfoConsumer::consumerName)
-                    .collect(Collectors.toSet());
+            if (!pendingMessages.isEmpty()) {
+                Set<String> liveConsumerNames = streamOperations.consumers(UPDATE_LAST_LOGIN_STREAM, UPDATE_LAST_LOGIN_GROUP).stream()
+                        .map(StreamInfo.XInfoConsumer::consumerName)
+                        .collect(Collectors.toSet());
 
-            List<RecordId> orphanedMessages = filterOrphanedMessages(pendingMessages, liveConsumerNames);
+                List<RecordId> orphanedMessages = filterOrphanedMessages(pendingMessages, liveConsumerNames);
 
-            log.info("A total of {} orphaned messages found", orphanedMessages.size());
+                log.info("A total of {} orphaned messages found", orphanedMessages.size());
 
-            if (!orphanedMessages.isEmpty()) {
-                List<MapRecord<String, Object, Object>> claimedMessages =
-                        streamOperations.claim(
-                                UPDATE_LAST_LOGIN_STREAM,
-                                UPDATE_LAST_LOGIN_GROUP,
-                                consumerName,
-                                Duration.ofSeconds(10),
-                                orphanedMessages.toArray(new RecordId[0]));
+                if (!orphanedMessages.isEmpty()) {
+                    List<MapRecord<String, Object, Object>> claimedMessages =
+                            streamOperations.claim(
+                                    UPDATE_LAST_LOGIN_STREAM,
+                                    UPDATE_LAST_LOGIN_GROUP,
+                                    consumerName,
+                                    Duration.ofSeconds(10),
+                                    orphanedMessages.toArray(new RecordId[0]));
 
-                for (MapRecord<String, Object, Object> claimMessage : claimedMessages) {
-                    handleMessageAndAcknowledge(claimMessage);
+                    for (MapRecord<String, Object, Object> claimMessage : claimedMessages) {
+                        handleMessageAndAcknowledge(claimMessage);
+                    }
                 }
             }
         }
