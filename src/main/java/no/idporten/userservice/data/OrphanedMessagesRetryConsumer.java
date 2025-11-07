@@ -68,6 +68,7 @@ public class OrphanedMessagesRetryConsumer extends RetryConsumer{
                 orphaned.add(pm.getId());
             }
         }
+        log.info("A total of {} orphaned filtered", pending.size() - orphaned.size());
         return orphaned;
     }
 
