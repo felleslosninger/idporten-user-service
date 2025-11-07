@@ -10,9 +10,9 @@ class ConsumerNameProviderTest {
     @Test
     @DisplayName("When getting consumer name multiple times, then the same name is returned")
     void getConsumerName() {
-        String consumerName = ConsumerNameProvider.getConsumerName();
-        String secondanother = ConsumerNameProvider.getConsumerName();
+        String firstName = ConsumerNameProvider.getConsumerName();
+        String secondName = ConsumerNameProvider.getConsumerName();
 
-        assertEquals(consumerName, secondanother);
+        assertEquals(firstName, secondName);
     }
 }
