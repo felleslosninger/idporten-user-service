@@ -64,6 +64,8 @@ public class OrphanedMessagesRetryConsumer extends RetryConsumer{
         List<RecordId> orphaned = new ArrayList<>();
         for (PendingMessage pm : pending) {
             String owner = pm.getConsumerName();
+            log.info("Active consumers: {}", liveConsumerNames);        // todo fjernes
+            log.info("Owner of orphaned message: {}", owner);           // todo fjernes
             if (!liveConsumerNames.contains(owner)) {
                 orphaned.add(pm.getId());
             }
