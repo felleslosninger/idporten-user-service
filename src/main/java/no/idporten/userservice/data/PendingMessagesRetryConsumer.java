@@ -2,6 +2,7 @@ package no.idporten.userservice.data;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.data.domain.Range;
 import org.springframework.data.redis.connection.stream.Consumer;
 import org.springframework.data.redis.connection.stream.MapRecord;
 import org.springframework.data.redis.connection.stream.PendingMessage;
@@ -30,9 +31,9 @@ public class PendingMessagesRetryConsumer extends RetryConsumer {
     @Scheduled(fixedRate = 60, timeUnit = TimeUnit.SECONDS)
     public void handlePendingMessages() {
         var streamOperations = updateEidCache.opsForStream();
-        PendingMessages pendingMessages = streamOperations.pending(UPDATE_LAST_LOGIN_STREAM, Consumer.from(UPDATE_LAST_LOGIN_GROUP, consumerName));
+        PendingMessages pendingMessages = streamOperations.pending(UPDATE_LAST_LOGIN_STREAM, Consumer.from(UPDATE_LAST_LOGIN_GROUP, consumerName), Range.unbounded(), 500);
 
-        if (!pendingMessages.isEmpty()) {
+        if (pendingMessages != null && !pendingMessages.isEmpty()) {
             log.info("{}: Pending messages summary: {}", consumerName, pendingMessages.size());
             if (pingDb()) {
                 for (PendingMessage pendingMessage : pendingMessages) {
