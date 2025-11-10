@@ -29,9 +29,9 @@ public class PendingMessagesRetryConsumer extends RetryConsumer {
     public void handlePendingMessages() {
         var streamOperations = updateEidCache.opsForStream();
         PendingMessages pendingMessages = streamOperations.pending(UPDATE_LAST_LOGIN_STREAM, Consumer.from(UPDATE_LAST_LOGIN_GROUP, consumerName));
-        log.info("{}: Pending messages summary: {}", consumerName, pendingMessages.size());
 
         if (!pendingMessages.isEmpty()) {
+            log.info("{}: Pending messages summary: {}", consumerName, pendingMessages.size());
             if (pingDb()) {
                 for (PendingMessage pendingMessage : pendingMessages) {
                     log.info("Attempting to claim or reprocess pending message: {}", pendingMessage.getIdAsString());

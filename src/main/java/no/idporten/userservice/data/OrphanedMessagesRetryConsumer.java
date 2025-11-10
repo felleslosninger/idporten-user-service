@@ -32,9 +32,9 @@ public class OrphanedMessagesRetryConsumer extends RetryConsumer{
         if (pingDb()) {
             var streamOperations = updateEidCache.opsForStream();
             PendingMessages pendingMessages = streamOperations.pending(UPDATE_LAST_LOGIN_STREAM, UPDATE_LAST_LOGIN_GROUP, Range.unbounded(), 500);
-            log.info("A total of {} pending messages found", pendingMessages.size());
 
             if (!pendingMessages.isEmpty()) {
+                log.info("A total of {} pending messages found", pendingMessages.size());
                 Set<String> liveConsumerNames = streamOperations.consumers(UPDATE_LAST_LOGIN_STREAM, UPDATE_LAST_LOGIN_GROUP).stream()
                         .map(StreamInfo.XInfoConsumer::consumerName)
                         .collect(Collectors.toSet());
