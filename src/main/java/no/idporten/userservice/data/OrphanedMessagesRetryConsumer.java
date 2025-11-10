@@ -33,7 +33,7 @@ public class OrphanedMessagesRetryConsumer extends RetryConsumer{
             var streamOperations = updateEidCache.opsForStream();
             PendingMessages pendingMessages = streamOperations.pending(UPDATE_LAST_LOGIN_STREAM, UPDATE_LAST_LOGIN_GROUP, Range.unbounded(), 500);
 
-            if (!pendingMessages.isEmpty()) {
+            if (pendingMessages != null && !pendingMessages.isEmpty()) {
                 log.info("A total of {} pending messages found", pendingMessages.size());
                 Set<String> liveConsumerNames = streamOperations.consumers(UPDATE_LAST_LOGIN_STREAM, UPDATE_LAST_LOGIN_GROUP).stream()
                         .map(StreamInfo.XInfoConsumer::consumerName)

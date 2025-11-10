@@ -33,7 +33,7 @@ public class PendingMessagesRetryConsumer extends RetryConsumer {
         var streamOperations = updateEidCache.opsForStream();
         PendingMessages pendingMessages = streamOperations.pending(UPDATE_LAST_LOGIN_STREAM, Consumer.from(UPDATE_LAST_LOGIN_GROUP, consumerName), Range.unbounded(), 500);
 
-        if (!pendingMessages.isEmpty()) {
+        if (pendingMessages != null && !pendingMessages.isEmpty()) {
             log.info("{}: Pending messages summary: {}", consumerName, pendingMessages.size());
             if (pingDb()) {
                 for (PendingMessage pendingMessage : pendingMessages) {
