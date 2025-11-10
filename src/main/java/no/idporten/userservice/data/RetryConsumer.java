@@ -1,6 +1,8 @@
 package no.idporten.userservice.data;
 
+import jakarta.annotation.PreDestroy;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.connection.stream.Consumer;
 import org.springframework.data.redis.connection.stream.MapRecord;
 import org.springframework.data.redis.core.RedisTemplate;
 
@@ -40,6 +42,16 @@ abstract public class RetryConsumer {
         );
         updateEidCache.opsForStream().acknowledge(UPDATE_LAST_LOGIN_STREAM, UPDATE_LAST_LOGIN_GROUP, updateEidMessage.getId());
         log.info("Message acknowledged: {}", updateEidMessage.getId());
+    }
+
+    @PreDestroy
+    public void cleanupConsumer() {
+        try {
+            updateEidCache.opsForStream().deleteConsumer(UPDATE_LAST_LOGIN_STREAM, Consumer.from(UPDATE_LAST_LOGIN_GROUP, consumerName));
+            log.info("Removed Redis consumer: {}", consumerName);
+        } catch (Exception e) {
+            log.warn("Failed to remove Redis consumer: {}", e.getMessage());
+        }
     }
 
 }
