@@ -55,7 +55,9 @@ class PendingMessagesRetryConsumerTest {
         when(pendingMessages.iterator()).thenReturn(Collections.singletonList(pendingMessage).iterator());
         when(streamOps.pending(
                 eq(UPDATE_LAST_LOGIN_STREAM),
-                any(Consumer.class)
+                any(Consumer.class),
+                Range.unbounded(),
+                500
         )).thenReturn(pendingMessages);
 
         // Mock claimed message
