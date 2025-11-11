@@ -40,7 +40,7 @@ abstract public class RetryConsumer {
                 updateEidCache.opsForStream().createGroup(UPDATE_LAST_LOGIN_STREAM, UPDATE_LAST_LOGIN_GROUP);
             }
         } catch (Exception e) {
-            log.warn("Unable to create group {} on stream {}", UPDATE_LAST_LOGIN_GROUP, UPDATE_LAST_LOGIN_STREAM);
+            log.error("Unable to create group {} on stream {}", UPDATE_LAST_LOGIN_GROUP, UPDATE_LAST_LOGIN_STREAM);
         }
     }
 
