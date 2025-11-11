@@ -36,7 +36,6 @@ public class OrphanedMessagesRetryConsumer extends RetryConsumer {
             PendingMessages pendingMessages = streamOperations.pending(UPDATE_LAST_LOGIN_STREAM, UPDATE_LAST_LOGIN_GROUP, Range.unbounded(), 500);
 
             if (pendingMessages != null && !pendingMessages.isEmpty()) {
-                log.info("A total of {} pending messages found", pendingMessages.size());
                 Set<String> liveConsumerNames = streamOperations.consumers(UPDATE_LAST_LOGIN_STREAM, UPDATE_LAST_LOGIN_GROUP).stream()
                         .map(StreamInfo.XInfoConsumer::consumerName)
                         .collect(Collectors.toSet());
@@ -66,8 +65,6 @@ public class OrphanedMessagesRetryConsumer extends RetryConsumer {
         List<RecordId> orphaned = new ArrayList<>();
         for (PendingMessage pm : pending) {
             String owner = pm.getConsumerName();
-            log.info("Active consumers: {}", liveConsumerNames);        // todo fjernes
-            log.info("Owner of orphaned message: {}", owner);           // todo fjernes
             if (!liveConsumerNames.contains(owner)) {
                 orphaned.add(pm.getId());
             }

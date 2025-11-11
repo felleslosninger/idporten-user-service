@@ -29,7 +29,6 @@ public class StreamConsumerManager implements SmartLifecycle {
 
     @Override
     public void stop() {
-        log.info("Stopping StreamConsumerManager and removing consumer {} from Redis stream group", ConsumerNameProvider.getConsumerName());
         updateEidCache.opsForStream().deleteConsumer(UPDATE_LAST_LOGIN_STREAM, Consumer.from(UPDATE_LAST_LOGIN_GROUP, ConsumerNameProvider.getConsumerName()));
         log.info("Stopped StreamConsumerManager and removing consumer {} from Redis stream group", ConsumerNameProvider.getConsumerName());
         running = false;
