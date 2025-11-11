@@ -21,7 +21,7 @@ import static no.idporten.userservice.config.RedisStreamConstants.UPDATE_LAST_LO
 @Component
 @Slf4j
 @ConditionalOnProperty(name = "digdir.caching.enabled", havingValue = "true")
-public class OrphanedMessagesRetryConsumer extends RetryConsumer{
+public class OrphanedMessagesRetryConsumer extends RetryConsumer {
 
     public OrphanedMessagesRetryConsumer(RedisTemplate<String, String> updateEidCache, DirectUserService userService) {
         super(updateEidCache, userService);
@@ -30,6 +30,8 @@ public class OrphanedMessagesRetryConsumer extends RetryConsumer{
     @Scheduled(fixedRate = 5, timeUnit = TimeUnit.MINUTES)
     public void handleOrphanedPendingMessages() {
         if (pingDb()) {
+            createConsumerGroupIfItDoesNotExist();
+
             var streamOperations = updateEidCache.opsForStream();
             PendingMessages pendingMessages = streamOperations.pending(UPDATE_LAST_LOGIN_STREAM, UPDATE_LAST_LOGIN_GROUP, Range.unbounded(), 500);
 

@@ -1,9 +1,8 @@
 package no.idporten.userservice.data;
 
-import jakarta.annotation.PreDestroy;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.redis.connection.stream.Consumer;
 import org.springframework.data.redis.connection.stream.MapRecord;
+import org.springframework.data.redis.connection.stream.StreamInfo;
 import org.springframework.data.redis.core.RedisTemplate;
 
 import java.time.Instant;
@@ -34,6 +33,22 @@ abstract public class RetryConsumer {
         }
     }
 
+    protected void createConsumerGroupIfItDoesNotExist() {
+        try {
+            StreamInfo.XInfoGroups groups = updateEidCache.opsForStream().groups(UPDATE_LAST_LOGIN_STREAM);
+            if (!consumerGroupExists(groups)) {
+                updateEidCache.opsForStream().createGroup(UPDATE_LAST_LOGIN_STREAM, UPDATE_LAST_LOGIN_GROUP);
+            }
+        } catch (Exception e) {
+            log.warn("Unable to create group {} on stream {}", UPDATE_LAST_LOGIN_GROUP, UPDATE_LAST_LOGIN_STREAM);
+        }
+    }
+
+    private boolean consumerGroupExists(StreamInfo.XInfoGroups groups) {
+        return groups.stream()
+                .anyMatch(g -> g.groupName().equals(UPDATE_LAST_LOGIN_GROUP));
+    }
+
     protected void handleMessageAndAcknowledge(MapRecord<String, Object, Object> updateEidMessage) {
         Map<Object, Object> claimedMessage = updateEidMessage.getValue();
         userService.updateUserWithEid(
@@ -42,16 +57,6 @@ abstract public class RetryConsumer {
         );
         updateEidCache.opsForStream().acknowledge(UPDATE_LAST_LOGIN_STREAM, UPDATE_LAST_LOGIN_GROUP, updateEidMessage.getId());
         log.info("Message acknowledged: {}", updateEidMessage.getId());
-    }
-
-    @PreDestroy
-    public void cleanupConsumer() {
-        try {
-            updateEidCache.opsForStream().deleteConsumer(UPDATE_LAST_LOGIN_STREAM, Consumer.from(UPDATE_LAST_LOGIN_GROUP, consumerName));
-            log.info("Removed Redis consumer: {}", consumerName);
-        } catch (Exception e) {
-            log.warn("Failed to remove Redis consumer: {}", e.getMessage());
-        }
     }
 
 }

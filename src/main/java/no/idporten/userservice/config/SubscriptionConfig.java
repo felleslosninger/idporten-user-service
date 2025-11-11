@@ -6,8 +6,10 @@ import no.idporten.userservice.data.message.UpdateEidMessage;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.data.redis.RedisSystemException;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.connection.stream.Consumer;
 import org.springframework.data.redis.connection.stream.ObjectRecord;
 import org.springframework.data.redis.connection.stream.ReadOffset;
@@ -35,7 +37,7 @@ public class SubscriptionConfig {
             updateEidCache.afterPropertiesSet();
             updateEidCache.opsForStream().createGroup(UPDATE_LAST_LOGIN_STREAM, UPDATE_LAST_LOGIN_GROUP);
         } catch (RedisSystemException e) {
-            log.info("STREAM - Redis group already exists, skipping Redis group creation: {}", "EID-GROUP");
+            log.info("STREAM - Redis group already exists, skipping Redis group creation: {}", UPDATE_LAST_LOGIN_GROUP);
         }
 
         var streamOffset = StreamOffset.create(
@@ -63,4 +65,5 @@ public class SubscriptionConfig {
         container.start();
         return subscription;
     }
+
 }
