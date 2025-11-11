@@ -2,6 +2,7 @@ package no.idporten.userservice.data;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.connection.stream.MapRecord;
+import org.springframework.data.redis.connection.stream.StreamInfo;
 import org.springframework.data.redis.core.RedisTemplate;
 
 import java.time.Instant;
@@ -30,6 +31,22 @@ abstract public class RetryConsumer {
         } catch (Exception e) {
             return false;
         }
+    }
+
+    protected void createConsumerGroupIfItDoesNotExist() {
+        try {
+            StreamInfo.XInfoGroups groups = updateEidCache.opsForStream().groups(UPDATE_LAST_LOGIN_STREAM);
+            if (!consumerGroupExists(groups)) {
+                updateEidCache.opsForStream().createGroup(UPDATE_LAST_LOGIN_STREAM, UPDATE_LAST_LOGIN_GROUP);
+            }
+        } catch (Exception e) {
+            log.error("Unable to create group {} on stream {}", UPDATE_LAST_LOGIN_GROUP, UPDATE_LAST_LOGIN_STREAM);
+        }
+    }
+
+    private boolean consumerGroupExists(StreamInfo.XInfoGroups groups) {
+        return groups.stream()
+                .anyMatch(g -> g.groupName().equals(UPDATE_LAST_LOGIN_GROUP));
     }
 
     protected void handleMessageAndAcknowledge(MapRecord<String, Object, Object> updateEidMessage) {

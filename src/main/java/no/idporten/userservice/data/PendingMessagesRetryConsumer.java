@@ -30,6 +30,8 @@ public class PendingMessagesRetryConsumer extends RetryConsumer {
 
     @Scheduled(fixedRate = 60, timeUnit = TimeUnit.SECONDS)
     public void handlePendingMessages() {
+        createConsumerGroupIfItDoesNotExist();
+
         var streamOperations = updateEidCache.opsForStream();
         PendingMessages pendingMessages = streamOperations.pending(UPDATE_LAST_LOGIN_STREAM, Consumer.from(UPDATE_LAST_LOGIN_GROUP, consumerName), Range.unbounded(), 500);
 
