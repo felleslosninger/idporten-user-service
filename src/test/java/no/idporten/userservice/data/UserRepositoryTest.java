@@ -16,7 +16,7 @@ import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest(classes = EmbeddedRedisLifecycleConfig.class)
+@SpringBootTest(classes = EmbeddedRedisLifecycleConfig.class, properties = {"spring.data.redis.port=7547"})
 @ActiveProfiles("test")
 public class UserRepositoryTest {
     @Resource

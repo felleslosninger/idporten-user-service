@@ -1,5 +1,6 @@
 package no.idporten.userservice.api;
 
+import no.idporten.userservice.config.EmbeddedRedisLifecycleConfig;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -16,7 +17,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @ActiveProfiles("test")
 @DisplayName("When accessing the version endpoint")
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = EmbeddedRedisLifecycleConfig.class, properties = {"spring.data.redis.port=7549"})
 class ActuatorTest {
 
     private MockMvc mockMvc;

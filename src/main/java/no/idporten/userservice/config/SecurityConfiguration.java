@@ -6,9 +6,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
@@ -19,7 +20,7 @@ import java.util.List;
 
 @Configuration
 @EnableWebSecurity
-@EnableGlobalMethodSecurity(prePostEnabled = true)
+@EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfiguration {
 
@@ -35,14 +36,14 @@ public class SecurityConfiguration {
         List<String> openEndpoints = webSecurityProperties.getGetAllowed();
 
         http
-                .csrf(csrf -> csrf.disable())
+                .csrf(AbstractHttpConfigurer::disable)
                 .headers(headers -> headers.frameOptions(frameOptions -> frameOptions.sameOrigin()))
                 .addFilterBefore(tokenAuthenticationFilter, BearerTokenAuthenticationFilter.class) // check and verify api-key for login
                 .sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeRequests((authorize) -> authorize
+                .authorizeHttpRequests((authorize) -> authorize
                         .requestMatchers("/login/**").hasRole("USER") // verify user has this role if found user in HttpFilter
                         .requestMatchers("/admin/**").hasAnyAuthority("SCOPE_idporteninternal:user.read", "SCOPE_idporteninternal:user.write") //verify correct scope if has bearer token
-                        .requestMatchers(openEndpoints.stream().toArray(String[]::new)).permitAll()
+                        .requestMatchers(openEndpoints.toArray(String[]::new)).permitAll()
                         .anyRequest().authenticated()
                 )
                 // will trigger if Bearer token is supplied in Authentication header regardless of what is path is specified in requestMatchers above

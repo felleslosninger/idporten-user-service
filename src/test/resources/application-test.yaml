@@ -4,6 +4,9 @@ management:
     port:
 
 spring:
+  task:
+    scheduling:
+      enabled: false
   datasource:
     url: "jdbc:h2:mem:idporten_user;MODE=MySQL"
     driver-class-name: org.h2.Driver
