@@ -1,7 +1,6 @@
 package no.idporten.userservice;
 
 import io.micrometer.core.instrument.Counter;
-import jakarta.servlet.http.HttpServletResponse;
 import no.idporten.userservice.api.ErrorResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,7 +55,7 @@ public class ApplicationExceptionHandler {
 
     // Never triggers this one
     @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<ErrorResponse> handleError(WebRequest request, BadCredentialsException e) {
+    public ResponseEntity<ErrorResponse> handleError(BadCredentialsException e) {
 
         String wwwAuthenticate = computeWWWAuthenticateHeaderValue(Collections.emptyMap());
         return ResponseEntity
@@ -70,7 +69,7 @@ public class ApplicationExceptionHandler {
 
     //spring security 403
     @ExceptionHandler({ AccessDeniedException.class })
-    public ResponseEntity<ErrorResponse> handleAccessDeniedException(AccessDeniedException e, WebRequest request, HttpServletResponse response) {
+    public ResponseEntity<ErrorResponse> handleAccessDeniedException(AccessDeniedException e, WebRequest request) {
         Principal userPrincipal = request.getUserPrincipal();
         String error = "access_denied";
         if (userPrincipal instanceof AbstractOAuth2TokenAuthenticationToken) {

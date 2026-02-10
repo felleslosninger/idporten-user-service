@@ -41,7 +41,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@SpringBootTest(classes = EmbeddedRedisLifecycleConfig.class)
+@SpringBootTest(classes = EmbeddedRedisLifecycleConfig.class, properties = {"spring.data.redis.port=7552"})
 @AutoConfigureMockMvc
 @DisplayName("When using the admin API")
 @ActiveProfiles("test")
