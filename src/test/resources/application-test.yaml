@@ -27,3 +27,7 @@ digdir:
     enabled: true
     time_to_live_in_days: 365
 
+logging:
+  level:
+    org.springframework.data.redis.stream: off
+

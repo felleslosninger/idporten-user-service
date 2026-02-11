@@ -1,11 +1,11 @@
 package no.idporten.userservice.data;
 
-import no.idporten.userservice.config.EmbeddedRedisLifecycleConfig;
+import no.idporten.userservice.BaseRedisTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 
@@ -15,11 +15,11 @@ import static java.util.Collections.emptyList;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 
-@SpringBootTest(classes = EmbeddedRedisLifecycleConfig.class, properties = {"spring.data.redis.port=6371"})
+@SpringBootTest
 @AutoConfigureMockMvc
 @DisplayName("When using the userservice")
 @ActiveProfiles("test")
-class CacheUpdaterTest {
+class CacheUpdaterTest extends BaseRedisTest {
 
     @MockitoSpyBean
     CacheUpdater cacheUpdater;

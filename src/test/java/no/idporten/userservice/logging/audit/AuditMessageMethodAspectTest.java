@@ -1,5 +1,6 @@
 package no.idporten.userservice.logging.audit;
 
+import jakarta.servlet.http.HttpServletRequest;
 import no.idporten.logging.audit.AuditEntry;
 import no.idporten.logging.audit.AuditLogger;
 import no.idporten.userservice.TestData;
@@ -18,7 +19,6 @@ import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 
-import jakarta.servlet.http.HttpServletRequest;
 import java.lang.reflect.Method;
 import java.util.Base64;
 import java.util.Collections;

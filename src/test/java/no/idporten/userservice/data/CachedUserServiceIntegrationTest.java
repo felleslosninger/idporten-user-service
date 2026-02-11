@@ -1,12 +1,12 @@
 package no.idporten.userservice.data;
 
-import no.idporten.userservice.config.EmbeddedRedisLifecycleConfig;
+import no.idporten.userservice.BaseRedisTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 
@@ -21,11 +21,11 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
-@SpringBootTest(classes = EmbeddedRedisLifecycleConfig.class, properties = {"spring.data.redis.port=7546"})
+@SpringBootTest
 @AutoConfigureMockMvc
 @DisplayName("When using the userservice")
 @ActiveProfiles("test")
-public class CachedUserServiceIntegrationTest {
+public class CachedUserServiceIntegrationTest extends BaseRedisTest {
 
     @MockitoSpyBean
     private UserRepository userRepository;

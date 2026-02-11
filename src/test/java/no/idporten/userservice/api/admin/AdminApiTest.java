@@ -5,11 +5,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import no.idporten.logging.audit.AuditEntry;
 import no.idporten.logging.audit.AuditLogger;
+import no.idporten.userservice.BaseRedisTest;
 import no.idporten.userservice.TestData;
 import no.idporten.userservice.api.ApiUserService;
 import no.idporten.userservice.api.UserResource;
 import no.idporten.userservice.api.login.CreateUserRequest;
-import no.idporten.userservice.config.EmbeddedRedisLifecycleConfig;
 import no.idporten.userservice.logging.audit.AuditID;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.DisplayName;
@@ -41,12 +41,12 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@SpringBootTest(classes = EmbeddedRedisLifecycleConfig.class, properties = {"spring.data.redis.port=7552"})
+@SpringBootTest
 @AutoConfigureMockMvc
 @DisplayName("When using the admin API")
 @ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
-public class AdminApiTest {
+public class AdminApiTest extends BaseRedisTest {
     @MockitoBean
     private AuditLogger auditLogger;
 

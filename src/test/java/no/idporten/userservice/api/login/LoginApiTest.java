@@ -4,10 +4,10 @@ package no.idporten.userservice.api.login;
 import lombok.SneakyThrows;
 import no.idporten.logging.audit.AuditEntry;
 import no.idporten.logging.audit.AuditLogger;
+import no.idporten.userservice.BaseRedisTest;
 import no.idporten.userservice.TestData;
 import no.idporten.userservice.api.ApiUserService;
 import no.idporten.userservice.api.UserResource;
-import no.idporten.userservice.config.EmbeddedRedisLifecycleConfig;
 import no.idporten.userservice.logging.audit.AuditID;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
@@ -38,12 +38,12 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@SpringBootTest(classes = EmbeddedRedisLifecycleConfig.class, properties = {"spring.data.redis.port=7550"})
+@SpringBootTest
 @AutoConfigureMockMvc
 @DisplayName("When using the login API")
 @ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
-public class LoginApiTest {
+public class LoginApiTest extends BaseRedisTest {
 
     @Autowired
     private WebApplicationContext context;
