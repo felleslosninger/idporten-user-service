@@ -58,3 +58,17 @@ to work even if the database goes down. As long as the user is already cached, a
 
 This functionality is toggled by the digdir.caching.enabled property.
 
+## Testing
+The test configuration starts an embedded Redis server via the BaseRedisTest class. The server is a static member of the class, and is shared between all tests. 
+The server is started before any tests are run, and stopped after all tests are run. The server is configured to use a standard port (6379).
+
+This means that all tests that starts spring boot (annotated with @SpringBootTest) should inherit from BaseRedisTest, to ensure that the embedded Redis server is running 
+during the tests. Tests that does not start spring boot (e.g. unit tests) do not need to inherit from BaseRedisTest, as they do not 
+require the embedded Redis server.
+
+The reason for this setup is that the normal way of starting embedded Redis is to implement a SmartLifeCycle bean, which starts the server when the application context is 
+started. This works well for normal applications, but in our case we have a lot of tests that does not start spring boot, and we want 
+to avoid starting and stopping the embedded Redis server multiple times during the test suite. Also, the constant starting and stopping of Redis
+made the tests collide into each other when they were run. By using a static member of the BaseRedisTest class, we can ensure that the embedded 
+Redis server is started only once, and is available for all tests that needs it.
+
