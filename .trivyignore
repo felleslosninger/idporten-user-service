@@ -1,2 +1,2 @@
 # CVE-xxx # <package>: <vulnerability info>. Fixed <version>
-CVE-2025-68121: TLS 1.3 implementation vulnerable to DoS attack
+CVE-2025-68121 # TLS 1.3 implementation vulnerable to DoS attack
