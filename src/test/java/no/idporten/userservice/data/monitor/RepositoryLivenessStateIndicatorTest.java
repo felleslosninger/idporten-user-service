@@ -4,8 +4,8 @@ import no.idporten.userservice.data.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.availability.ApplicationAvailability;
+import org.springframework.boot.health.contributor.Health;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -21,14 +21,14 @@ class RepositoryLivenessStateIndicatorTest {
 
     @Test
     void reportUpWhenDatabaseIsUp() {
-        Health health = repositoryLivenessStateIndicator.getHealth(true);
+        Health health = repositoryLivenessStateIndicator.health(true);
         assertEquals(Health.up().build(), health);
     }
 
     @Test
     void reportDegradedWhenDatabaseIsDown() {
         when(userRepository.findByUuid(any())).thenThrow(new RuntimeException());
-        Health health = repositoryLivenessStateIndicator.getHealth(true);
+        Health health = repositoryLivenessStateIndicator.health(true);
         assertEquals(Health.status("DEGRADED").build().getStatus().toString(), health.getStatus().toString());
     }
 

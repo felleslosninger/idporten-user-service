@@ -11,7 +11,6 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionalEventListener;
 
-import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
 import static org.springframework.transaction.event.TransactionPhase.AFTER_COMMIT;

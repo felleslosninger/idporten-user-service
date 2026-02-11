@@ -1,7 +1,8 @@
 package no.idporten.userservice.data;
 
+import jakarta.annotation.Resource;
+import no.idporten.userservice.BaseRedisTest;
 import no.idporten.userservice.TestData;
-import no.idporten.userservice.config.EmbeddedRedisLifecycleConfig;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -10,15 +11,14 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.test.context.ActiveProfiles;
 
-import jakarta.annotation.Resource;
 import java.time.Instant;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest(classes = EmbeddedRedisLifecycleConfig.class)
+@SpringBootTest
 @ActiveProfiles("test")
-public class UserRepositoryTest {
+public class UserRepositoryTest extends BaseRedisTest {
     @Resource
     private UserRepository userRepository;
 

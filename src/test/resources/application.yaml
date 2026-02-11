@@ -21,6 +21,9 @@ spring:
     table: flyway_schema_history
   security:
     api-key: mytoken
+  task:
+    scheduling:
+      enabled: false
 
 digdir:
   audit:
@@ -86,5 +89,6 @@ idporten-user-service:
         - /swagger-ui/**
         - /v3/api-docs/**
         - /error
+
 
 

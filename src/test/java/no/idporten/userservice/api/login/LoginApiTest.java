@@ -4,39 +4,49 @@ package no.idporten.userservice.api.login;
 import lombok.SneakyThrows;
 import no.idporten.logging.audit.AuditEntry;
 import no.idporten.logging.audit.AuditLogger;
+import no.idporten.userservice.BaseRedisTest;
 import no.idporten.userservice.TestData;
 import no.idporten.userservice.api.ApiUserService;
 import no.idporten.userservice.api.UserResource;
-import no.idporten.userservice.config.EmbeddedRedisLifecycleConfig;
 import no.idporten.userservice.logging.audit.AuditID;
 import org.hamcrest.Matchers;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.util.StringUtils;
+import org.springframework.web.context.WebApplicationContext;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@SpringBootTest(classes = EmbeddedRedisLifecycleConfig.class)
+@SpringBootTest
 @AutoConfigureMockMvc
 @DisplayName("When using the login API")
 @ActiveProfiles("test")
-public class LoginApiTest {
+@ExtendWith(MockitoExtension.class)
+public class LoginApiTest extends BaseRedisTest {
+
+    @Autowired
+    private WebApplicationContext context;
 
     @Autowired
     private MockMvc mockMvc;
@@ -49,6 +59,14 @@ public class LoginApiTest {
 
     @Captor
     ArgumentCaptor<AuditEntry> auditEntryCaptor;
+
+    @BeforeEach
+    public void setup() {
+        mockMvc = MockMvcBuilders
+                .webAppContextSetup(context)
+                .apply(springSecurity())
+                .build();
+    }
 
     @DisplayName("When using the search endpoint to search for users")
     @Nested

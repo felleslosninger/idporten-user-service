@@ -5,9 +5,11 @@ import jakarta.validation.ConstraintValidatorContext;
 
 public class UUIDConstraint implements ConstraintValidator<UUID, String> {
 
+    @Override
     public void initialize(UUID constraintAnnotation) {
     }
 
+    @Override
     public boolean isValid(String name, ConstraintValidatorContext constraintContext) {
         try {
             java.util.UUID.fromString(name);

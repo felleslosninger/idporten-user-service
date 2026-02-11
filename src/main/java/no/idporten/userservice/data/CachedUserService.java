@@ -29,6 +29,7 @@ public class CachedUserService implements UserService {
 
     private final DirectUserService userService;
 
+    @Override
     public IDPortenUser findUser(UUID uuid) {
         String cachedUser = uuidToUseridCache.opsForValue().get(uuid.toString());
 
@@ -39,6 +40,7 @@ public class CachedUserService implements UserService {
         return userService.findUser(uuid);
     }
 
+    @Override
     public Optional<IDPortenUser> searchForUser(String personIdentifier) {
         IDPortenUser idPortenUser = idportenUserCache.opsForValue().get(personIdentifier);
 
@@ -50,19 +52,23 @@ public class CachedUserService implements UserService {
     }
 
     @Transactional
+    @Override
     public IDPortenUser createUser(IDPortenUser idPortenUser) {
         return userService.createUser(idPortenUser);
     }
 
     @Transactional
+    @Override
     public IDPortenUser createStatusUser(IDPortenUser idPortenUser) {
         return userService.createStatusUser(idPortenUser);
     }
 
+    @Override
     public IDPortenUser updateUser(IDPortenUser idPortenUser) {
         return userService.updateUser(idPortenUser);
     }
 
+    @Override
     public IDPortenUser updateUserWithEid(UUID userUuid, Login eid) {
         IDPortenUser user = findUser(userUuid);
         if (user == null) {
@@ -87,10 +93,12 @@ public class CachedUserService implements UserService {
     }
 
     @Transactional
+    @Override
     public IDPortenUser deleteUser(UUID userUuid) {
         return userService.deleteUser(userUuid);
     }
 
+    @Override
     public IDPortenUser changePid(String currentPid, String newPid) {
         return userService.changePid(currentPid, newPid);
     }

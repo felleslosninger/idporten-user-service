@@ -1,7 +1,5 @@
 package no.idporten.userservice.config;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.extern.slf4j.Slf4j;
 import no.idporten.userservice.data.IDPortenUser;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -9,7 +7,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
+import org.springframework.data.redis.serializer.JacksonJsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 @Slf4j
@@ -19,10 +17,9 @@ public class UserCacheConfig {
 
     @Bean("idportenUserCache")
     public RedisTemplate<String, IDPortenUser> idportenUserCache(RedisConnectionFactory rcf) {
-        ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
         RedisTemplate<String, IDPortenUser> template = new RedisTemplate<>();
         template.setConnectionFactory(rcf);
-        Jackson2JsonRedisSerializer<IDPortenUser> jsonRedisSerializer = new Jackson2JsonRedisSerializer<>(objectMapper, IDPortenUser.class);
+        JacksonJsonRedisSerializer<IDPortenUser> jsonRedisSerializer = new JacksonJsonRedisSerializer<>(IDPortenUser.class);
 
         template.setKeySerializer(new StringRedisSerializer());
         template.setValueSerializer(jsonRedisSerializer);

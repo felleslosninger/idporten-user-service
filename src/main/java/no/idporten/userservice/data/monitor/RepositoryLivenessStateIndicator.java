@@ -2,10 +2,10 @@ package no.idporten.userservice.data.monitor;
 
 import lombok.extern.slf4j.Slf4j;
 import no.idporten.userservice.data.UserRepository;
-import org.springframework.boot.actuate.availability.LivenessStateHealthIndicator;
-import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.availability.ApplicationAvailability;
+import org.springframework.boot.health.application.LivenessStateHealthIndicator;
+import org.springframework.boot.health.contributor.Health;
 import org.springframework.stereotype.Component;
 
 import java.util.UUID;
@@ -23,7 +23,7 @@ public class RepositoryLivenessStateIndicator extends LivenessStateHealthIndicat
     }
 
     @Override
-    public Health getHealth(boolean includeDetails) {
+    public Health health(boolean includeDetails) {
         try {
             userRepository.findByUuid(UUID.randomUUID());
             return Health.up().build();

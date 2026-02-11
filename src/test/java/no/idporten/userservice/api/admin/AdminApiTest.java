@@ -5,21 +5,23 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import no.idporten.logging.audit.AuditEntry;
 import no.idporten.logging.audit.AuditLogger;
+import no.idporten.userservice.BaseRedisTest;
 import no.idporten.userservice.TestData;
 import no.idporten.userservice.api.ApiUserService;
 import no.idporten.userservice.api.UserResource;
 import no.idporten.userservice.api.login.CreateUserRequest;
-import no.idporten.userservice.config.EmbeddedRedisLifecycleConfig;
 import no.idporten.userservice.logging.audit.AuditID;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -39,11 +41,12 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@SpringBootTest(classes = EmbeddedRedisLifecycleConfig.class)
+@SpringBootTest
 @AutoConfigureMockMvc
 @DisplayName("When using the admin API")
 @ActiveProfiles("test")
-public class AdminApiTest {
+@ExtendWith(MockitoExtension.class)
+public class AdminApiTest extends BaseRedisTest {
     @MockitoBean
     private AuditLogger auditLogger;
 
