@@ -18,7 +18,7 @@
         <idporten-validators.version>1.6.0</idporten-validators.version>
         <idporten-fnr-generate.version>1.0.1</idporten-fnr-generate.version>
         <springdoc.version>3.0.1</springdoc.version>
-        <idporten-access-log.version>3.0.1-rc1</idporten-access-log.version>
+        <idporten-access-log.version>3.0.1-rc4</idporten-access-log.version>
         <idporten-audit-log.version>3.0.0</idporten-audit-log.version>
         <idporten-metric-constants.version>1.4.5</idporten-metric-constants.version>
         <nimbus.jose.jwt.version>9.23</nimbus.jose.jwt.version>
