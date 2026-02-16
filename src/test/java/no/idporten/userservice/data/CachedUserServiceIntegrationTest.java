@@ -1,11 +1,9 @@
 package no.idporten.userservice.data;
 
 import no.idporten.userservice.BaseRedisTest;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
@@ -34,11 +32,6 @@ public class CachedUserServiceIntegrationTest extends BaseRedisTest {
 
     @Autowired
     private CachedUserService userService;
-
-    @BeforeEach
-    public void setUp() {
-        Mockito.reset(userRepository);
-    }
 
     @Test
     public void testSearchForUserExistingUsingCache() {
