@@ -1,9 +1,11 @@
 package no.idporten.userservice.data;
 
 import no.idporten.userservice.BaseRedisTest;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
@@ -32,6 +34,11 @@ public class CachedUserServiceIntegrationTest extends BaseRedisTest {
 
     @Autowired
     private CachedUserService userService;
+
+    @BeforeEach
+    public void setUp() {
+        Mockito.reset(userRepository);
+    }
 
     @Test
     public void testSearchForUserExistingUsingCache() {
@@ -205,55 +212,52 @@ public class CachedUserServiceIntegrationTest extends BaseRedisTest {
         }
     }
 
-    @Nested
-    @DisplayName("User with eid")
-    public class CreateUserWithEidTest {
-        @Test
-        @DisplayName("created with lastupdated set on both user and eid")
-        public void testCreateUser() {
-            String personIdentifier = "12631";
-            Login minid = Login.builder().eidName("MinID").build();
-            Instant now = Instant.now();
-            Login login = Login.builder().eidName("MinID").lastLogin(Instant.now()).firstLogin(now).build();
-            UserEntity userEntity = UserEntity.builder().personIdentifier(personIdentifier).build();
+    @Test
+    @DisplayName("created with lastupdated set on both user and eid")
+    public void testCreateUser() {
+        String personIdentifier = "12631";
+        Login minid = Login.builder().eidName("MinID").build();
+        Instant now = Instant.now();
+        Login login = Login.builder().eidName("MinID").lastLogin(Instant.now()).firstLogin(now).build();
+        UserEntity userEntity = UserEntity.builder().personIdentifier(personIdentifier).build();
 
-            IDPortenUser createdUser = userService.createUser(new IDPortenUser(userEntity));
-            createdUser.setLogins(List.of(login));
-            userService.updateUser(createdUser);
+        IDPortenUser createdUser = userService.createUser(new IDPortenUser(userEntity));
+        createdUser.setLogins(List.of(login));
+        userService.updateUser(createdUser);
 
-            IDPortenUser userSaved = userService.updateUserWithEid(createdUser.getId(), minid);
+        IDPortenUser userSaved = userService.updateUserWithEid(createdUser.getId(), minid);
 
-            assertNotNull(userSaved);
-            assertNotNull(userSaved.getId());
-            assertEquals(personIdentifier, userSaved.getPid());
-            assertEquals(minid.getEidName(), userSaved.getLastLogin().getEidName());
-            assertTrue(userSaved.getLastLogin().getLastLogin().toEpochMilli() > 0);
-            verify(userRepository, times(3)).save(any(UserEntity.class));
-        }
-
-        @Test
-        @DisplayName("updated then lastupdated is updated on both user and eid")
-        public void testUpdateUser() {
-            String personIdentifier = "12639";
-            Login minid = Login.builder().eidName("MinID").build();
-            Instant now = Instant.now();
-            Login login = Login.builder().eidName("MinID").lastLogin(Instant.now()).firstLogin(now).build();
-
-            UserEntity userEntity = UserEntity.builder().personIdentifier(personIdentifier).build();
-            IDPortenUser createdUser = userService.createUser(new IDPortenUser(userEntity));
-            createdUser.setLogins(Collections.singletonList(login));
-            userService.updateUser(createdUser);
-
-            IDPortenUser userSaved = userService.updateUserWithEid(createdUser.getId(), minid);
-
-            assertNotNull(userSaved);
-            assertNotNull(userSaved.getId());
-            assertEquals(personIdentifier, userSaved.getPid());
-            assertEquals(minid.getEidName(), userSaved.getLastLogin().getEidName());
-            assertTrue(userSaved.getLastLogin().getLastLogin().toEpochMilli() > 0);
-            verify(userRepository, times(2)).save(any(UserEntity.class));
-        }
+        assertNotNull(userSaved);
+        assertNotNull(userSaved.getId());
+        assertEquals(personIdentifier, userSaved.getPid());
+        assertEquals(minid.getEidName(), userSaved.getLastLogin().getEidName());
+        assertTrue(userSaved.getLastLogin().getLastLogin().toEpochMilli() > 0);
+        verify(userRepository, times(2)).save(any(UserEntity.class));
     }
+
+    @Test
+    @DisplayName("updated then lastupdated is updated on both user and eid")
+    public void testUpdateUser() {
+        String personIdentifier = "12639";
+        Login minid = Login.builder().eidName("MinID").build();
+        Instant now = Instant.now();
+        Login login = Login.builder().eidName("MinID").lastLogin(Instant.now()).firstLogin(now).build();
+
+        UserEntity userEntity = UserEntity.builder().personIdentifier(personIdentifier).build();
+        IDPortenUser createdUser = userService.createUser(new IDPortenUser(userEntity));
+        createdUser.setLogins(Collections.singletonList(login));
+        userService.updateUser(createdUser);
+
+        IDPortenUser userSaved = userService.updateUserWithEid(createdUser.getId(), minid);
+
+        assertNotNull(userSaved);
+        assertNotNull(userSaved.getId());
+        assertEquals(personIdentifier, userSaved.getPid());
+        assertEquals(minid.getEidName(), userSaved.getLastLogin().getEidName());
+        assertTrue(userSaved.getLastLogin().getLastLogin().toEpochMilli() > 0);
+        verify(userRepository, times(2)).save(any(UserEntity.class));
+    }
+
 
     private IDPortenUser createUser(String pid) {
         return new IDPortenUser(null, pid, Instant.now(), Instant.now(), true, null, Instant.now(), null, emptyList(), null);
