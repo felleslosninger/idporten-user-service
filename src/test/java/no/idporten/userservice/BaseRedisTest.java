@@ -1,6 +1,5 @@
 package no.idporten.userservice;
 
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
@@ -17,6 +16,15 @@ public abstract class BaseRedisTest {
         if (redisServer == null) {
             redisServer = new RedisServer();
             redisServer.start();
+
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+                if (redisServer != null) {
+                    try {
+                        redisServer.stop();
+                    } catch (Exception ignored) {
+                    }
+                }
+            }));
         }
     }
 
