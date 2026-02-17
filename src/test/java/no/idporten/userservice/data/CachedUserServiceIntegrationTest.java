@@ -1,6 +1,7 @@
 package no.idporten.userservice.data;
 
 import no.idporten.userservice.BaseRedisTest;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -32,6 +33,11 @@ public class CachedUserServiceIntegrationTest extends BaseRedisTest {
 
     @Autowired
     private CachedUserService userService;
+
+    @BeforeEach
+    void resetSpy() {
+        reset(userRepository);
+    }
 
     @Test
     public void testSearchForUserExistingUsingCache() {
@@ -225,6 +231,7 @@ public class CachedUserServiceIntegrationTest extends BaseRedisTest {
         assertEquals(personIdentifier, userSaved.getPid());
         assertEquals(minid.getEidName(), userSaved.getLastLogin().getEidName());
         assertTrue(userSaved.getLastLogin().getLastLogin().toEpochMilli() > 0);
+        verify(userRepository, times(2)).save(any(UserEntity.class));
     }
 
     @Test
