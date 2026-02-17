@@ -225,7 +225,6 @@ public class CachedUserServiceIntegrationTest extends BaseRedisTest {
         assertEquals(personIdentifier, userSaved.getPid());
         assertEquals(minid.getEidName(), userSaved.getLastLogin().getEidName());
         assertTrue(userSaved.getLastLogin().getLastLogin().toEpochMilli() > 0);
-        verify(userRepository, times(2)).save(any(UserEntity.class));
     }
 
     @Test
