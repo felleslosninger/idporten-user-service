@@ -15,7 +15,7 @@
     <description>ID-porten user service</description>
     <properties>
         <java.version>25</java.version>
-        <idporten-validators.version>1.6.0</idporten-validators.version>
+        <idporten-validators.version>1.6.1</idporten-validators.version>
         <idporten-fnr-generate.version>1.0.1</idporten-fnr-generate.version>
         <springdoc.version>3.0.1</springdoc.version>
         <idporten-access-log.version>4.0.0</idporten-access-log.version>
