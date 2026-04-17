@@ -17,14 +17,14 @@
         <java.version>25</java.version>
         <idporten-validators.version>1.6.1</idporten-validators.version>
         <idporten-fnr-generate.version>1.0.1</idporten-fnr-generate.version>
-        <springdoc.version>3.0.1</springdoc.version>
+        <springdoc.version>3.0.3</springdoc.version>
         <idporten-access-log.version>4.0.0</idporten-access-log.version>
-        <idporten-audit-log.version>3.0.0</idporten-audit-log.version>
+        <idporten-audit-log.version>4.0.0</idporten-audit-log.version>
         <idporten-metric-constants.version>1.4.5</idporten-metric-constants.version>
         <nimbus.jose.jwt.version>9.23</nimbus.jose.jwt.version>
         <idporten-actuator-starter.version>3.0.0</idporten-actuator-starter.version>
-        <mariadb-java-client.version>3.5.7</mariadb-java-client.version>
-        <open.telemetry.version>1.59.0</open.telemetry.version>
+        <mariadb-java-client.version>3.5.8</mariadb-java-client.version>
+        <open.telemetry.version>1.61.0</open.telemetry.version>
         <redis.version>1.4.3</redis.version>
     </properties>
     <dependencies>
@@ -134,12 +134,6 @@
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.github.fppt</groupId>
-            <artifactId>jedis-mock</artifactId>
-            <version>1.1.12</version>
             <scope>test</scope>
         </dependency>
         <dependency>
