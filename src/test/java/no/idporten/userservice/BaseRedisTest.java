@@ -1,29 +1,23 @@
 package no.idporten.userservice;
 
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
+import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.utility.DockerImageName;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
-import redis.embedded.RedisServer;
-
-import java.io.IOException;
 
 public abstract class BaseRedisTest {
 
-    private static RedisServer redisServer;
+    private static final GenericContainer<?> REDIS = new GenericContainer<>(DockerImageName.parse("redis:alpine"))
+            .withExposedPorts(6379);
 
-    @BeforeAll
-    static void startRedisServer() throws IOException{
-        if (redisServer == null) {
-            redisServer = new RedisServer();
-            redisServer.start();
-        }
+    static {
+        REDIS.start();
     }
 
     @DynamicPropertySource
     static void registerRedisProperties(DynamicPropertyRegistry registry) {
-        registry.add("spring.data.redis.port", () -> "6379");
-        registry.add("spring.data.redis.host", () -> "localhost");
+        registry.add("spring.data.redis.host", REDIS::getHost);
+        registry.add("spring.data.redis.port", () -> REDIS.getMappedPort(6379));
     }
 
 }
