@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>4.0.5</version>
+        <version>4.0.2</version>
         <relativePath/>
     </parent>
     <groupId>no.idporten</groupId>
@@ -25,7 +25,8 @@
         <idporten-actuator-starter.version>3.0.0</idporten-actuator-starter.version>
         <mariadb-java-client.version>3.5.8</mariadb-java-client.version>
         <open.telemetry.version>1.61.0</open.telemetry.version>
-        <redis.version>1.4.3</redis.version>
+        <testcontainers.version>2.0.4</testcontainers.version>
+        <testcontainers-jupiter.version>1.21.4</testcontainers-jupiter.version>
     </properties>
     <dependencies>
         <dependency>
@@ -137,9 +138,21 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.github.codemonstur</groupId>
-            <artifactId>embedded-redis</artifactId>
-            <version>${redis.version}</version>
+            <groupId>com.github.fppt</groupId>
+            <artifactId>jedis-mock</artifactId>
+            <version>1.1.12</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>testcontainers</artifactId>
+            <version>${testcontainers.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>${testcontainers-jupiter.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
