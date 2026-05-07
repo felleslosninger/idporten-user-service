@@ -25,7 +25,7 @@
         <idporten-actuator-starter.version>3.0.0</idporten-actuator-starter.version>
         <mariadb-java-client.version>3.5.8</mariadb-java-client.version>
         <open.telemetry.version>1.61.0</open.telemetry.version>
-        <testcontainers.version>2.0.4</testcontainers.version>
+        <testcontainers.version>2.0.5</testcontainers.version>
         <testcontainers-jupiter.version>1.21.4</testcontainers-jupiter.version>
     </properties>
     <dependencies>
