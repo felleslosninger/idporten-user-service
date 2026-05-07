@@ -1,4 +1,2 @@
 # CVE-xxx # <package>: <vulnerability info>. Fixed <version>
-GHSA-2m67-wjpj-xhg9 # jackson-core. 3.1.1
-CVE-2026-34483 # tomcat-embed-core. 11.0.21
-CVE-2026-34487 # tomcat-embed-core. 11.0.21
+CVE-2026-42579 # Netty: DNS Codec Input Validation Bypass.  4.2.13.Final
