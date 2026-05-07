@@ -7,7 +7,7 @@ Eigar:
 - [ ] Vurdert Manual deploy
 - [ ] Vurdert "internal"
 - [ ] Avhengigheter til andre saker avklart
-- [ ] Har kjørt opp lokalt med docker-compose og testet en sync
+- [ ] Har kjørt opp lokalt med docker-compose og testet at det fungerer
 - [ ] Oppdatering/oppretting av regresjonstester er avklart/utført
 - [ ] Har oppdatert dependabots
 - [ ] Har trimmet .trivyignore

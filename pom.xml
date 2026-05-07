@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>4.0.5</version>
+        <version>4.0.6</version>
         <relativePath/>
     </parent>
     <groupId>no.idporten</groupId>
@@ -19,10 +19,10 @@
         <idporten-fnr-generate.version>1.0.1</idporten-fnr-generate.version>
         <springdoc.version>3.0.3</springdoc.version>
         <idporten-access-log.version>4.0.0</idporten-access-log.version>
-        <idporten-audit-log.version>4.0.0</idporten-audit-log.version>
+        <idporten-audit-log.version>4.0.2</idporten-audit-log.version>
         <idporten-metric-constants.version>1.4.5</idporten-metric-constants.version>
         <nimbus.jose.jwt.version>9.23</nimbus.jose.jwt.version>
-        <idporten-actuator-starter.version>3.0.0</idporten-actuator-starter.version>
+        <idporten-actuator-starter.version>3.1.0</idporten-actuator-starter.version>
         <mariadb-java-client.version>3.5.8</mariadb-java-client.version>
         <open.telemetry.version>1.61.0</open.telemetry.version>
         <testcontainers.version>2.0.5</testcontainers.version>
