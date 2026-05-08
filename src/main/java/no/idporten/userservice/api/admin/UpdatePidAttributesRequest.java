@@ -26,4 +26,8 @@ public class UpdatePidAttributesRequest extends UpdateAttributesRequest {
     @JsonProperty("closed_code")
     private String closedCode;
 
+    @Override
+    protected boolean canEqual(Object other) {
+        return other instanceof UpdatePidAttributesRequest;
+    }
 }

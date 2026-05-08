@@ -27,6 +27,7 @@ public class DirectUserService implements UserService, ApplicationEventPublisher
 
     private ApplicationEventPublisher eventPublisher;
 
+    @Override
     public IDPortenUser findUser(UUID uuid) {
         Optional<UserEntity> user = userRepository.findByUuid(uuid);
 
@@ -36,6 +37,7 @@ public class DirectUserService implements UserService, ApplicationEventPublisher
         return user.map(IDPortenUser::new).orElse(null);
     }
 
+    @Override
     public Optional<IDPortenUser> searchForUser(String personIdentifier) {
         Optional<UserEntity> user = userRepository.findByPersonIdentifier(personIdentifier);
 
@@ -46,6 +48,7 @@ public class DirectUserService implements UserService, ApplicationEventPublisher
     }
 
     @Transactional
+    @Override
     public IDPortenUser createUser(IDPortenUser idPortenUser) {
         if (idPortenUser.getId() != null) {
             throw UserServiceException.invalidUserData("User id must be assigned by server.");
@@ -62,6 +65,7 @@ public class DirectUserService implements UserService, ApplicationEventPublisher
     }
 
     @Transactional
+    @Override
     public IDPortenUser createStatusUser(IDPortenUser idPortenUser) {
         if (idPortenUser.getId() != null) {
             throw UserServiceException.invalidUserData("User id must be assigned by server.");
@@ -74,6 +78,7 @@ public class DirectUserService implements UserService, ApplicationEventPublisher
     }
 
     @Transactional
+    @Override
     public IDPortenUser updateUser(IDPortenUser idPortenUser) {
         if (idPortenUser.getId() == null) {
             throw UserServiceException.invalidUserData("User id is mandatory.");
@@ -105,6 +110,7 @@ public class DirectUserService implements UserService, ApplicationEventPublisher
     }
 
     @Transactional
+    @Override
     public IDPortenUser updateUserWithEid(UUID userUuid, Login eid) {
         Optional<UserEntity> existingUser = userRepository.findByUuid(userUuid);
         if (existingUser.isEmpty()) {
@@ -140,6 +146,7 @@ public class DirectUserService implements UserService, ApplicationEventPublisher
     }
 
     @Transactional
+    @Override
     public IDPortenUser deleteUser(UUID userUuid) {
         Optional<UserEntity> user = userRepository.findByUuid(userUuid);
         if (user.isEmpty()) {
@@ -154,6 +161,7 @@ public class DirectUserService implements UserService, ApplicationEventPublisher
     }
 
     @Transactional
+    @Override
     public IDPortenUser changePid(String currentPid, String newPid) {
         IDPortenUser userExists = searchForUser(currentPid).orElseThrow(() -> UserServiceException.userNotFound("No user found for current person identifier."));
 
