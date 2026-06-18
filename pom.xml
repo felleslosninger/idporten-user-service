@@ -192,6 +192,12 @@
                             <artifactId>lombok</artifactId>
                         </exclude>
                     </excludes>
+                    <image>
+                        <env>
+                            <!-- Bump Paketo's class-count estimate to avoid undersized metaspace after dependency/image reduction. -->
+                            <BPE_DEFAULT_BPL_JVM_CLASS_ADJUSTMENT>120%</BPE_DEFAULT_BPL_JVM_CLASS_ADJUSTMENT>
+                        </env>
+                    </image>
                 </configuration>
                 <executions>
                     <execution>
